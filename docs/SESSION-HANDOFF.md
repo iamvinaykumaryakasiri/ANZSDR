@@ -1,0 +1,202 @@
+# Session handoff
+
+Written at the end of the Phase 1 session so the next one can pick up without
+re-deriving anything. Read `CLAUDE.md` first — it is the brief and it governs.
+
+**Branch:** `claude/anz-voice-sdr-build-8o6q1m`
+**Last commit:** `bf504b7` — "Phase 1: the compliance core"
+**State:** Phase 1 complete and accepted. Phase 2 not started. Working tree clean,
+everything pushed.
+
+---
+
+## Resume in one minute
+
+```bash
+npm install
+npm test              # 170 tests, ~7s, includes the 10,000-request fuzz acceptance
+npm run test:coverage # fails below 100% branch coverage on src/compliance
+npm run typecheck
+```
+
+If those three are green, the ground you are standing on is the ground this
+handoff describes.
+
+---
+
+## What Phase 1 actually delivered
+
+The deterministic compliance core. Nothing in the repository can place a call:
+there is no telephony, no voice provider, no model call anywhere in this path.
+
+```
+src/compliance/
+  types.ts           domain types: dial requests, decisions, deny codes, snapshots
+  policy.ts          STATUTORY windows frozen in code + the YAML policy loader
+  phone.ts           AU/NZ number parsing, line-type and locality resolution
+  holidays.ts        runtime calendar: holiday / part-day / out-of-coverage / unverified
+  calling-window.ts  window evaluation per locality, and the next-open search
+  suppression.ts     permanent cross-campaign suppression matching
+  dnc.ts             Do Not Call washing and the mobile-dialling switch
+  attempts.ts        attempt caps, intervals, per-account weekly pacing
+  kill-switch.ts     state machine + deterministic auto-trip evaluation
+  audit.ts           append-only audit records, in-memory and JSONL
+  ports.ts           storage ports + in-memory adapters (Prisma swaps in at Phase 2)
+  gate.ts            evaluateDialRequest() — the pure decision function
+  service.ts         ComplianceGate — loads the snapshot, evaluates, audits
+src/ops/
+  kill-switch-store.ts   file-backed state, so the stop button works if the DB is down
+  kill-switch-cli.ts     npm run kill -- stop|resume|status
+scripts/holidays/        the build-time rule engine and the sign-off tool
+config/holidays/         generated AU + NZ calendars (committed, reviewable diffs)
+data/sources/            vendored official data.gov.au dataset
+```
+
+## Acceptance evidence
+
+> *Phase 1 accept: a fuzz test over 10,000 synthetic dial requests yields zero
+> out-of-window or suppressed dials.*
+
+`tests/compliance/fuzz.test.ts` runs 5,000 requests with the holiday sign-off
+required and 5,000 without. Zero out-of-window dials, zero dials to suppressed
+contacts. Each decision is cross-checked against an oracle written independently
+of the gate — its own area-code table, its own window arithmetic, its own read of
+the raw calendar JSON — and the two agree on every request **in both directions**.
+That two-way agreement is what rules out the degenerate pass where a gate
+satisfies the criterion by refusing everything: 271 and 84 dials were allowed in
+the two runs, each independently verified open in every candidate locality.
+
+100% branch coverage on `src/compliance`, enforced by the vitest threshold.
+
+---
+
+## Design decisions made — do not re-litigate
+
+1. **The gate is a pure function.** `evaluateDialRequest(request, snapshot, policy,
+   calendar)` has no I/O. `ComplianceGate` (service.ts) does the loading and
+   auditing around it. This is what makes the fuzz test possible without a database.
+
+2. **Statutory windows are frozen in code**, in `src/compliance/policy.ts`, and are
+   checked independently of `config/policy.yaml`. Both must pass. There is no code
+   path by which a config change widens the legal calling window; the YAML can only
+   narrow it. Attempts to widen produce a warning on load, not a clamp.
+
+3. **A number resolves to a SET of localities, and the window must be open in all
+   of them.** An `02` number could be in Sydney or Canberra; a mobile could be
+   anywhere in the country. This is how "unknown location defaults to the most
+   restrictive window" is implemented, and it is load-bearing — a Sydney landline
+   is correctly blocked on Canberra Day unless enrichment has pinned it to NSW.
+   Enrichment hints (`localityHint`) collapse the set to one place.
+
+4. **The gate returns every reason at once**, not the first one it hits, so the
+   console can show why nothing is dialling. Each reason carries `permanent` and,
+   where knowable, `retryableAt`. The request-level `retryableAt` is the latest of
+   them, and is undefined if any reason is permanent or has no knowable clearing
+   time (kill switch, concurrency).
+
+5. **Holiday rules live at build time only.** `scripts/holidays/rules.ts` generates
+   `config/holidays/*.json`; the runtime reads the JSON and never the rules. A
+   calendar change is therefore always a reviewable diff, and a rule bug cannot
+   silently alter a live decision.
+
+6. **Conservative superset invariant on holidays.** The generated calendar must be
+   a superset of the gazetted one. Blocking a day the government did not gazette
+   costs one dial slot; missing one it did gazette is a breach.
+
+7. **Storage is behind ports.** `SuppressionStore`, `DncStore`, `AttemptStore`,
+   `CallStateStore`, `KillSwitchStore`, `AuditLog`. In-memory implementations exist
+   and are tested. Phase 2 provides Prisma-backed ones; no decision logic changes.
+
+8. **The kill switch is a file, not a database row.** If the database is what has
+   gone wrong, the stop button still has to work.
+
+---
+
+## What ships deliberately blocked
+
+Verified against the shipped config: an office direct dial today returns
+`CALLER_ID_NOT_CONFIGURED` + `HOLIDAY_CALENDAR_UNVERIFIED`; a mobile also returns
+`MOBILE_DIALLING_DISABLED`.
+
+| Block | Where | Clears when |
+|---|---|---|
+| No caller ID numbers | `config/policy.yaml` → `caller_id.au_number` / `nz_number` | §15 item 3 answered |
+| `allow_mobile_dialling: false` | `config/policy.yaml` → `dnc` | §15 item 4 answered |
+| `require_verified_calendar: true` | `config/policy.yaml` → `holidays` | a human runs `npm run holidays:verify -- --sign-off all:2026 --by "<name>"` |
+
+Each is a one-line change. None should be changed without the corresponding
+answer.
+
+## Known limitation, flagged not hidden
+
+The official `data.gov.au` holiday dataset publishes **2021–2025 only**. 2026 and
+2027 are derived by the rule engine, which the tests validate differentially
+against all five published years across all eight states and territories. Eight
+annually-proclaimed holidays have no published date yet and are reported as gaps
+rather than treated as working days:
+
+- NT show days (Alice Springs, Tennant Creek, Katherine, Darwin) — 2027
+- Royal Queensland Show — 2027
+- Victoria's Friday before the AFL Grand Final — 2026 and 2027
+- WA King's Birthday — 2027
+
+New Zealand publishes no machine-readable dataset at all, so its whole calendar is
+derived from the Holidays Act 2003 and is unverified.
+
+`npm run holidays:verify` lists everything outstanding.
+
+---
+
+## Next: Phase 2 — Blackboard and orchestrator
+
+> *Accept: a task runs end to end with full trace, a deliberately malformed
+> sub-agent output fails closed, and a budget breach escalates rather than
+> continuing.*
+
+Sketch, not a commitment — confirm with Vinay before building:
+
+- Prisma schema for accounts, contacts, dossiers, calls, outcomes, playbooks,
+  tasks, plus the four memories in brief §3.5.
+- Prisma-backed implementations of the Phase 1 ports, replacing the in-memory ones
+  in production wiring. The in-memory ones stay for tests.
+- The agent contract type from brief §3.1 (`role`, `model`, `input`, `output`,
+  `tools`, `budget`, `escalatesTo`) with Zod validation on both entry and exit, and
+  fail-closed behaviour on the second validation failure.
+- Campaign Director: scheduler tick, task graph, dispatch, budget accounting,
+  escalation, and the one-line rationale per decision the brief requires.
+- Tracing that the console's Agent Trace view can render in plain English later.
+- Two stub agents to prove the loop end to end.
+
+Phase 2 does not need any §15 answer to proceed. Budget ceilings (item 8) make the
+budget enforcement more meaningful but sensible configurable defaults are fine.
+
+---
+
+## Open questions from brief §15, awaiting answers
+
+Asked at the end of the Phase 1 session; none answered yet.
+
+| # | Question | Gates |
+|---|---|---|
+| 1 | Agent name, voice, gender, accent (AU-neutral assumed) | Phase 4–5 |
+| 2 | Hexaware brand/legal sign-off on an AI identifying itself for them | Phase 9 |
+| 3 | Twilio numbers, and the callback number answerable for 30 days | Phase 5, and unblocks caller ID |
+| 4 | DNCR washing arranged, or office direct dials only to start? | Phase 3 onward |
+| 5 | First campaign ICP — which accounts, which titles, AU or NZ first | **Phase 3** |
+| 6 | Which email address meeting requests go to; do `.ics` attachments survive his mail client | Phase 6 |
+| 7 | Recording retention (currently 90 days) and whether recordings may leave Australia | Phase 5 |
+| 8 | Budget ceilings — Apollo credits, voice minutes, LLM spend per month | Phase 2 (soft) |
+
+---
+
+## Useful commands
+
+```bash
+npm run kill -- status                    # is dialling permitted?
+npm run kill -- stop "reason"             # halt everything
+npm run kill -- resume                    # a human, and only a human, restarts it
+
+npm run holidays:build                    # regenerate calendars from source + rules
+npm run holidays:verify                   # what is not signed off yet
+npm run holidays:verify -- --sign-off all:2026 --by "Vinay Kumar"
+```

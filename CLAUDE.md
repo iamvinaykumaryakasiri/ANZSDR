@@ -463,6 +463,9 @@ Not a consumer dialler. Not multi-user. No predictive or parallel dialling. No L
 
 *Maintained by the build. Update at the end of each phase.*
 
+A fuller handoff — design decisions made, known limitations, and where to pick up —
+is in [`docs/SESSION-HANDOFF.md`](./docs/SESSION-HANDOFF.md).
+
 | Phase | State |
 |---|---|
 | 1 — Compliance core | **Complete.** Acceptance met: 10,000 fuzzed dial requests, zero out-of-window and zero suppressed dials, checked against an independently written oracle. 100% branch coverage on `src/compliance`. |
