@@ -1,0 +1,16 @@
+node_modules/
+dist/
+coverage/
+.env
+.env.*
+!.env.example
+*.log
+data/*.db
+data/*.db-journal
+data/*.sqlite
+.DS_Store
+.vitest-cache/
+web/dist/
+web/node_modules/
+data/kill-switch.json
+data/*.jsonl

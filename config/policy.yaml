@@ -1,0 +1,63 @@
+# Compliance policy for the ANZ Voice SDR.
+#
+# This file can only make calling MORE restrictive. The statutory windows live in
+# src/compliance/policy.ts, are frozen in code, and are enforced independently of
+# anything written here. Editing this file cannot widen the legal calling window.
+
+policy_version: "1.0.0"
+
+# The operator's day, used for the global daily dial cap.
+operational_timezone: Australia/Sydney
+
+# Policy default, deliberately tighter than the law: mid-morning to mid-afternoon,
+# Tuesday to Thursday, in the RECIPIENT's local time.
+calling_windows:
+  AU:
+    days: [tue, wed, thu]
+    start: "09:30"
+    end: "16:30"
+  NZ:
+    days: [tue, wed, thu]
+    start: "09:30"
+    end: "16:30"
+
+# Caller line identification. Real, contactable, never withheld, answerable for at
+# least 30 days after the call (section 7.3). Dialling is blocked until these are set.
+caller_id:
+  au_number: ""
+  nz_number: ""
+  withheld: false
+  answerable_for_days: 30
+
+dnc:
+  # Apollo returns personal mobiles, and a personal mobile can be on the DNCR.
+  # Until washing is arranged this stays false: office direct dials only.
+  allow_mobile_dialling: false
+  wash_required_for: [mobile]
+  wash_validity_days: 30
+  register: "ACMA Do Not Call Register"
+
+volume:
+  max_attempts_per_contact: 3
+  attempt_window_days: 21
+  min_days_between_attempts: 5
+  max_contacts_per_account_per_week: 1
+  global_daily_dial_cap: 60
+  max_concurrent_calls: 1
+  max_dials_per_number_per_day: 1
+
+holidays:
+  # Deny dials on any date whose jurisdiction-year has not been signed off by a
+  # human. See `npm run holidays:verify`.
+  require_verified_calendar: true
+
+recording:
+  retention_days: 90
+
+kill_switch:
+  auto_trip:
+    escalations_per_day: 3
+    error_rate: 0.1
+    claim_defects_per_day: 5
+    negative_sentiment_rate: 0.4
+    min_calls_before_rate_trips: 10

@@ -1,0 +1,4528 @@
+{
+  "schemaVersion": 1,
+  "market": "AU",
+  "generatedAt": "2026-09-15T23:32:02.354Z",
+  "coverage": {
+    "fromYear": 2021,
+    "toYear": 2027
+  },
+  "jurisdictions": {
+    "au-act": {
+      "inherits": [],
+      "years": {
+        "2021": {
+          "verified": true,
+          "provenance": "official-dataset",
+          "source": "data.gov.au australian-holidays-machine-readable-dataset (2021-2025), retrieved 2026-09-15",
+          "gaps": []
+        },
+        "2022": {
+          "verified": true,
+          "provenance": "official-dataset",
+          "source": "data.gov.au australian-holidays-machine-readable-dataset (2021-2025), retrieved 2026-09-15",
+          "gaps": []
+        },
+        "2023": {
+          "verified": true,
+          "provenance": "official-dataset",
+          "source": "data.gov.au australian-holidays-machine-readable-dataset (2021-2025), retrieved 2026-09-15",
+          "gaps": []
+        },
+        "2024": {
+          "verified": true,
+          "provenance": "official-dataset",
+          "source": "data.gov.au australian-holidays-machine-readable-dataset (2021-2025), retrieved 2026-09-15",
+          "gaps": []
+        },
+        "2025": {
+          "verified": true,
+          "provenance": "official-dataset",
+          "source": "data.gov.au australian-holidays-machine-readable-dataset (2021-2025), retrieved 2026-09-15",
+          "gaps": []
+        },
+        "2026": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "scripts/holidays/rules.ts - no official dataset published for this year yet",
+          "gaps": []
+        },
+        "2027": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "scripts/holidays/rules.ts - no official dataset published for this year yet",
+          "gaps": []
+        }
+      },
+      "holidays": {
+        "2021-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2021-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2021-03-08": [
+          {
+            "name": "Canberra Day"
+          }
+        ],
+        "2021-04-02": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2021-04-03": [
+          {
+            "name": "Easter Saturday"
+          }
+        ],
+        "2021-04-04": [
+          {
+            "name": "Easter Sunday"
+          }
+        ],
+        "2021-04-05": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2021-04-25": [
+          {
+            "name": "Anzac Day"
+          },
+          {
+            "name": "Anzac Day (additional day)"
+          }
+        ],
+        "2021-04-26": [
+          {
+            "name": "Anzac Day"
+          }
+        ],
+        "2021-05-31": [
+          {
+            "name": "Reconciliation Day"
+          }
+        ],
+        "2021-06-14": [
+          {
+            "name": "Queen's Birthday"
+          }
+        ],
+        "2021-10-04": [
+          {
+            "name": "Labour Day"
+          }
+        ],
+        "2021-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2021-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2021-12-27": [
+          {
+            "name": "Christmas (additional day)"
+          }
+        ],
+        "2021-12-28": [
+          {
+            "name": "Boxing Day (additional day)"
+          }
+        ],
+        "2022-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2022-01-03": [
+          {
+            "name": "New Year's Day (additional day)"
+          }
+        ],
+        "2022-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2022-03-14": [
+          {
+            "name": "Canberra Day"
+          }
+        ],
+        "2022-04-15": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2022-04-16": [
+          {
+            "name": "Easter Saturday"
+          }
+        ],
+        "2022-04-17": [
+          {
+            "name": "Easter Sunday"
+          }
+        ],
+        "2022-04-18": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2022-04-25": [
+          {
+            "name": "Anzac Day"
+          }
+        ],
+        "2022-05-30": [
+          {
+            "name": "Reconciliation Day"
+          }
+        ],
+        "2022-06-13": [
+          {
+            "name": "Queen's Birthday"
+          }
+        ],
+        "2022-10-03": [
+          {
+            "name": "Labour Day"
+          }
+        ],
+        "2022-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2022-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2022-12-27": [
+          {
+            "name": "Christmas (additional day)"
+          }
+        ],
+        "2023-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2023-01-02": [
+          {
+            "name": "New Year's Day (observed)"
+          }
+        ],
+        "2023-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2023-03-13": [
+          {
+            "name": "Canberra Day"
+          }
+        ],
+        "2023-04-07": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2023-04-08": [
+          {
+            "name": "Easter Saturday"
+          }
+        ],
+        "2023-04-09": [
+          {
+            "name": "Easter Sunday"
+          }
+        ],
+        "2023-04-10": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2023-04-25": [
+          {
+            "name": "Anzac Day"
+          }
+        ],
+        "2023-05-29": [
+          {
+            "name": "Reconciliation Day"
+          }
+        ],
+        "2023-06-12": [
+          {
+            "name": "Sovereign's Birthday"
+          }
+        ],
+        "2023-10-02": [
+          {
+            "name": "Labour Day"
+          }
+        ],
+        "2023-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2023-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2024-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2024-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2024-03-11": [
+          {
+            "name": "Canberra Day"
+          }
+        ],
+        "2024-03-29": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2024-03-30": [
+          {
+            "name": "Easter Saturday - the day after Good Friday"
+          }
+        ],
+        "2024-03-31": [
+          {
+            "name": "Easter Sunday"
+          }
+        ],
+        "2024-04-01": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2024-04-25": [
+          {
+            "name": "Anzac Day"
+          }
+        ],
+        "2024-05-27": [
+          {
+            "name": "Reconciliation Day"
+          }
+        ],
+        "2024-06-10": [
+          {
+            "name": "Sovereign's Birthday"
+          }
+        ],
+        "2024-10-07": [
+          {
+            "name": "Labour Day"
+          }
+        ],
+        "2024-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2024-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2025-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2025-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2025-01-27": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2025-03-10": [
+          {
+            "name": "Canberra Day"
+          }
+        ],
+        "2025-04-18": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2025-04-19": [
+          {
+            "name": "Easter Saturday - the day after Good Friday"
+          }
+        ],
+        "2025-04-20": [
+          {
+            "name": "Easter Sunday"
+          }
+        ],
+        "2025-04-21": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2025-04-25": [
+          {
+            "name": "ANZAC Day"
+          }
+        ],
+        "2025-06-02": [
+          {
+            "name": "Reconciliation Day"
+          }
+        ],
+        "2025-06-09": [
+          {
+            "name": "King's Birthday"
+          }
+        ],
+        "2025-10-06": [
+          {
+            "name": "Labour Day"
+          }
+        ],
+        "2025-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2025-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2026-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2026-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2026-03-09": [
+          {
+            "name": "Canberra Day"
+          }
+        ],
+        "2026-04-03": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2026-04-04": [
+          {
+            "name": "Easter Saturday"
+          }
+        ],
+        "2026-04-05": [
+          {
+            "name": "Easter Sunday"
+          }
+        ],
+        "2026-04-06": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2026-04-25": [
+          {
+            "name": "Anzac Day"
+          },
+          {
+            "name": "Anzac Day (additional day)"
+          }
+        ],
+        "2026-04-27": [
+          {
+            "name": "Anzac Day (additional day) (additional day)"
+          }
+        ],
+        "2026-06-01": [
+          {
+            "name": "Reconciliation Day"
+          }
+        ],
+        "2026-06-08": [
+          {
+            "name": "King's Birthday"
+          }
+        ],
+        "2026-10-05": [
+          {
+            "name": "Labour Day"
+          }
+        ],
+        "2026-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2026-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2026-12-28": [
+          {
+            "name": "Boxing Day (additional day)"
+          }
+        ],
+        "2027-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2027-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2027-03-08": [
+          {
+            "name": "Canberra Day"
+          }
+        ],
+        "2027-03-26": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2027-03-27": [
+          {
+            "name": "Easter Saturday"
+          }
+        ],
+        "2027-03-28": [
+          {
+            "name": "Easter Sunday"
+          }
+        ],
+        "2027-03-29": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2027-04-25": [
+          {
+            "name": "Anzac Day"
+          },
+          {
+            "name": "Anzac Day (additional day)"
+          }
+        ],
+        "2027-04-26": [
+          {
+            "name": "Anzac Day (additional day) (additional day)"
+          }
+        ],
+        "2027-05-31": [
+          {
+            "name": "Reconciliation Day"
+          }
+        ],
+        "2027-06-14": [
+          {
+            "name": "King's Birthday"
+          }
+        ],
+        "2027-10-04": [
+          {
+            "name": "Labour Day"
+          }
+        ],
+        "2027-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2027-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2027-12-27": [
+          {
+            "name": "Christmas Day (additional day)"
+          }
+        ],
+        "2027-12-28": [
+          {
+            "name": "Boxing Day (additional day)"
+          }
+        ]
+      }
+    },
+    "au-nsw": {
+      "inherits": [],
+      "years": {
+        "2021": {
+          "verified": true,
+          "provenance": "official-dataset",
+          "source": "data.gov.au australian-holidays-machine-readable-dataset (2021-2025), retrieved 2026-09-15",
+          "gaps": []
+        },
+        "2022": {
+          "verified": true,
+          "provenance": "official-dataset",
+          "source": "data.gov.au australian-holidays-machine-readable-dataset (2021-2025), retrieved 2026-09-15",
+          "gaps": []
+        },
+        "2023": {
+          "verified": true,
+          "provenance": "official-dataset",
+          "source": "data.gov.au australian-holidays-machine-readable-dataset (2021-2025), retrieved 2026-09-15",
+          "gaps": []
+        },
+        "2024": {
+          "verified": true,
+          "provenance": "official-dataset",
+          "source": "data.gov.au australian-holidays-machine-readable-dataset (2021-2025), retrieved 2026-09-15",
+          "gaps": []
+        },
+        "2025": {
+          "verified": true,
+          "provenance": "official-dataset",
+          "source": "data.gov.au australian-holidays-machine-readable-dataset (2021-2025), retrieved 2026-09-15",
+          "gaps": []
+        },
+        "2026": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "scripts/holidays/rules.ts - no official dataset published for this year yet",
+          "gaps": []
+        },
+        "2027": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "scripts/holidays/rules.ts - no official dataset published for this year yet",
+          "gaps": []
+        }
+      },
+      "holidays": {
+        "2021-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2021-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2021-04-02": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2021-04-03": [
+          {
+            "name": "Easter Saturday"
+          }
+        ],
+        "2021-04-04": [
+          {
+            "name": "Easter Sunday"
+          }
+        ],
+        "2021-04-05": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2021-04-25": [
+          {
+            "name": "Anzac Day"
+          }
+        ],
+        "2021-06-14": [
+          {
+            "name": "Queen's Birthday"
+          }
+        ],
+        "2021-08-02": [
+          {
+            "name": "Bank Holiday"
+          }
+        ],
+        "2021-10-04": [
+          {
+            "name": "Labour Day"
+          }
+        ],
+        "2021-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2021-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2021-12-27": [
+          {
+            "name": "Christmas (additional day)"
+          }
+        ],
+        "2021-12-28": [
+          {
+            "name": "Boxing Day (additional day)"
+          }
+        ],
+        "2022-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2022-01-03": [
+          {
+            "name": "New Year's Day (additional day)"
+          }
+        ],
+        "2022-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2022-04-15": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2022-04-16": [
+          {
+            "name": "Easter Saturday - the Saturday following Good Friday"
+          }
+        ],
+        "2022-04-17": [
+          {
+            "name": "Easter Sunday"
+          }
+        ],
+        "2022-04-18": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2022-04-25": [
+          {
+            "name": "Anzac Day"
+          }
+        ],
+        "2022-06-13": [
+          {
+            "name": "Queen's Birthday"
+          }
+        ],
+        "2022-08-01": [
+          {
+            "name": "Bank Holiday"
+          }
+        ],
+        "2022-10-03": [
+          {
+            "name": "Labour Day"
+          }
+        ],
+        "2022-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2022-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2022-12-27": [
+          {
+            "name": "Christmas (additional day)"
+          }
+        ],
+        "2023-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2023-01-02": [
+          {
+            "name": "New Year's Day (observed)"
+          }
+        ],
+        "2023-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2023-04-07": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2023-04-08": [
+          {
+            "name": "Easter Saturday"
+          }
+        ],
+        "2023-04-09": [
+          {
+            "name": "Easter Sunday"
+          }
+        ],
+        "2023-04-10": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2023-04-25": [
+          {
+            "name": "Anzac Day"
+          }
+        ],
+        "2023-06-12": [
+          {
+            "name": "King's Birthday"
+          }
+        ],
+        "2023-08-07": [
+          {
+            "name": "Bank Holiday"
+          }
+        ],
+        "2023-10-02": [
+          {
+            "name": "Labour Day"
+          }
+        ],
+        "2023-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2023-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2024-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2024-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2024-03-29": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2024-03-30": [
+          {
+            "name": "Easter Saturday"
+          }
+        ],
+        "2024-03-31": [
+          {
+            "name": "Easter Sunday"
+          }
+        ],
+        "2024-04-01": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2024-04-25": [
+          {
+            "name": "Anzac Day"
+          }
+        ],
+        "2024-06-10": [
+          {
+            "name": "King's Birthday"
+          }
+        ],
+        "2024-08-05": [
+          {
+            "name": "Bank Holiday"
+          }
+        ],
+        "2024-10-07": [
+          {
+            "name": "Labour Day"
+          }
+        ],
+        "2024-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2024-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2025-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2025-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2025-01-27": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2025-04-18": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2025-04-19": [
+          {
+            "name": "Easter Saturday"
+          }
+        ],
+        "2025-04-20": [
+          {
+            "name": "Easter Sunday"
+          }
+        ],
+        "2025-04-21": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2025-04-25": [
+          {
+            "name": "Anzac Day"
+          }
+        ],
+        "2025-06-09": [
+          {
+            "name": "King's Birthday"
+          }
+        ],
+        "2025-08-04": [
+          {
+            "name": "Bank Holiday"
+          }
+        ],
+        "2025-10-06": [
+          {
+            "name": "Labour Day"
+          }
+        ],
+        "2025-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2025-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2026-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2026-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2026-04-03": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2026-04-04": [
+          {
+            "name": "Easter Saturday"
+          }
+        ],
+        "2026-04-05": [
+          {
+            "name": "Easter Sunday"
+          }
+        ],
+        "2026-04-06": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2026-04-25": [
+          {
+            "name": "Anzac Day"
+          }
+        ],
+        "2026-06-08": [
+          {
+            "name": "King's Birthday"
+          }
+        ],
+        "2026-08-03": [
+          {
+            "name": "Bank Holiday"
+          }
+        ],
+        "2026-10-05": [
+          {
+            "name": "Labour Day"
+          }
+        ],
+        "2026-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2026-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2026-12-28": [
+          {
+            "name": "Boxing Day (additional day)"
+          }
+        ],
+        "2027-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2027-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2027-03-26": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2027-03-27": [
+          {
+            "name": "Easter Saturday"
+          }
+        ],
+        "2027-03-28": [
+          {
+            "name": "Easter Sunday"
+          }
+        ],
+        "2027-03-29": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2027-04-25": [
+          {
+            "name": "Anzac Day"
+          }
+        ],
+        "2027-06-14": [
+          {
+            "name": "King's Birthday"
+          }
+        ],
+        "2027-08-02": [
+          {
+            "name": "Bank Holiday"
+          }
+        ],
+        "2027-10-04": [
+          {
+            "name": "Labour Day"
+          }
+        ],
+        "2027-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2027-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2027-12-27": [
+          {
+            "name": "Christmas Day (additional day)"
+          }
+        ],
+        "2027-12-28": [
+          {
+            "name": "Boxing Day (additional day)"
+          }
+        ]
+      }
+    },
+    "au-nt": {
+      "inherits": [],
+      "years": {
+        "2021": {
+          "verified": true,
+          "provenance": "official-dataset",
+          "source": "data.gov.au australian-holidays-machine-readable-dataset (2021-2025), retrieved 2026-09-15",
+          "gaps": []
+        },
+        "2022": {
+          "verified": true,
+          "provenance": "official-dataset",
+          "source": "data.gov.au australian-holidays-machine-readable-dataset (2021-2025), retrieved 2026-09-15",
+          "gaps": []
+        },
+        "2023": {
+          "verified": true,
+          "provenance": "official-dataset",
+          "source": "data.gov.au australian-holidays-machine-readable-dataset (2021-2025), retrieved 2026-09-15",
+          "gaps": []
+        },
+        "2024": {
+          "verified": true,
+          "provenance": "official-dataset",
+          "source": "data.gov.au australian-holidays-machine-readable-dataset (2021-2025), retrieved 2026-09-15",
+          "gaps": []
+        },
+        "2025": {
+          "verified": true,
+          "provenance": "official-dataset",
+          "source": "data.gov.au australian-holidays-machine-readable-dataset (2021-2025), retrieved 2026-09-15",
+          "gaps": []
+        },
+        "2026": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "scripts/holidays/rules.ts - no official dataset published for this year yet",
+          "gaps": []
+        },
+        "2027": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "scripts/holidays/rules.ts - no official dataset published for this year yet",
+          "gaps": [
+            "Alice Springs Show Day (NT Government - proclaimed annually)",
+            "Tennant Creek Show Day (NT Government - proclaimed annually)",
+            "Katherine Show Day (NT Government - proclaimed annually)",
+            "Darwin Show Day (NT Government - proclaimed annually)"
+          ]
+        }
+      },
+      "holidays": {
+        "2021-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2021-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2021-04-02": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2021-04-03": [
+          {
+            "name": "Easter Saturday"
+          }
+        ],
+        "2021-04-04": [
+          {
+            "name": "Easter Sunday"
+          }
+        ],
+        "2021-04-05": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2021-04-25": [
+          {
+            "name": "Anzac Day"
+          },
+          {
+            "name": "Anzac Day (additional day)"
+          }
+        ],
+        "2021-04-26": [
+          {
+            "name": "Anzac Day"
+          }
+        ],
+        "2021-05-03": [
+          {
+            "name": "May Day"
+          }
+        ],
+        "2021-06-14": [
+          {
+            "name": "Queen's Birthday"
+          }
+        ],
+        "2021-07-02": [
+          {
+            "name": "Alice Springs Show Day"
+          }
+        ],
+        "2021-07-09": [
+          {
+            "name": "Tennant Creek Show Day"
+          }
+        ],
+        "2021-07-16": [
+          {
+            "name": "Katherine Show Day"
+          }
+        ],
+        "2021-07-23": [
+          {
+            "name": "Darwin Show Day"
+          }
+        ],
+        "2021-08-02": [
+          {
+            "name": "Picnic Day"
+          }
+        ],
+        "2021-12-24": [
+          {
+            "name": "Christmas Eve 7pm - Midnight",
+            "partDayFrom": "19:00"
+          }
+        ],
+        "2021-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2021-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2021-12-27": [
+          {
+            "name": "Christmas (additional day)"
+          }
+        ],
+        "2021-12-28": [
+          {
+            "name": "Boxing Day (additional day)"
+          }
+        ],
+        "2021-12-31": [
+          {
+            "name": "New Year's Eve 7pm - Midnight",
+            "partDayFrom": "19:00"
+          }
+        ],
+        "2022-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2022-01-03": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2022-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2022-04-15": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2022-04-16": [
+          {
+            "name": "Easter Saturday"
+          }
+        ],
+        "2022-04-17": [
+          {
+            "name": "Easter Sunday"
+          }
+        ],
+        "2022-04-18": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2022-04-25": [
+          {
+            "name": "Anzac Day"
+          }
+        ],
+        "2022-05-02": [
+          {
+            "name": "May Day"
+          }
+        ],
+        "2022-06-13": [
+          {
+            "name": "Queen's Birthday"
+          }
+        ],
+        "2022-07-01": [
+          {
+            "name": "Alice Springs Show Day"
+          }
+        ],
+        "2022-07-08": [
+          {
+            "name": "Tennant Creek Show Day"
+          }
+        ],
+        "2022-07-15": [
+          {
+            "name": "Katherine Show Day"
+          }
+        ],
+        "2022-07-22": [
+          {
+            "name": "Darwin Show Day"
+          }
+        ],
+        "2022-08-01": [
+          {
+            "name": "Picnic Day"
+          }
+        ],
+        "2022-12-24": [
+          {
+            "name": "Christmas Eve 7pm - midnight",
+            "partDayFrom": "19:00"
+          }
+        ],
+        "2022-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2022-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2022-12-27": [
+          {
+            "name": "Christmas (additional day)"
+          }
+        ],
+        "2022-12-31": [
+          {
+            "name": "New Year's Eve 7pm - midnight",
+            "partDayFrom": "19:00"
+          }
+        ],
+        "2023-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2023-01-02": [
+          {
+            "name": "New Year's Day (observed)"
+          }
+        ],
+        "2023-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2023-04-07": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2023-04-08": [
+          {
+            "name": "Easter Saturday"
+          }
+        ],
+        "2023-04-09": [
+          {
+            "name": "Easter Sunday"
+          }
+        ],
+        "2023-04-10": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2023-04-25": [
+          {
+            "name": "Anzac Day"
+          }
+        ],
+        "2023-05-01": [
+          {
+            "name": "May Day"
+          }
+        ],
+        "2023-06-12": [
+          {
+            "name": "King's Birthday"
+          }
+        ],
+        "2023-07-07": [
+          {
+            "name": "Alice Springs Show Day"
+          }
+        ],
+        "2023-07-14": [
+          {
+            "name": "Tennant Creek Show Day"
+          }
+        ],
+        "2023-07-21": [
+          {
+            "name": "Katherine Show Day"
+          }
+        ],
+        "2023-07-28": [
+          {
+            "name": "Darwin Show Day"
+          }
+        ],
+        "2023-08-07": [
+          {
+            "name": "Picnic Day"
+          }
+        ],
+        "2023-12-24": [
+          {
+            "name": "Christmas Eve",
+            "partDayFrom": "19:00"
+          }
+        ],
+        "2023-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2023-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2023-12-31": [
+          {
+            "name": "New Year's Eve",
+            "partDayFrom": "19:00"
+          }
+        ],
+        "2024-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2024-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2024-03-29": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2024-03-30": [
+          {
+            "name": "Easter Saturday"
+          }
+        ],
+        "2024-03-31": [
+          {
+            "name": "Easter Sunday"
+          }
+        ],
+        "2024-04-01": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2024-04-25": [
+          {
+            "name": "Anzac Day"
+          }
+        ],
+        "2024-05-06": [
+          {
+            "name": "May Day"
+          }
+        ],
+        "2024-06-10": [
+          {
+            "name": "King's Birthday"
+          }
+        ],
+        "2024-07-05": [
+          {
+            "name": "Alice Springs Show Day"
+          }
+        ],
+        "2024-07-12": [
+          {
+            "name": "Tennant Creek Show Day"
+          }
+        ],
+        "2024-07-19": [
+          {
+            "name": "Katherine Show Day"
+          }
+        ],
+        "2024-07-26": [
+          {
+            "name": "Darwin Show Day"
+          }
+        ],
+        "2024-08-05": [
+          {
+            "name": "Picnic Day"
+          }
+        ],
+        "2024-12-24": [
+          {
+            "name": "Christmas Eve",
+            "partDayFrom": "19:00"
+          }
+        ],
+        "2024-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2024-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2024-12-31": [
+          {
+            "name": "New Year's Eve",
+            "partDayFrom": "19:00"
+          }
+        ],
+        "2025-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2025-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2025-01-27": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2025-04-18": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2025-04-19": [
+          {
+            "name": "Easter Saturday"
+          }
+        ],
+        "2025-04-20": [
+          {
+            "name": "Easter Sunday"
+          }
+        ],
+        "2025-04-21": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2025-04-25": [
+          {
+            "name": "Anzac Day"
+          }
+        ],
+        "2025-05-05": [
+          {
+            "name": "May Day"
+          }
+        ],
+        "2025-06-09": [
+          {
+            "name": "King's Birthday"
+          }
+        ],
+        "2025-07-04": [
+          {
+            "name": "Alice Springs Show Day"
+          }
+        ],
+        "2025-07-11": [
+          {
+            "name": "Tennant Creek Show Day"
+          }
+        ],
+        "2025-07-18": [
+          {
+            "name": "Katherine Show Day"
+          }
+        ],
+        "2025-07-25": [
+          {
+            "name": "Darwin Show Day"
+          }
+        ],
+        "2025-08-04": [
+          {
+            "name": "Picnic Day"
+          }
+        ],
+        "2025-12-24": [
+          {
+            "name": "Christmas Eve - part day holiday",
+            "partDayFrom": "19:00"
+          }
+        ],
+        "2025-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2025-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2025-12-31": [
+          {
+            "name": "New Year's Eve - part day holiday",
+            "partDayFrom": "19:00"
+          }
+        ],
+        "2026-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2026-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2026-04-03": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2026-04-04": [
+          {
+            "name": "Easter Saturday"
+          }
+        ],
+        "2026-04-05": [
+          {
+            "name": "Easter Sunday"
+          }
+        ],
+        "2026-04-06": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2026-04-25": [
+          {
+            "name": "Anzac Day"
+          },
+          {
+            "name": "Anzac Day (additional day)"
+          }
+        ],
+        "2026-04-27": [
+          {
+            "name": "Anzac Day (additional day) (additional day)"
+          }
+        ],
+        "2026-05-04": [
+          {
+            "name": "May Day"
+          }
+        ],
+        "2026-06-08": [
+          {
+            "name": "King's Birthday"
+          }
+        ],
+        "2026-07-03": [
+          {
+            "name": "Alice Springs Show Day"
+          }
+        ],
+        "2026-07-10": [
+          {
+            "name": "Tennant Creek Show Day"
+          }
+        ],
+        "2026-07-17": [
+          {
+            "name": "Katherine Show Day"
+          }
+        ],
+        "2026-07-24": [
+          {
+            "name": "Darwin Show Day"
+          }
+        ],
+        "2026-08-03": [
+          {
+            "name": "Picnic Day"
+          }
+        ],
+        "2026-12-24": [
+          {
+            "name": "Christmas Eve (part day)",
+            "partDayFrom": "19:00"
+          }
+        ],
+        "2026-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2026-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2026-12-28": [
+          {
+            "name": "Boxing Day (additional day)"
+          }
+        ],
+        "2026-12-31": [
+          {
+            "name": "New Year's Eve (part day)",
+            "partDayFrom": "19:00"
+          }
+        ],
+        "2027-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2027-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2027-03-26": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2027-03-27": [
+          {
+            "name": "Easter Saturday"
+          }
+        ],
+        "2027-03-28": [
+          {
+            "name": "Easter Sunday"
+          }
+        ],
+        "2027-03-29": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2027-04-25": [
+          {
+            "name": "Anzac Day"
+          },
+          {
+            "name": "Anzac Day (additional day)"
+          }
+        ],
+        "2027-04-26": [
+          {
+            "name": "Anzac Day (additional day) (additional day)"
+          }
+        ],
+        "2027-05-03": [
+          {
+            "name": "May Day"
+          }
+        ],
+        "2027-06-14": [
+          {
+            "name": "King's Birthday"
+          }
+        ],
+        "2027-08-02": [
+          {
+            "name": "Picnic Day"
+          }
+        ],
+        "2027-12-24": [
+          {
+            "name": "Christmas Eve (part day)",
+            "partDayFrom": "19:00"
+          }
+        ],
+        "2027-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2027-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2027-12-27": [
+          {
+            "name": "Christmas Day (additional day)"
+          }
+        ],
+        "2027-12-28": [
+          {
+            "name": "Boxing Day (additional day)"
+          }
+        ],
+        "2027-12-31": [
+          {
+            "name": "New Year's Eve (part day)",
+            "partDayFrom": "19:00"
+          }
+        ]
+      }
+    },
+    "au-qld": {
+      "inherits": [],
+      "years": {
+        "2021": {
+          "verified": true,
+          "provenance": "official-dataset",
+          "source": "data.gov.au australian-holidays-machine-readable-dataset (2021-2025), retrieved 2026-09-15",
+          "gaps": []
+        },
+        "2022": {
+          "verified": true,
+          "provenance": "official-dataset",
+          "source": "data.gov.au australian-holidays-machine-readable-dataset (2021-2025), retrieved 2026-09-15",
+          "gaps": []
+        },
+        "2023": {
+          "verified": true,
+          "provenance": "official-dataset",
+          "source": "data.gov.au australian-holidays-machine-readable-dataset (2021-2025), retrieved 2026-09-15",
+          "gaps": []
+        },
+        "2024": {
+          "verified": true,
+          "provenance": "official-dataset",
+          "source": "data.gov.au australian-holidays-machine-readable-dataset (2021-2025), retrieved 2026-09-15",
+          "gaps": []
+        },
+        "2025": {
+          "verified": true,
+          "provenance": "official-dataset",
+          "source": "data.gov.au australian-holidays-machine-readable-dataset (2021-2025), retrieved 2026-09-15",
+          "gaps": []
+        },
+        "2026": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "scripts/holidays/rules.ts - no official dataset published for this year yet",
+          "gaps": []
+        },
+        "2027": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "scripts/holidays/rules.ts - no official dataset published for this year yet",
+          "gaps": [
+            "Royal Queensland Show (Brisbane area only) (Queensland Government - proclaimed annually)"
+          ]
+        }
+      },
+      "holidays": {
+        "2021-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2021-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2021-04-02": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2021-04-03": [
+          {
+            "name": "The Day after Good Friday"
+          }
+        ],
+        "2021-04-04": [
+          {
+            "name": "Easter Sunday"
+          }
+        ],
+        "2021-04-05": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2021-04-25": [
+          {
+            "name": "Anzac Day"
+          },
+          {
+            "name": "Anzac Day (additional day)"
+          }
+        ],
+        "2021-04-26": [
+          {
+            "name": "Anzac Day"
+          }
+        ],
+        "2021-05-03": [
+          {
+            "name": "Labour Day"
+          }
+        ],
+        "2021-10-04": [
+          {
+            "name": "Queen's Birthday"
+          }
+        ],
+        "2021-10-29": [
+          {
+            "name": "Royal Queensland Show (Brisbane area only)"
+          }
+        ],
+        "2021-12-24": [
+          {
+            "name": "Christmas Eve 6pm - Midnight",
+            "partDayFrom": "18:00"
+          }
+        ],
+        "2021-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2021-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2021-12-27": [
+          {
+            "name": "Christmas (additional day)"
+          }
+        ],
+        "2021-12-28": [
+          {
+            "name": "Boxing Day (additional day)"
+          }
+        ],
+        "2022-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2022-01-03": [
+          {
+            "name": "New Year's Day (additional day)"
+          }
+        ],
+        "2022-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2022-04-15": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2022-04-16": [
+          {
+            "name": "The day after Good Friday"
+          }
+        ],
+        "2022-04-17": [
+          {
+            "name": "Easter Sunday"
+          }
+        ],
+        "2022-04-18": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2022-04-25": [
+          {
+            "name": "Anzac Day"
+          }
+        ],
+        "2022-05-02": [
+          {
+            "name": "Labour Day"
+          }
+        ],
+        "2022-08-10": [
+          {
+            "name": "Royal Queensland Show (Brisbane area only)"
+          }
+        ],
+        "2022-10-03": [
+          {
+            "name": "Queen's Birthday"
+          }
+        ],
+        "2022-12-24": [
+          {
+            "name": "Christmas Eve 6pm - Midnight",
+            "partDayFrom": "18:00"
+          }
+        ],
+        "2022-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2022-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2022-12-27": [
+          {
+            "name": "Christmas (additional day)"
+          }
+        ],
+        "2023-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2023-01-02": [
+          {
+            "name": "New Year's Day (observed)"
+          }
+        ],
+        "2023-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2023-04-07": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2023-04-08": [
+          {
+            "name": "Easter Saturday"
+          }
+        ],
+        "2023-04-09": [
+          {
+            "name": "Easter Sunday"
+          }
+        ],
+        "2023-04-10": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2023-04-25": [
+          {
+            "name": "Anzac Day"
+          }
+        ],
+        "2023-05-01": [
+          {
+            "name": "Labour Day"
+          }
+        ],
+        "2023-08-16": [
+          {
+            "name": "Royal Queensland Show (Brisbane only)"
+          }
+        ],
+        "2023-10-02": [
+          {
+            "name": "Kingâ€™s Birthday"
+          }
+        ],
+        "2023-12-24": [
+          {
+            "name": "Christmas Eve",
+            "partDayFrom": "18:00"
+          }
+        ],
+        "2023-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2023-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2024-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2024-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2024-03-29": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2024-03-30": [
+          {
+            "name": "Easter Saturday"
+          }
+        ],
+        "2024-03-31": [
+          {
+            "name": "Easter Sunday"
+          }
+        ],
+        "2024-04-01": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2024-04-25": [
+          {
+            "name": "Anzac Day"
+          }
+        ],
+        "2024-05-06": [
+          {
+            "name": "Labour Day"
+          }
+        ],
+        "2024-08-14": [
+          {
+            "name": "Royal Queensland Show (Brisbane only)"
+          }
+        ],
+        "2024-10-07": [
+          {
+            "name": "Kingâ€™s Birthday"
+          }
+        ],
+        "2024-12-24": [
+          {
+            "name": "Christmas Eve",
+            "partDayFrom": "18:00"
+          }
+        ],
+        "2024-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2024-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2025-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2025-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2025-01-27": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2025-04-18": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2025-04-19": [
+          {
+            "name": "The day after Good Friday"
+          }
+        ],
+        "2025-04-20": [
+          {
+            "name": "Easter Sunday"
+          }
+        ],
+        "2025-04-21": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2025-04-25": [
+          {
+            "name": "Anzac Day"
+          }
+        ],
+        "2025-05-05": [
+          {
+            "name": "Labour Day"
+          }
+        ],
+        "2025-08-13": [
+          {
+            "name": "Royal Queensland Show (Brisbane area only)"
+          }
+        ],
+        "2025-10-06": [
+          {
+            "name": "King's Birthday"
+          }
+        ],
+        "2025-12-24": [
+          {
+            "name": "Christmas Eve (24 December) 6pm - midnight",
+            "partDayFrom": "18:00"
+          }
+        ],
+        "2025-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2025-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2026-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2026-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2026-04-03": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2026-04-04": [
+          {
+            "name": "Easter Saturday"
+          }
+        ],
+        "2026-04-05": [
+          {
+            "name": "Easter Sunday"
+          }
+        ],
+        "2026-04-06": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2026-04-25": [
+          {
+            "name": "Anzac Day"
+          },
+          {
+            "name": "Anzac Day (additional day)"
+          }
+        ],
+        "2026-04-27": [
+          {
+            "name": "Anzac Day (additional day) (additional day)"
+          }
+        ],
+        "2026-05-04": [
+          {
+            "name": "Labour Day"
+          }
+        ],
+        "2026-08-12": [
+          {
+            "name": "Royal Queensland Show (Brisbane area only)"
+          }
+        ],
+        "2026-10-05": [
+          {
+            "name": "King's Birthday"
+          }
+        ],
+        "2026-12-24": [
+          {
+            "name": "Christmas Eve (part day)",
+            "partDayFrom": "18:00"
+          }
+        ],
+        "2026-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2026-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2026-12-28": [
+          {
+            "name": "Boxing Day (additional day)"
+          }
+        ],
+        "2027-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2027-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2027-03-26": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2027-03-27": [
+          {
+            "name": "Easter Saturday"
+          }
+        ],
+        "2027-03-28": [
+          {
+            "name": "Easter Sunday"
+          }
+        ],
+        "2027-03-29": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2027-04-25": [
+          {
+            "name": "Anzac Day"
+          },
+          {
+            "name": "Anzac Day (additional day)"
+          }
+        ],
+        "2027-04-26": [
+          {
+            "name": "Anzac Day (additional day) (additional day)"
+          }
+        ],
+        "2027-05-03": [
+          {
+            "name": "Labour Day"
+          }
+        ],
+        "2027-10-04": [
+          {
+            "name": "King's Birthday"
+          }
+        ],
+        "2027-12-24": [
+          {
+            "name": "Christmas Eve (part day)",
+            "partDayFrom": "18:00"
+          }
+        ],
+        "2027-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2027-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2027-12-27": [
+          {
+            "name": "Christmas Day (additional day)"
+          }
+        ],
+        "2027-12-28": [
+          {
+            "name": "Boxing Day (additional day)"
+          }
+        ]
+      }
+    },
+    "au-sa": {
+      "inherits": [],
+      "years": {
+        "2021": {
+          "verified": true,
+          "provenance": "official-dataset",
+          "source": "data.gov.au australian-holidays-machine-readable-dataset (2021-2025), retrieved 2026-09-15",
+          "gaps": []
+        },
+        "2022": {
+          "verified": true,
+          "provenance": "official-dataset",
+          "source": "data.gov.au australian-holidays-machine-readable-dataset (2021-2025), retrieved 2026-09-15",
+          "gaps": []
+        },
+        "2023": {
+          "verified": true,
+          "provenance": "official-dataset",
+          "source": "data.gov.au australian-holidays-machine-readable-dataset (2021-2025), retrieved 2026-09-15",
+          "gaps": []
+        },
+        "2024": {
+          "verified": true,
+          "provenance": "official-dataset",
+          "source": "data.gov.au australian-holidays-machine-readable-dataset (2021-2025), retrieved 2026-09-15",
+          "gaps": []
+        },
+        "2025": {
+          "verified": true,
+          "provenance": "official-dataset",
+          "source": "data.gov.au australian-holidays-machine-readable-dataset (2021-2025), retrieved 2026-09-15",
+          "gaps": []
+        },
+        "2026": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "scripts/holidays/rules.ts - no official dataset published for this year yet",
+          "gaps": []
+        },
+        "2027": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "scripts/holidays/rules.ts - no official dataset published for this year yet",
+          "gaps": []
+        }
+      },
+      "holidays": {
+        "2021-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2021-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2021-03-08": [
+          {
+            "name": "Adelaide Cup Day"
+          }
+        ],
+        "2021-04-02": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2021-04-03": [
+          {
+            "name": "Easter Saturday"
+          }
+        ],
+        "2021-04-04": [
+          {
+            "name": "Easter Sunday"
+          }
+        ],
+        "2021-04-05": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2021-04-25": [
+          {
+            "name": "Anzac Day"
+          },
+          {
+            "name": "Anzac Day (additional day)"
+          }
+        ],
+        "2021-04-26": [
+          {
+            "name": "Anzac Day (additional day)"
+          }
+        ],
+        "2021-06-14": [
+          {
+            "name": "Queen's Birthday"
+          }
+        ],
+        "2021-10-04": [
+          {
+            "name": "Labour Day"
+          }
+        ],
+        "2021-12-24": [
+          {
+            "name": "Christmas Eve  7pm - Midnight",
+            "partDayFrom": "19:00"
+          }
+        ],
+        "2021-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2021-12-26": [
+          {
+            "name": "Boxing Day / Proclamation Day"
+          }
+        ],
+        "2021-12-27": [
+          {
+            "name": "Christmas (additional day)"
+          }
+        ],
+        "2021-12-28": [
+          {
+            "name": "Boxing Day / Proclamation Day (additional day)"
+          }
+        ],
+        "2021-12-31": [
+          {
+            "name": "New Year's Eve 7pm - Midnight",
+            "partDayFrom": "19:00"
+          }
+        ],
+        "2022-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2022-01-03": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2022-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2022-03-14": [
+          {
+            "name": "Adelaide Cup Day"
+          }
+        ],
+        "2022-04-15": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2022-04-16": [
+          {
+            "name": "Easter Saturday"
+          }
+        ],
+        "2022-04-17": [
+          {
+            "name": "Easter Sunday"
+          }
+        ],
+        "2022-04-18": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2022-04-25": [
+          {
+            "name": "Anzac Day"
+          }
+        ],
+        "2022-06-13": [
+          {
+            "name": "Queen's Birthday / Volunteer's Day"
+          }
+        ],
+        "2022-10-03": [
+          {
+            "name": "Labour Day"
+          }
+        ],
+        "2022-12-24": [
+          {
+            "name": "Christmas Eve 7pm - midnight",
+            "partDayFrom": "19:00"
+          }
+        ],
+        "2022-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2022-12-26": [
+          {
+            "name": "Boxing Day / Proclamation Day"
+          }
+        ],
+        "2022-12-27": [
+          {
+            "name": "Christmas (additional day)"
+          }
+        ],
+        "2022-12-31": [
+          {
+            "name": "New Year's Eve 7pm  - midnight",
+            "partDayFrom": "19:00"
+          }
+        ],
+        "2023-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2023-01-02": [
+          {
+            "name": "New Year's Day (observed)"
+          }
+        ],
+        "2023-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2023-03-13": [
+          {
+            "name": "Adelaide Cup Day"
+          }
+        ],
+        "2023-04-07": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2023-04-08": [
+          {
+            "name": "Easter Saturday"
+          }
+        ],
+        "2023-04-09": [
+          {
+            "name": "Easter Sunday"
+          }
+        ],
+        "2023-04-10": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2023-04-25": [
+          {
+            "name": "Anzac Day"
+          }
+        ],
+        "2023-06-12": [
+          {
+            "name": "Kingâ€™s Birthday"
+          }
+        ],
+        "2023-10-02": [
+          {
+            "name": "Labour Day"
+          }
+        ],
+        "2023-12-24": [
+          {
+            "name": "Christmas Eve",
+            "partDayFrom": "19:00"
+          }
+        ],
+        "2023-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2023-12-26": [
+          {
+            "name": "Boxing Day / Proclamation Day"
+          }
+        ],
+        "2023-12-31": [
+          {
+            "name": "New Year's Eve",
+            "partDayFrom": "19:00"
+          }
+        ],
+        "2024-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2024-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2024-03-11": [
+          {
+            "name": "Adelaide Cup Day (subject to Proclamation)"
+          }
+        ],
+        "2024-03-29": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2024-03-30": [
+          {
+            "name": "Easter Saturday"
+          }
+        ],
+        "2024-03-31": [
+          {
+            "name": "Easter Sunday"
+          }
+        ],
+        "2024-04-01": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2024-04-25": [
+          {
+            "name": "Anzac Day"
+          }
+        ],
+        "2024-06-10": [
+          {
+            "name": "Kingâ€™s Birthday"
+          }
+        ],
+        "2024-10-07": [
+          {
+            "name": "Labour Day"
+          }
+        ],
+        "2024-12-24": [
+          {
+            "name": "Christmas Eve",
+            "partDayFrom": "19:00"
+          }
+        ],
+        "2024-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2024-12-26": [
+          {
+            "name": "Boxing Day / Proclamation Day"
+          }
+        ],
+        "2024-12-31": [
+          {
+            "name": "New Year's Eve",
+            "partDayFrom": "19:00"
+          }
+        ],
+        "2025-01-01": [
+          {
+            "name": "New Years Day"
+          }
+        ],
+        "2025-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2025-01-27": [
+          {
+            "name": "Australia Day public holiday"
+          }
+        ],
+        "2025-03-10": [
+          {
+            "name": "Adelaide Cup Day"
+          }
+        ],
+        "2025-04-18": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2025-04-19": [
+          {
+            "name": "Easter Saturday"
+          }
+        ],
+        "2025-04-20": [
+          {
+            "name": "Easter Sunday"
+          }
+        ],
+        "2025-04-21": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2025-04-25": [
+          {
+            "name": "ANZAC Day"
+          }
+        ],
+        "2025-06-09": [
+          {
+            "name": "Kings Birthday"
+          }
+        ],
+        "2025-10-06": [
+          {
+            "name": "Labour Day"
+          }
+        ],
+        "2025-12-24": [
+          {
+            "name": "Christmas Eve: 7pm to midnight",
+            "partDayFrom": "19:00"
+          }
+        ],
+        "2025-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2025-12-26": [
+          {
+            "name": "Proclamation Day holiday and Boxing Day"
+          }
+        ],
+        "2025-12-31": [
+          {
+            "name": "New Years Eve: 7pm to midnight",
+            "partDayFrom": "19:00"
+          }
+        ],
+        "2026-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2026-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2026-03-09": [
+          {
+            "name": "Adelaide Cup Day"
+          }
+        ],
+        "2026-04-03": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2026-04-04": [
+          {
+            "name": "Easter Saturday"
+          }
+        ],
+        "2026-04-05": [
+          {
+            "name": "Easter Sunday"
+          }
+        ],
+        "2026-04-06": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2026-04-25": [
+          {
+            "name": "Anzac Day"
+          },
+          {
+            "name": "Anzac Day (additional day)"
+          }
+        ],
+        "2026-04-27": [
+          {
+            "name": "Anzac Day (additional day) (additional day)"
+          }
+        ],
+        "2026-06-08": [
+          {
+            "name": "King's Birthday"
+          }
+        ],
+        "2026-10-05": [
+          {
+            "name": "Labour Day"
+          }
+        ],
+        "2026-12-24": [
+          {
+            "name": "Christmas Eve (part day)",
+            "partDayFrom": "19:00"
+          }
+        ],
+        "2026-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2026-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2026-12-28": [
+          {
+            "name": "Boxing Day (additional day)"
+          }
+        ],
+        "2026-12-31": [
+          {
+            "name": "New Year's Eve (part day)",
+            "partDayFrom": "19:00"
+          }
+        ],
+        "2027-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2027-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2027-03-08": [
+          {
+            "name": "Adelaide Cup Day"
+          }
+        ],
+        "2027-03-26": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2027-03-27": [
+          {
+            "name": "Easter Saturday"
+          }
+        ],
+        "2027-03-28": [
+          {
+            "name": "Easter Sunday"
+          }
+        ],
+        "2027-03-29": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2027-04-25": [
+          {
+            "name": "Anzac Day"
+          },
+          {
+            "name": "Anzac Day (additional day)"
+          }
+        ],
+        "2027-04-26": [
+          {
+            "name": "Anzac Day (additional day) (additional day)"
+          }
+        ],
+        "2027-06-14": [
+          {
+            "name": "King's Birthday"
+          }
+        ],
+        "2027-10-04": [
+          {
+            "name": "Labour Day"
+          }
+        ],
+        "2027-12-24": [
+          {
+            "name": "Christmas Eve (part day)",
+            "partDayFrom": "19:00"
+          }
+        ],
+        "2027-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2027-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2027-12-27": [
+          {
+            "name": "Christmas Day (additional day)"
+          }
+        ],
+        "2027-12-28": [
+          {
+            "name": "Boxing Day (additional day)"
+          }
+        ],
+        "2027-12-31": [
+          {
+            "name": "New Year's Eve (part day)",
+            "partDayFrom": "19:00"
+          }
+        ]
+      }
+    },
+    "au-tas": {
+      "inherits": [],
+      "years": {
+        "2021": {
+          "verified": true,
+          "provenance": "official-dataset",
+          "source": "data.gov.au australian-holidays-machine-readable-dataset (2021-2025), retrieved 2026-09-15",
+          "gaps": []
+        },
+        "2022": {
+          "verified": true,
+          "provenance": "official-dataset",
+          "source": "data.gov.au australian-holidays-machine-readable-dataset (2021-2025), retrieved 2026-09-15",
+          "gaps": []
+        },
+        "2023": {
+          "verified": true,
+          "provenance": "official-dataset",
+          "source": "data.gov.au australian-holidays-machine-readable-dataset (2021-2025), retrieved 2026-09-15",
+          "gaps": []
+        },
+        "2024": {
+          "verified": true,
+          "provenance": "official-dataset",
+          "source": "data.gov.au australian-holidays-machine-readable-dataset (2021-2025), retrieved 2026-09-15",
+          "gaps": []
+        },
+        "2025": {
+          "verified": true,
+          "provenance": "official-dataset",
+          "source": "data.gov.au australian-holidays-machine-readable-dataset (2021-2025), retrieved 2026-09-15",
+          "gaps": []
+        },
+        "2026": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "scripts/holidays/rules.ts - no official dataset published for this year yet",
+          "gaps": []
+        },
+        "2027": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "scripts/holidays/rules.ts - no official dataset published for this year yet",
+          "gaps": []
+        }
+      },
+      "holidays": {
+        "2021-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2021-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2021-03-08": [
+          {
+            "name": "Eight Hours Day"
+          }
+        ],
+        "2021-04-02": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2021-04-05": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2021-04-06": [
+          {
+            "name": "Easter Tuesday"
+          }
+        ],
+        "2021-04-25": [
+          {
+            "name": "Anzac Day"
+          }
+        ],
+        "2021-06-14": [
+          {
+            "name": "Queen's Birthday"
+          }
+        ],
+        "2021-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2021-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2021-12-27": [
+          {
+            "name": "Christmas (additional day)"
+          }
+        ],
+        "2021-12-28": [
+          {
+            "name": "Boxing Day (additional day)"
+          }
+        ],
+        "2022-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2022-01-03": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2022-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2022-03-14": [
+          {
+            "name": "Eight Hours Day"
+          }
+        ],
+        "2022-04-15": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2022-04-18": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2022-04-19": [
+          {
+            "name": "Easter Tuesday"
+          }
+        ],
+        "2022-04-25": [
+          {
+            "name": "Anzac Day"
+          }
+        ],
+        "2022-06-13": [
+          {
+            "name": "Queen's Birthday"
+          }
+        ],
+        "2022-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2022-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2022-12-27": [
+          {
+            "name": "Christmas (additional day)"
+          }
+        ],
+        "2023-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2023-01-02": [
+          {
+            "name": "New Year's Day (observed)"
+          }
+        ],
+        "2023-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2023-03-13": [
+          {
+            "name": "Eight Hours Day"
+          }
+        ],
+        "2023-04-07": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2023-04-10": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2023-04-11": [
+          {
+            "name": "Easter Tuesday"
+          }
+        ],
+        "2023-04-25": [
+          {
+            "name": "Anzac Day"
+          }
+        ],
+        "2023-06-12": [
+          {
+            "name": "King's Birthday"
+          }
+        ],
+        "2023-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2023-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2024-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2024-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2024-03-11": [
+          {
+            "name": "Eight Hours Day"
+          }
+        ],
+        "2024-03-29": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2024-04-01": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2024-04-02": [
+          {
+            "name": "Easter Tuesday"
+          }
+        ],
+        "2024-04-25": [
+          {
+            "name": "Anzac Day"
+          }
+        ],
+        "2024-06-10": [
+          {
+            "name": "King's Birthday"
+          }
+        ],
+        "2024-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2024-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2025-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2025-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2025-01-27": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2025-03-10": [
+          {
+            "name": "Eight Hours Day"
+          }
+        ],
+        "2025-04-18": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2025-04-21": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2025-04-22": [
+          {
+            "name": "Easter Tuesday - generally Tasmanian Public Service only"
+          }
+        ],
+        "2025-04-25": [
+          {
+            "name": "ANZAC Day"
+          }
+        ],
+        "2025-06-09": [
+          {
+            "name": "King's Birthday"
+          }
+        ],
+        "2025-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2025-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2026-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2026-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2026-03-09": [
+          {
+            "name": "Eight Hours Day"
+          }
+        ],
+        "2026-04-03": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2026-04-06": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2026-04-07": [
+          {
+            "name": "Easter Tuesday"
+          }
+        ],
+        "2026-04-25": [
+          {
+            "name": "Anzac Day"
+          }
+        ],
+        "2026-06-08": [
+          {
+            "name": "King's Birthday"
+          }
+        ],
+        "2026-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2026-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2026-12-28": [
+          {
+            "name": "Boxing Day (additional day)"
+          }
+        ],
+        "2027-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2027-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2027-03-08": [
+          {
+            "name": "Eight Hours Day"
+          }
+        ],
+        "2027-03-26": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2027-03-29": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2027-03-30": [
+          {
+            "name": "Easter Tuesday"
+          }
+        ],
+        "2027-04-25": [
+          {
+            "name": "Anzac Day"
+          }
+        ],
+        "2027-06-14": [
+          {
+            "name": "King's Birthday"
+          }
+        ],
+        "2027-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2027-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2027-12-27": [
+          {
+            "name": "Christmas Day (additional day)"
+          }
+        ],
+        "2027-12-28": [
+          {
+            "name": "Boxing Day (additional day)"
+          }
+        ]
+      }
+    },
+    "au-vic": {
+      "inherits": [],
+      "years": {
+        "2021": {
+          "verified": true,
+          "provenance": "official-dataset",
+          "source": "data.gov.au australian-holidays-machine-readable-dataset (2021-2025), retrieved 2026-09-15",
+          "gaps": []
+        },
+        "2022": {
+          "verified": true,
+          "provenance": "official-dataset",
+          "source": "data.gov.au australian-holidays-machine-readable-dataset (2021-2025), retrieved 2026-09-15",
+          "gaps": []
+        },
+        "2023": {
+          "verified": true,
+          "provenance": "official-dataset",
+          "source": "data.gov.au australian-holidays-machine-readable-dataset (2021-2025), retrieved 2026-09-15",
+          "gaps": []
+        },
+        "2024": {
+          "verified": true,
+          "provenance": "official-dataset",
+          "source": "data.gov.au australian-holidays-machine-readable-dataset (2021-2025), retrieved 2026-09-15",
+          "gaps": []
+        },
+        "2025": {
+          "verified": true,
+          "provenance": "official-dataset",
+          "source": "data.gov.au australian-holidays-machine-readable-dataset (2021-2025), retrieved 2026-09-15",
+          "gaps": []
+        },
+        "2026": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "scripts/holidays/rules.ts - no official dataset published for this year yet",
+          "gaps": [
+            "Friday before the AFL Grand Final (Victorian Government - proclaimed annually, date depends on the AFL fixture)"
+          ]
+        },
+        "2027": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "scripts/holidays/rules.ts - no official dataset published for this year yet",
+          "gaps": [
+            "Friday before the AFL Grand Final (Victorian Government - proclaimed annually, date depends on the AFL fixture)"
+          ]
+        }
+      },
+      "holidays": {
+        "2021-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2021-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2021-03-08": [
+          {
+            "name": "Labour Day"
+          }
+        ],
+        "2021-04-02": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2021-04-03": [
+          {
+            "name": "Saturday before Easter Sunday"
+          }
+        ],
+        "2021-04-04": [
+          {
+            "name": "Easter Sunday"
+          }
+        ],
+        "2021-04-05": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2021-04-25": [
+          {
+            "name": "Anzac Day"
+          }
+        ],
+        "2021-06-14": [
+          {
+            "name": "Queen's Birthday"
+          }
+        ],
+        "2021-09-24": [
+          {
+            "name": "Friday before AFL Grand Final"
+          }
+        ],
+        "2021-11-02": [
+          {
+            "name": "Melbourne Cup"
+          }
+        ],
+        "2021-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2021-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2021-12-27": [
+          {
+            "name": "Christmas (additional day)"
+          }
+        ],
+        "2021-12-28": [
+          {
+            "name": "Boxing Day (additional day)"
+          }
+        ],
+        "2022-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2022-01-03": [
+          {
+            "name": "New Year's Day (additional day)"
+          }
+        ],
+        "2022-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2022-03-14": [
+          {
+            "name": "Labour Day"
+          }
+        ],
+        "2022-04-15": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2022-04-16": [
+          {
+            "name": "Saturday before Easter Sunday"
+          }
+        ],
+        "2022-04-17": [
+          {
+            "name": "Easter Sunday"
+          }
+        ],
+        "2022-04-18": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2022-04-25": [
+          {
+            "name": "Anzac Day"
+          }
+        ],
+        "2022-06-13": [
+          {
+            "name": "Queen's Birthday"
+          }
+        ],
+        "2022-09-23": [
+          {
+            "name": "Friday before the AFL Grand Final"
+          }
+        ],
+        "2022-11-01": [
+          {
+            "name": "Melbourne Cup"
+          }
+        ],
+        "2022-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2022-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2022-12-27": [
+          {
+            "name": "Christmas (additional day)"
+          }
+        ],
+        "2023-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2023-01-02": [
+          {
+            "name": "New Year's Day (observed)"
+          }
+        ],
+        "2023-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2023-03-13": [
+          {
+            "name": "Labour Day"
+          }
+        ],
+        "2023-04-07": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2023-04-08": [
+          {
+            "name": "Easter Saturday"
+          }
+        ],
+        "2023-04-09": [
+          {
+            "name": "Easter Sunday"
+          }
+        ],
+        "2023-04-10": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2023-04-25": [
+          {
+            "name": "Anzac Day"
+          }
+        ],
+        "2023-06-12": [
+          {
+            "name": "King's Birthday"
+          }
+        ],
+        "2023-09-29": [
+          {
+            "name": "Friday before the AFL Grand Final"
+          }
+        ],
+        "2023-11-07": [
+          {
+            "name": "Melbourne Cup"
+          }
+        ],
+        "2023-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2023-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2024-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2024-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2024-03-11": [
+          {
+            "name": "Labour Day"
+          }
+        ],
+        "2024-03-29": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2024-03-30": [
+          {
+            "name": "Easter Saturday"
+          }
+        ],
+        "2024-03-31": [
+          {
+            "name": "Easter Sunday"
+          }
+        ],
+        "2024-04-01": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2024-04-25": [
+          {
+            "name": "Anzac Day"
+          }
+        ],
+        "2024-06-10": [
+          {
+            "name": "King's Birthday"
+          }
+        ],
+        "2024-09-27": [
+          {
+            "name": "Friday before the AFL Grand Final"
+          }
+        ],
+        "2024-11-05": [
+          {
+            "name": "Melbourne Cup"
+          }
+        ],
+        "2024-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2024-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2025-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2025-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2025-01-27": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2025-03-10": [
+          {
+            "name": "Labour Day"
+          }
+        ],
+        "2025-04-18": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2025-04-19": [
+          {
+            "name": "Saturday before Easter Sunday"
+          }
+        ],
+        "2025-04-20": [
+          {
+            "name": "Easter Sunday"
+          }
+        ],
+        "2025-04-21": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2025-04-25": [
+          {
+            "name": "ANZAC Day"
+          }
+        ],
+        "2025-06-09": [
+          {
+            "name": "King's Birthday"
+          }
+        ],
+        "2025-09-26": [
+          {
+            "name": "Friday before the AFL Grand Final"
+          }
+        ],
+        "2025-11-04": [
+          {
+            "name": "Melbourne Cup"
+          }
+        ],
+        "2025-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2025-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2026-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2026-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2026-03-09": [
+          {
+            "name": "Labour Day"
+          }
+        ],
+        "2026-04-03": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2026-04-04": [
+          {
+            "name": "Easter Saturday"
+          }
+        ],
+        "2026-04-05": [
+          {
+            "name": "Easter Sunday"
+          }
+        ],
+        "2026-04-06": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2026-04-25": [
+          {
+            "name": "Anzac Day"
+          }
+        ],
+        "2026-06-08": [
+          {
+            "name": "King's Birthday"
+          }
+        ],
+        "2026-11-03": [
+          {
+            "name": "Melbourne Cup"
+          }
+        ],
+        "2026-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2026-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2026-12-28": [
+          {
+            "name": "Boxing Day (additional day)"
+          }
+        ],
+        "2027-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2027-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2027-03-08": [
+          {
+            "name": "Labour Day"
+          }
+        ],
+        "2027-03-26": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2027-03-27": [
+          {
+            "name": "Easter Saturday"
+          }
+        ],
+        "2027-03-28": [
+          {
+            "name": "Easter Sunday"
+          }
+        ],
+        "2027-03-29": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2027-04-25": [
+          {
+            "name": "Anzac Day"
+          }
+        ],
+        "2027-06-14": [
+          {
+            "name": "King's Birthday"
+          }
+        ],
+        "2027-11-02": [
+          {
+            "name": "Melbourne Cup"
+          }
+        ],
+        "2027-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2027-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2027-12-27": [
+          {
+            "name": "Christmas Day (additional day)"
+          }
+        ],
+        "2027-12-28": [
+          {
+            "name": "Boxing Day (additional day)"
+          }
+        ]
+      }
+    },
+    "au-wa": {
+      "inherits": [],
+      "years": {
+        "2021": {
+          "verified": true,
+          "provenance": "official-dataset",
+          "source": "data.gov.au australian-holidays-machine-readable-dataset (2021-2025), retrieved 2026-09-15",
+          "gaps": []
+        },
+        "2022": {
+          "verified": true,
+          "provenance": "official-dataset",
+          "source": "data.gov.au australian-holidays-machine-readable-dataset (2021-2025), retrieved 2026-09-15",
+          "gaps": []
+        },
+        "2023": {
+          "verified": true,
+          "provenance": "official-dataset",
+          "source": "data.gov.au australian-holidays-machine-readable-dataset (2021-2025), retrieved 2026-09-15",
+          "gaps": []
+        },
+        "2024": {
+          "verified": true,
+          "provenance": "official-dataset",
+          "source": "data.gov.au australian-holidays-machine-readable-dataset (2021-2025), retrieved 2026-09-15",
+          "gaps": []
+        },
+        "2025": {
+          "verified": true,
+          "provenance": "official-dataset",
+          "source": "data.gov.au australian-holidays-machine-readable-dataset (2021-2025), retrieved 2026-09-15",
+          "gaps": []
+        },
+        "2026": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "scripts/holidays/rules.ts - no official dataset published for this year yet",
+          "gaps": []
+        },
+        "2027": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "scripts/holidays/rules.ts - no official dataset published for this year yet",
+          "gaps": [
+            "King's Birthday (WA Department of Mines, Industry Regulation and Safety - proclaimed annually)"
+          ]
+        }
+      },
+      "holidays": {
+        "2021-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2021-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2021-03-01": [
+          {
+            "name": "Labour Day"
+          }
+        ],
+        "2021-04-02": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2021-04-04": [
+          {
+            "name": "Easter Sunday"
+          }
+        ],
+        "2021-04-05": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2021-04-25": [
+          {
+            "name": "Anzac Day"
+          }
+        ],
+        "2021-04-26": [
+          {
+            "name": "Anzac Day (additional day)"
+          }
+        ],
+        "2021-06-07": [
+          {
+            "name": "Western Australia Day"
+          }
+        ],
+        "2021-09-27": [
+          {
+            "name": "Queen's Birthday"
+          }
+        ],
+        "2021-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2021-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2021-12-27": [
+          {
+            "name": "Christmas (additional day)"
+          }
+        ],
+        "2021-12-28": [
+          {
+            "name": "Boxing Day (additional day)"
+          }
+        ],
+        "2022-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2022-01-03": [
+          {
+            "name": "New Year's Day (additional day)"
+          }
+        ],
+        "2022-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2022-03-07": [
+          {
+            "name": "Labour Day"
+          }
+        ],
+        "2022-04-15": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2022-04-17": [
+          {
+            "name": "Easter Sunday"
+          }
+        ],
+        "2022-04-18": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2022-04-25": [
+          {
+            "name": "Anzac Day"
+          }
+        ],
+        "2022-06-06": [
+          {
+            "name": "Western Australia Day"
+          }
+        ],
+        "2022-09-26": [
+          {
+            "name": "Queen's Birthday"
+          }
+        ],
+        "2022-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2022-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2022-12-27": [
+          {
+            "name": "Christmas (additional day)"
+          }
+        ],
+        "2023-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2023-01-02": [
+          {
+            "name": "New Year's Day (observed)"
+          }
+        ],
+        "2023-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2023-03-06": [
+          {
+            "name": "Labour Day"
+          }
+        ],
+        "2023-04-07": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2023-04-09": [
+          {
+            "name": "Easter Sunday"
+          }
+        ],
+        "2023-04-10": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2023-04-25": [
+          {
+            "name": "Anzac Day"
+          }
+        ],
+        "2023-06-05": [
+          {
+            "name": "Western Australia Day"
+          }
+        ],
+        "2023-09-25": [
+          {
+            "name": "King's Birthday"
+          }
+        ],
+        "2023-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2023-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2024-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2024-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2024-03-04": [
+          {
+            "name": "Labour Day"
+          }
+        ],
+        "2024-03-29": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2024-03-31": [
+          {
+            "name": "Easter Sunday"
+          }
+        ],
+        "2024-04-01": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2024-04-25": [
+          {
+            "name": "Anzac Day"
+          }
+        ],
+        "2024-06-03": [
+          {
+            "name": "Western Australia Day"
+          }
+        ],
+        "2024-09-23": [
+          {
+            "name": "King's Birthday"
+          }
+        ],
+        "2024-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2024-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2025-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2025-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2025-01-27": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2025-03-03": [
+          {
+            "name": "Labour Day"
+          }
+        ],
+        "2025-04-18": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2025-04-20": [
+          {
+            "name": "Easter Sunday"
+          }
+        ],
+        "2025-04-21": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2025-04-25": [
+          {
+            "name": "Anzac Day"
+          }
+        ],
+        "2025-06-02": [
+          {
+            "name": "Western Australia Day"
+          }
+        ],
+        "2025-09-29": [
+          {
+            "name": "King's Birthday"
+          }
+        ],
+        "2025-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2025-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2026-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2026-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2026-03-02": [
+          {
+            "name": "Labour Day"
+          }
+        ],
+        "2026-04-03": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2026-04-05": [
+          {
+            "name": "Easter Sunday"
+          }
+        ],
+        "2026-04-06": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2026-04-25": [
+          {
+            "name": "Anzac Day"
+          },
+          {
+            "name": "Anzac Day (additional day)"
+          }
+        ],
+        "2026-04-27": [
+          {
+            "name": "Anzac Day (additional day) (additional day)"
+          }
+        ],
+        "2026-06-01": [
+          {
+            "name": "Western Australia Day"
+          }
+        ],
+        "2026-09-28": [
+          {
+            "name": "King's Birthday"
+          }
+        ],
+        "2026-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2026-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2026-12-28": [
+          {
+            "name": "Boxing Day (additional day)"
+          }
+        ],
+        "2027-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2027-01-26": [
+          {
+            "name": "Australia Day"
+          }
+        ],
+        "2027-03-01": [
+          {
+            "name": "Labour Day"
+          }
+        ],
+        "2027-03-26": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2027-03-28": [
+          {
+            "name": "Easter Sunday"
+          }
+        ],
+        "2027-03-29": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2027-04-25": [
+          {
+            "name": "Anzac Day"
+          },
+          {
+            "name": "Anzac Day (additional day)"
+          }
+        ],
+        "2027-04-26": [
+          {
+            "name": "Anzac Day (additional day) (additional day)"
+          }
+        ],
+        "2027-06-07": [
+          {
+            "name": "Western Australia Day"
+          }
+        ],
+        "2027-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2027-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2027-12-27": [
+          {
+            "name": "Christmas Day (additional day)"
+          }
+        ],
+        "2027-12-28": [
+          {
+            "name": "Boxing Day (additional day)"
+          }
+        ]
+      }
+    }
+  }
+}

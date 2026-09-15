@@ -1,0 +1,1557 @@
+{
+  "schemaVersion": 1,
+  "market": "NZ",
+  "generatedAt": "2026-09-15T23:32:02.356Z",
+  "coverage": {
+    "fromYear": 2021,
+    "toYear": 2027
+  },
+  "jurisdictions": {
+    "nz-auckland": {
+      "inherits": [
+        "nz-national"
+      ],
+      "years": {
+        "2021": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2022": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2023": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2024": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2025": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2026": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2027": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        }
+      },
+      "holidays": {
+        "2021-02-01": [
+          {
+            "name": "Auckland Anniversary Day"
+          }
+        ],
+        "2022-01-31": [
+          {
+            "name": "Auckland Anniversary Day"
+          }
+        ],
+        "2023-01-30": [
+          {
+            "name": "Auckland Anniversary Day"
+          }
+        ],
+        "2024-01-29": [
+          {
+            "name": "Auckland Anniversary Day"
+          }
+        ],
+        "2025-01-27": [
+          {
+            "name": "Auckland Anniversary Day"
+          }
+        ],
+        "2026-01-26": [
+          {
+            "name": "Auckland Anniversary Day"
+          }
+        ],
+        "2027-02-01": [
+          {
+            "name": "Auckland Anniversary Day"
+          }
+        ]
+      }
+    },
+    "nz-canterbury": {
+      "inherits": [
+        "nz-national"
+      ],
+      "years": {
+        "2021": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2022": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2023": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2024": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2025": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2026": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2027": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        }
+      },
+      "holidays": {
+        "2021-11-12": [
+          {
+            "name": "Canterbury Anniversary Day"
+          }
+        ],
+        "2022-11-11": [
+          {
+            "name": "Canterbury Anniversary Day"
+          }
+        ],
+        "2023-11-17": [
+          {
+            "name": "Canterbury Anniversary Day"
+          }
+        ],
+        "2024-11-15": [
+          {
+            "name": "Canterbury Anniversary Day"
+          }
+        ],
+        "2025-11-14": [
+          {
+            "name": "Canterbury Anniversary Day"
+          }
+        ],
+        "2026-11-13": [
+          {
+            "name": "Canterbury Anniversary Day"
+          }
+        ],
+        "2027-11-12": [
+          {
+            "name": "Canterbury Anniversary Day"
+          }
+        ]
+      }
+    },
+    "nz-chatham": {
+      "inherits": [
+        "nz-national"
+      ],
+      "years": {
+        "2021": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2022": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2023": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2024": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2025": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2026": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2027": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        }
+      },
+      "holidays": {
+        "2021-11-29": [
+          {
+            "name": "Chatham Islands Anniversary Day"
+          }
+        ],
+        "2022-11-28": [
+          {
+            "name": "Chatham Islands Anniversary Day"
+          }
+        ],
+        "2023-11-27": [
+          {
+            "name": "Chatham Islands Anniversary Day"
+          }
+        ],
+        "2024-12-02": [
+          {
+            "name": "Chatham Islands Anniversary Day"
+          }
+        ],
+        "2025-12-01": [
+          {
+            "name": "Chatham Islands Anniversary Day"
+          }
+        ],
+        "2026-11-30": [
+          {
+            "name": "Chatham Islands Anniversary Day"
+          }
+        ],
+        "2027-11-29": [
+          {
+            "name": "Chatham Islands Anniversary Day"
+          }
+        ]
+      }
+    },
+    "nz-hawkes-bay": {
+      "inherits": [
+        "nz-national"
+      ],
+      "years": {
+        "2021": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2022": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2023": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2024": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2025": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2026": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2027": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        }
+      },
+      "holidays": {
+        "2021-10-22": [
+          {
+            "name": "Hawke's Bay Anniversary Day"
+          }
+        ],
+        "2022-10-21": [
+          {
+            "name": "Hawke's Bay Anniversary Day"
+          }
+        ],
+        "2023-10-20": [
+          {
+            "name": "Hawke's Bay Anniversary Day"
+          }
+        ],
+        "2024-10-25": [
+          {
+            "name": "Hawke's Bay Anniversary Day"
+          }
+        ],
+        "2025-10-24": [
+          {
+            "name": "Hawke's Bay Anniversary Day"
+          }
+        ],
+        "2026-10-23": [
+          {
+            "name": "Hawke's Bay Anniversary Day"
+          }
+        ],
+        "2027-10-22": [
+          {
+            "name": "Hawke's Bay Anniversary Day"
+          }
+        ]
+      }
+    },
+    "nz-marlborough": {
+      "inherits": [
+        "nz-national"
+      ],
+      "years": {
+        "2021": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2022": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2023": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2024": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2025": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2026": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2027": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        }
+      },
+      "holidays": {
+        "2021-11-01": [
+          {
+            "name": "Marlborough Anniversary Day"
+          }
+        ],
+        "2022-10-31": [
+          {
+            "name": "Marlborough Anniversary Day"
+          }
+        ],
+        "2023-10-30": [
+          {
+            "name": "Marlborough Anniversary Day"
+          }
+        ],
+        "2024-11-04": [
+          {
+            "name": "Marlborough Anniversary Day"
+          }
+        ],
+        "2025-11-03": [
+          {
+            "name": "Marlborough Anniversary Day"
+          }
+        ],
+        "2026-11-02": [
+          {
+            "name": "Marlborough Anniversary Day"
+          }
+        ],
+        "2027-11-01": [
+          {
+            "name": "Marlborough Anniversary Day"
+          }
+        ]
+      }
+    },
+    "nz-national": {
+      "inherits": [],
+      "years": {
+        "2021": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2022": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2023": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2024": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2025": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2026": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2027": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        }
+      },
+      "holidays": {
+        "2021-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2021-01-02": [
+          {
+            "name": "Day after New Year's Day"
+          }
+        ],
+        "2021-01-04": [
+          {
+            "name": "Day after New Year's Day (additional day)"
+          }
+        ],
+        "2021-02-06": [
+          {
+            "name": "Waitangi Day"
+          }
+        ],
+        "2021-02-08": [
+          {
+            "name": "Waitangi Day (additional day)"
+          }
+        ],
+        "2021-04-02": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2021-04-05": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2021-04-25": [
+          {
+            "name": "Anzac Day"
+          }
+        ],
+        "2021-04-26": [
+          {
+            "name": "Anzac Day (additional day)"
+          }
+        ],
+        "2021-06-07": [
+          {
+            "name": "King's Birthday"
+          }
+        ],
+        "2021-10-25": [
+          {
+            "name": "Labour Day"
+          }
+        ],
+        "2021-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2021-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2021-12-27": [
+          {
+            "name": "Christmas Day (additional day)"
+          }
+        ],
+        "2021-12-28": [
+          {
+            "name": "Boxing Day (additional day)"
+          }
+        ],
+        "2022-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2022-01-02": [
+          {
+            "name": "Day after New Year's Day"
+          }
+        ],
+        "2022-01-03": [
+          {
+            "name": "New Year's Day (additional day)"
+          }
+        ],
+        "2022-01-04": [
+          {
+            "name": "Day after New Year's Day (additional day)"
+          }
+        ],
+        "2022-02-06": [
+          {
+            "name": "Waitangi Day"
+          }
+        ],
+        "2022-02-07": [
+          {
+            "name": "Waitangi Day (additional day)"
+          }
+        ],
+        "2022-04-15": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2022-04-18": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2022-04-25": [
+          {
+            "name": "Anzac Day"
+          }
+        ],
+        "2022-06-06": [
+          {
+            "name": "King's Birthday"
+          }
+        ],
+        "2022-06-24": [
+          {
+            "name": "Matariki"
+          }
+        ],
+        "2022-10-24": [
+          {
+            "name": "Labour Day"
+          }
+        ],
+        "2022-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2022-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2022-12-27": [
+          {
+            "name": "Christmas Day (additional day)"
+          }
+        ],
+        "2023-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2023-01-02": [
+          {
+            "name": "Day after New Year's Day"
+          }
+        ],
+        "2023-01-03": [
+          {
+            "name": "New Year's Day (additional day)"
+          }
+        ],
+        "2023-02-06": [
+          {
+            "name": "Waitangi Day"
+          }
+        ],
+        "2023-04-07": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2023-04-10": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2023-04-25": [
+          {
+            "name": "Anzac Day"
+          }
+        ],
+        "2023-06-05": [
+          {
+            "name": "King's Birthday"
+          }
+        ],
+        "2023-07-14": [
+          {
+            "name": "Matariki"
+          }
+        ],
+        "2023-10-23": [
+          {
+            "name": "Labour Day"
+          }
+        ],
+        "2023-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2023-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2024-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2024-01-02": [
+          {
+            "name": "Day after New Year's Day"
+          }
+        ],
+        "2024-02-06": [
+          {
+            "name": "Waitangi Day"
+          }
+        ],
+        "2024-03-29": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2024-04-01": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2024-04-25": [
+          {
+            "name": "Anzac Day"
+          }
+        ],
+        "2024-06-03": [
+          {
+            "name": "King's Birthday"
+          }
+        ],
+        "2024-06-28": [
+          {
+            "name": "Matariki"
+          }
+        ],
+        "2024-10-28": [
+          {
+            "name": "Labour Day"
+          }
+        ],
+        "2024-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2024-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2025-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2025-01-02": [
+          {
+            "name": "Day after New Year's Day"
+          }
+        ],
+        "2025-02-06": [
+          {
+            "name": "Waitangi Day"
+          }
+        ],
+        "2025-04-18": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2025-04-21": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2025-04-25": [
+          {
+            "name": "Anzac Day"
+          }
+        ],
+        "2025-06-02": [
+          {
+            "name": "King's Birthday"
+          }
+        ],
+        "2025-06-20": [
+          {
+            "name": "Matariki"
+          }
+        ],
+        "2025-10-27": [
+          {
+            "name": "Labour Day"
+          }
+        ],
+        "2025-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2025-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2026-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2026-01-02": [
+          {
+            "name": "Day after New Year's Day"
+          }
+        ],
+        "2026-02-06": [
+          {
+            "name": "Waitangi Day"
+          }
+        ],
+        "2026-04-03": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2026-04-06": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2026-04-25": [
+          {
+            "name": "Anzac Day"
+          }
+        ],
+        "2026-04-27": [
+          {
+            "name": "Anzac Day (additional day)"
+          }
+        ],
+        "2026-06-01": [
+          {
+            "name": "King's Birthday"
+          }
+        ],
+        "2026-07-10": [
+          {
+            "name": "Matariki"
+          }
+        ],
+        "2026-10-26": [
+          {
+            "name": "Labour Day"
+          }
+        ],
+        "2026-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2026-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2026-12-28": [
+          {
+            "name": "Boxing Day (additional day)"
+          }
+        ],
+        "2027-01-01": [
+          {
+            "name": "New Year's Day"
+          }
+        ],
+        "2027-01-02": [
+          {
+            "name": "Day after New Year's Day"
+          }
+        ],
+        "2027-01-04": [
+          {
+            "name": "Day after New Year's Day (additional day)"
+          }
+        ],
+        "2027-02-06": [
+          {
+            "name": "Waitangi Day"
+          }
+        ],
+        "2027-02-08": [
+          {
+            "name": "Waitangi Day (additional day)"
+          }
+        ],
+        "2027-03-26": [
+          {
+            "name": "Good Friday"
+          }
+        ],
+        "2027-03-29": [
+          {
+            "name": "Easter Monday"
+          }
+        ],
+        "2027-04-25": [
+          {
+            "name": "Anzac Day"
+          }
+        ],
+        "2027-04-26": [
+          {
+            "name": "Anzac Day (additional day)"
+          }
+        ],
+        "2027-06-07": [
+          {
+            "name": "King's Birthday"
+          }
+        ],
+        "2027-06-25": [
+          {
+            "name": "Matariki"
+          }
+        ],
+        "2027-10-25": [
+          {
+            "name": "Labour Day"
+          }
+        ],
+        "2027-12-25": [
+          {
+            "name": "Christmas Day"
+          }
+        ],
+        "2027-12-26": [
+          {
+            "name": "Boxing Day"
+          }
+        ],
+        "2027-12-27": [
+          {
+            "name": "Christmas Day (additional day)"
+          }
+        ],
+        "2027-12-28": [
+          {
+            "name": "Boxing Day (additional day)"
+          }
+        ]
+      }
+    },
+    "nz-nelson": {
+      "inherits": [
+        "nz-national"
+      ],
+      "years": {
+        "2021": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2022": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2023": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2024": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2025": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2026": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2027": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        }
+      },
+      "holidays": {
+        "2021-02-01": [
+          {
+            "name": "Nelson Anniversary Day"
+          }
+        ],
+        "2022-01-31": [
+          {
+            "name": "Nelson Anniversary Day"
+          }
+        ],
+        "2023-01-30": [
+          {
+            "name": "Nelson Anniversary Day"
+          }
+        ],
+        "2024-01-29": [
+          {
+            "name": "Nelson Anniversary Day"
+          }
+        ],
+        "2025-02-03": [
+          {
+            "name": "Nelson Anniversary Day"
+          }
+        ],
+        "2026-02-02": [
+          {
+            "name": "Nelson Anniversary Day"
+          }
+        ],
+        "2027-02-01": [
+          {
+            "name": "Nelson Anniversary Day"
+          }
+        ]
+      }
+    },
+    "nz-otago": {
+      "inherits": [
+        "nz-national"
+      ],
+      "years": {
+        "2021": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2022": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2023": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2024": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2025": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2026": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2027": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        }
+      },
+      "holidays": {
+        "2021-03-22": [
+          {
+            "name": "Otago Anniversary Day"
+          }
+        ],
+        "2022-03-21": [
+          {
+            "name": "Otago Anniversary Day"
+          }
+        ],
+        "2023-03-20": [
+          {
+            "name": "Otago Anniversary Day"
+          }
+        ],
+        "2024-03-25": [
+          {
+            "name": "Otago Anniversary Day"
+          }
+        ],
+        "2025-03-24": [
+          {
+            "name": "Otago Anniversary Day"
+          }
+        ],
+        "2026-03-23": [
+          {
+            "name": "Otago Anniversary Day"
+          }
+        ],
+        "2027-03-22": [
+          {
+            "name": "Otago Anniversary Day"
+          }
+        ]
+      }
+    },
+    "nz-south-canterbury": {
+      "inherits": [
+        "nz-national"
+      ],
+      "years": {
+        "2021": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2022": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2023": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2024": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2025": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2026": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2027": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        }
+      },
+      "holidays": {
+        "2021-09-27": [
+          {
+            "name": "South Canterbury Anniversary Day"
+          }
+        ],
+        "2022-09-26": [
+          {
+            "name": "South Canterbury Anniversary Day"
+          }
+        ],
+        "2023-09-25": [
+          {
+            "name": "South Canterbury Anniversary Day"
+          }
+        ],
+        "2024-09-23": [
+          {
+            "name": "South Canterbury Anniversary Day"
+          }
+        ],
+        "2025-09-22": [
+          {
+            "name": "South Canterbury Anniversary Day"
+          }
+        ],
+        "2026-09-28": [
+          {
+            "name": "South Canterbury Anniversary Day"
+          }
+        ],
+        "2027-09-27": [
+          {
+            "name": "South Canterbury Anniversary Day"
+          }
+        ]
+      }
+    },
+    "nz-southland": {
+      "inherits": [
+        "nz-national"
+      ],
+      "years": {
+        "2021": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2022": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2023": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2024": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2025": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2026": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2027": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        }
+      },
+      "holidays": {
+        "2021-04-06": [
+          {
+            "name": "Southland Anniversary Day"
+          }
+        ],
+        "2022-04-19": [
+          {
+            "name": "Southland Anniversary Day"
+          }
+        ],
+        "2023-04-11": [
+          {
+            "name": "Southland Anniversary Day"
+          }
+        ],
+        "2024-04-02": [
+          {
+            "name": "Southland Anniversary Day"
+          }
+        ],
+        "2025-04-22": [
+          {
+            "name": "Southland Anniversary Day"
+          }
+        ],
+        "2026-04-07": [
+          {
+            "name": "Southland Anniversary Day"
+          }
+        ],
+        "2027-03-30": [
+          {
+            "name": "Southland Anniversary Day"
+          }
+        ]
+      }
+    },
+    "nz-taranaki": {
+      "inherits": [
+        "nz-national"
+      ],
+      "years": {
+        "2021": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2022": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2023": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2024": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2025": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2026": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2027": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        }
+      },
+      "holidays": {
+        "2021-03-08": [
+          {
+            "name": "Taranaki Anniversary Day"
+          }
+        ],
+        "2022-03-14": [
+          {
+            "name": "Taranaki Anniversary Day"
+          }
+        ],
+        "2023-03-13": [
+          {
+            "name": "Taranaki Anniversary Day"
+          }
+        ],
+        "2024-03-11": [
+          {
+            "name": "Taranaki Anniversary Day"
+          }
+        ],
+        "2025-03-10": [
+          {
+            "name": "Taranaki Anniversary Day"
+          }
+        ],
+        "2026-03-09": [
+          {
+            "name": "Taranaki Anniversary Day"
+          }
+        ],
+        "2027-03-08": [
+          {
+            "name": "Taranaki Anniversary Day"
+          }
+        ]
+      }
+    },
+    "nz-wellington": {
+      "inherits": [
+        "nz-national"
+      ],
+      "years": {
+        "2021": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2022": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2023": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2024": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2025": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2026": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2027": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        }
+      },
+      "holidays": {
+        "2021-01-25": [
+          {
+            "name": "Wellington Anniversary Day"
+          }
+        ],
+        "2022-01-24": [
+          {
+            "name": "Wellington Anniversary Day"
+          }
+        ],
+        "2023-01-23": [
+          {
+            "name": "Wellington Anniversary Day"
+          }
+        ],
+        "2024-01-22": [
+          {
+            "name": "Wellington Anniversary Day"
+          }
+        ],
+        "2025-01-20": [
+          {
+            "name": "Wellington Anniversary Day"
+          }
+        ],
+        "2026-01-19": [
+          {
+            "name": "Wellington Anniversary Day"
+          }
+        ],
+        "2027-01-25": [
+          {
+            "name": "Wellington Anniversary Day"
+          }
+        ]
+      }
+    },
+    "nz-westland": {
+      "inherits": [
+        "nz-national"
+      ],
+      "years": {
+        "2021": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2022": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2023": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2024": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2025": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2026": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        },
+        "2027": {
+          "verified": false,
+          "provenance": "derived-rule",
+          "source": "Holidays Act 2003 (NZ) rules in scripts/holidays/rules.ts - New Zealand publishes no machine-readable holiday dataset",
+          "gaps": []
+        }
+      },
+      "holidays": {
+        "2021-11-29": [
+          {
+            "name": "Westland Anniversary Day"
+          }
+        ],
+        "2022-11-28": [
+          {
+            "name": "Westland Anniversary Day"
+          }
+        ],
+        "2023-12-04": [
+          {
+            "name": "Westland Anniversary Day"
+          }
+        ],
+        "2024-12-02": [
+          {
+            "name": "Westland Anniversary Day"
+          }
+        ],
+        "2025-12-01": [
+          {
+            "name": "Westland Anniversary Day"
+          }
+        ],
+        "2026-11-30": [
+          {
+            "name": "Westland Anniversary Day"
+          }
+        ],
+        "2027-11-29": [
+          {
+            "name": "Westland Anniversary Day"
+          }
+        ]
+      }
+    }
+  }
+}
