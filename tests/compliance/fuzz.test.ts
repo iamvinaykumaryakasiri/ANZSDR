@@ -410,12 +410,22 @@ function oracleReasons(g: Generated, p: CompliancePolicy): string[] {
     reasons.push('suppressed');
   }
 
-  if (g.lineType === 'mobile' && !p.dnc.allow_mobile_dialling) {
-    reasons.push('mobile-disabled');
-  } else if (p.dnc.wash_required_for.includes(g.lineType)) {
-    if (s.dncWash === null) reasons.push('wash-missing');
-    else if (s.dncWash.result === 'registered') reasons.push('dnc-registered');
-    else if (r.at.getTime() - s.dncWash.washedAt.getTime() >= p.dnc.wash_validity_days * DAY) reasons.push('wash-stale');
+  // A wash that says the number is on the register settles it, whoever owns the
+  // number and whatever line type it is. Below that: a number the operator owns
+  // is not what the register protects, so the rest of the rules drop away for it.
+  const operatorTestNumber =
+    s.contactKind === 'test' && p.dnc.exempt_test_contacts && p.dialling.test_contacts_only;
+  if (s.dncWash !== null && s.dncWash.result === 'registered') {
+    reasons.push('dnc-registered');
+  } else if (!operatorTestNumber) {
+    if (g.lineType === 'mobile' && !p.dnc.allow_mobile_dialling) {
+      reasons.push('mobile-disabled');
+    } else if (p.dnc.wash_required_for.includes(g.lineType)) {
+      if (s.dncWash === null) reasons.push('wash-missing');
+      else if (r.at.getTime() - s.dncWash.washedAt.getTime() >= p.dnc.wash_validity_days * DAY) {
+        reasons.push('wash-stale');
+      }
+    }
   }
 
   const sorted = [...s.contactAttempts].sort((a, b) => a.at.getTime() - b.at.getTime());
@@ -461,18 +471,28 @@ function oracleReasons(g: Generated, p: CompliancePolicy): string[] {
 describe('compliance gate fuzz', () => {
   const cal = calendar();
 
-  for (const requireVerified of [false, true]) {
-    it(`agrees with an independent oracle across 5,000 requests (verified calendar required: ${requireVerified})`, () => {
-      // The approval gate is on in both runs: a dial that slipped past it would
-      // be as serious as one that slipped past the calling hours.
-      // Both extra gates are on in both runs. A dial that slipped past either
-      // would be as serious as one that slipped past the calling hours.
+  /**
+   * Three runs. The calendar requirement is the original pair; the third turns
+   * on the test-number exemption from section 7.2, because a rule that lets a
+   * dial through is exactly the rule that has to be fuzzed hardest.
+   */
+  const RUNS = [
+    { label: 'unverified calendar allowed', requireVerified: false, exempt: false, seed: 0xbadc0de, minAllowed: 80 },
+    { label: 'verified calendar required', requireVerified: true, exempt: false, seed: 0xc0ffee, minAllowed: 25 },
+    { label: 'operator test numbers exempt from DNC', requireVerified: false, exempt: true, seed: 0x5eed17, minAllowed: 80 }
+  ] as const;
+
+  for (const run of RUNS) {
+    it(`agrees with an independent oracle across 5,000 requests (${run.label})`, () => {
+      // The approval gate and test mode are on in every run. A dial that slipped
+      // past either would be as serious as one that slipped past calling hours.
       const p = policy({
-        requireVerifiedCalendar: requireVerified,
+        requireVerifiedCalendar: run.requireVerified,
         requireDailyPlan: true,
-        testContactsOnly: true
+        testContactsOnly: true,
+        exemptTestContacts: run.exempt
       });
-      const rand = mulberry32(requireVerified ? 0xc0ffee : 0xbadc0de);
+      const rand = mulberry32(run.seed);
 
       let allowed = 0;
       const disagreements: string[] = [];
@@ -481,6 +501,7 @@ describe('compliance gate fuzz', () => {
       const unapprovedDials: string[] = [];
       const saturdayDials: string[] = [];
       const prospectDials: string[] = [];
+      const registeredDials: string[] = [];
 
       for (let i = 0; i < 5000; i++) {
         const g = generate(rand, i);
@@ -512,6 +533,15 @@ describe('compliance gate fuzz', () => {
           if (g.contactKind !== 'test') {
             prospectDials.push(`#${i} allowed a ${g.contactKind ?? 'unknown'} contact while in test mode`);
           }
+          // The exemption must never reach a number we know is on the register,
+          // and a mobile must never get through on a contact that is not a test
+          // number - the two things the exemption could plausibly break.
+          if (g.snapshot.dncWash?.result === 'registered') {
+            registeredDials.push(`#${i} ${g.request.phone} allowed while on the register`);
+          }
+          if (g.lineType === 'mobile' && !p.dnc.allow_mobile_dialling && g.contactKind !== 'test') {
+            registeredDials.push(`#${i} ${g.request.phone} allowed a mobile that is not a test number`);
+          }
           if (
             g.snapshot.dayPlan === null ||
             g.snapshot.dayPlan.status !== 'approved' ||
@@ -528,9 +558,10 @@ describe('compliance gate fuzz', () => {
       expect(unapprovedDials).toEqual([]);
       expect(saturdayDials).toEqual([]);
       expect(prospectDials).toEqual([]);
+      expect(registeredDials).toEqual([]);
       expect(disagreements.slice(0, 10)).toEqual([]);
       // Proof the gate is not simply refusing everything.
-      expect(allowed).toBeGreaterThan(requireVerified ? 25 : 80);
+      expect(allowed).toBeGreaterThan(run.minAllowed);
     });
   }
 });

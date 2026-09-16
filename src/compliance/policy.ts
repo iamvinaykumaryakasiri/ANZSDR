@@ -105,6 +105,19 @@ export const policySchema = z.object({
      * are placed.
      */
     allow_mobile_dialling: z.boolean(),
+    /**
+     * A narrow exemption for the operator's own handsets. The Do Not Call
+     * register exists to protect people from unsolicited calls from strangers;
+     * it has nothing to say about the operator ringing a number they own and
+     * consent to being rung on. Without this there is no way to test the voice
+     * path at all, because every number the operator controls is a mobile.
+     *
+     * It ships false, it applies only to contacts the blackboard records as
+     * `test`, and it applies only while `dialling.test_contacts_only` is also
+     * true - so it evaporates by construction the moment the system is allowed
+     * to call a stranger.
+     */
+    exempt_test_contacts: z.boolean(),
     wash_required_for: z.array(z.enum(['mobile', 'fixed', 'non-geographic'])),
     wash_validity_days: z.number().int().positive(),
     register: z.string().min(1)

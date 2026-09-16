@@ -6,12 +6,21 @@ behind it, so a fresh session does not re-derive or re-litigate any of it.
 
 **Branch:** `claude/anz-voice-sdr-build-8o6q1m`
 **State:** Phases 1 and 2 complete and accepted. Phase 3 not started.
-**Last verified:** 314 tests green, 100% branch coverage on `src/compliance`,
+**Last verified:** 333 tests green, 100% branch coverage on `src/compliance`,
 working tree clean, everything pushed.
 
 **First campaign is loaded.** `NZ banking pilot`, market NZ: Kiwibank and TSB at
 priority 1, four tier 2 banks at 2, two tier 3 at 3. Twenty-nine technology
 titles from CIO down to engineering manager. Three meetings a week, US$25 ceiling.
+
+**Two test contacts are loaded**, both on `+61448455510` — a number Vinay
+answers — against Kiwibank and TSB. Both are marked `kind: test`, so the gate
+will consider them while the system is in test mode. Both are an *Australian*
+mobile on a *New Zealand* account, which is deliberate and now handled: the
+market of a dial follows the number, not the employer's country. See
+"Dialling the operator's own mobile" below for the one flag that has to be
+turned on before they can actually be rung, and note that sharing one number
+means `max_dials_per_number_per_day: 1` permits only one of the two per day.
 
 ---
 
@@ -20,7 +29,7 @@ titles from CIO down to engineering manager. Three meetings a week, US$25 ceilin
 ```bash
 npm install           # postinstall runs `prisma generate`
 npm run db:setup      # apply migrations
-npm test              # 314 tests, ~10s, includes the 10,000-request fuzz acceptance
+npm test              # 333 tests, ~25s, includes the 15,000-request fuzz acceptance
 npm run test:coverage # fails below 100% branch coverage on src/compliance
 npm run typecheck
 ```
@@ -255,12 +264,35 @@ and with no approved plan, `DAY_PLAN_NOT_APPROVED`.
 |---|---|---|
 | No caller ID numbers | `config/policy.yaml` → `caller_id` | §15 item 3 answered |
 | `allow_mobile_dialling: false` | `config/policy.yaml` → `dnc` | §15 item 4 answered |
+| `exempt_test_contacts: false` | `config/policy.yaml` → `dnc` | Vinay decides — see below. Required before Phase 5 can dial anything |
 | `require_verified_calendar: true` | `config/policy.yaml` → `holidays` | a human runs `npm run holidays:verify -- --sign-off all:2026 --by "<name>"` |
 | `test_contacts_only: true` | `config/policy.yaml` → `dialling` | deliberately, once §15 items 2, 3 and 4 are answered |
 | `require_daily_plan: true` | `config/policy.yaml` → `approval` | not waiting on anything — this is how the system is meant to run |
 
-The first three are one-line changes and none should be made without the
+The first four are one-line changes and none should be made without the
 corresponding answer.
+
+### Dialling the operator's own mobile
+
+§7.2 bans mobiles until DNCR washing is arranged, because Apollo hands back
+personal mobiles and a personal mobile can be registered. But every number
+Vinay controls is a mobile, so §13 Phase 5's *"calls only to numbers I control"*
+and that ban cannot both hold. `dnc.exempt_test_contacts` is the way through.
+
+It is narrow on purpose:
+
+- The contact must be recorded `test` **on the blackboard**. `contactKind` is
+  read from the record by the gate, never taken from the dial request, so
+  nothing upstream can assert its way past it.
+- `dialling.test_contacts_only` must still be true. Taking the system out of
+  test mode takes the exemption with it, which is exactly when you want it gone.
+- A wash result that positively says *registered* still refuses the dial.
+
+The risk it carries is mis-marking: anyone typed into `config/contacts.csv`
+with `kind` = `test` skips the DNC check entirely. Only numbers Vinay personally
+answers belong in that column. The CSV default falls the safe way — anything not
+literally `test` is treated as a real person — but the column is still typed by
+hand.
 
 ---
 

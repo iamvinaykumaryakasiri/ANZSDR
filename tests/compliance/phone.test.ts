@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   allJurisdictions,
+  marketForDial,
   marketOf,
   parsePhoneNumber,
   resolveLocality,
@@ -151,5 +152,29 @@ describe('jurisdiction helpers', () => {
     expect(timezoneFor('au-nt')).toBe('Australia/Darwin');
     expect(allJurisdictions('AU')).toHaveLength(8);
     expect(allJurisdictions('NZ')).toHaveLength(12);
+  });
+});
+
+/**
+ * Which market's rules govern a dial is a fact about the number, not about
+ * where the employer is registered. A New Zealand bank can employ someone on an
+ * Australian mobile, and section 7.1 gates on the recipient's own clock.
+ */
+describe('marketForDial', () => {
+  it('follows the number, not the account it is filed under', () => {
+    expect(marketForDial('+61448455510', 'NZ')).toBe('AU');
+    expect(marketForDial('+6421555123', 'AU')).toBe('NZ');
+  });
+
+  it('reads a number written in national form against the account it came from', () => {
+    expect(marketForDial('021 555 123', 'NZ')).toBe('NZ');
+    expect(marketForDial('02 8000 1234', 'AU')).toBe('AU');
+  });
+
+  it('keeps the fallback when the number will not parse', () => {
+    // So the gate reports it as an invalid number, which is the actual problem,
+    // rather than as a market mismatch, which would point at the wrong thing.
+    expect(marketForDial('call me on the desk line', 'NZ')).toBe('NZ');
+    expect(marketForDial('+1 415 555 0100', 'AU')).toBe('AU');
   });
 });

@@ -75,6 +75,31 @@ describe('drafting the day', () => {
     expect(plan.entries.map((e) => e.displayName)).toEqual(['Priya Raman', 'Tom Whitcombe']);
   });
 
+  /**
+   * Which market's rules govern a dial follows the number, not the account's
+   * registered country. A New Zealand bank employing someone on an Australian
+   * mobile is an ordinary thing; the gate is owed the clock that person is
+   * actually on, and section 7.1 says so.
+   */
+  it('takes the market from the number, not from where the employer is registered', async () => {
+    const h = await researched();
+    const contact = await h.db.contact.findFirstOrThrow();
+    await h.db.account.update({
+      where: { id: contact.accountId },
+      data: { country: 'NZ', domain: 'examplebank.co.nz' }
+    });
+    await h.db.contact.update({
+      where: { id: contact.id },
+      data: { phoneE164: '+61280001230', phoneLine: 'fixed', jurisdiction: null }
+    });
+
+    const plan = await h.planner.draft({ campaignId: h.campaignId });
+    const entry = plan.entries.find((e) => e.contactId === contact.id);
+
+    expect(entry?.gateReasons.map((r) => r.code)).not.toContain('MARKET_MISMATCH');
+    expect(entry?.gateAllowed).toBe(true);
+  });
+
   it('shows why an entry is blocked rather than dropping it silently', async () => {
     const h = await researched();
     const contact = await h.db.contact.findFirstOrThrow();

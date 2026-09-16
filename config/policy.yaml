@@ -48,6 +48,25 @@ dnc:
   # Apollo returns personal mobiles, and a personal mobile can be on the DNCR.
   # Until washing is arranged this stays false: office direct dials only.
   allow_mobile_dialling: false
+
+  # The one exception: a number Vinay owns and is ringing on purpose.
+  #
+  # The register protects people from unsolicited calls from strangers. It has
+  # nothing to say about the operator ringing their own handset. Every number
+  # Vinay controls is a mobile, so with this off there is no number in the world
+  # the voice path can be tested against - phase 5 ("calls only to numbers I
+  # control") cannot start until this is on.
+  #
+  # It is fenced three ways and cannot reach a prospect: the contact has to be
+  # recorded as `test` on the blackboard (not asserted by whatever asked for the
+  # dial), `dialling.test_contacts_only` below has to still be true, and this
+  # flag has to be on. Turning test mode off takes the exemption with it.
+  #
+  # The real risk it carries is mis-marking: anyone typed into contacts.csv with
+  # kind `test` skips the Do Not Call check entirely. Only put numbers you
+  # personally answer in that column.
+  exempt_test_contacts: false
+
   wash_required_for: [mobile]
   wash_validity_days: 30
   register: "ACMA Do Not Call Register"

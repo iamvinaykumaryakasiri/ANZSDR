@@ -249,7 +249,7 @@ export function evaluateDialRequest(
     );
   }
 
-  const dnc = evaluateDnc(number, snapshot.dncWash, policy, at);
+  const dnc = evaluateDnc(number, snapshot.dncWash, policy, at, snapshot.contactKind);
   switch (dnc.kind) {
     case 'mobile-dialling-disabled':
       reasons.push(
@@ -275,6 +275,9 @@ export function evaluateDialRequest(
         deny('DNC_REGISTERED', `${number.e164} is on the ${policy.dnc.register}`, { permanent: true })
       );
       break;
+    // A number the operator owns, while the system is still in test mode. The
+    // register is about strangers, and this is not one; see `dnc.ts`.
+    case 'operator-test-number':
     case 'not-required':
     case 'ok':
       break;

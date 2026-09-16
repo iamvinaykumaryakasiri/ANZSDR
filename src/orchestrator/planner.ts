@@ -12,7 +12,7 @@
 import { DateTime } from 'luxon';
 import { evaluateDialRequest } from '../compliance/gate.js';
 import { nextOpenAt } from '../compliance/calling-window.js';
-import { parsePhoneNumber, resolveLocality } from '../compliance/phone.js';
+import { marketForDial, parsePhoneNumber, resolveLocality } from '../compliance/phone.js';
 import type { CompliancePolicy } from '../compliance/policy.js';
 import type { HolidayCalendar } from '../compliance/holidays.js';
 import type { ComplianceGate } from '../compliance/service.js';
@@ -84,7 +84,13 @@ export class DailyCallPlanner {
     const entries: PlanEntryInput[] = [];
     for (const contact of contacts) {
       const phone = contact.phoneE164 as string;
-      const market = (contact.account.country === 'NZ' ? 'NZ' : 'AU') as Market;
+      // The number decides which market's rules apply, not the account's
+      // headquarters: a New Zealand bank can employ someone on an Australian
+      // mobile, and the gate is owed the clock the recipient is actually on.
+      // The account's country is only the fallback for a number written in
+      // national form, or one that will not parse.
+      const accountMarket = (contact.account.country === 'NZ' ? 'NZ' : 'AU') as Market;
+      const market = marketForDial(phone, accountMarket);
 
       const request: DialRequest = {
         requestId: `plan-${planDate}-${contact.id}`,

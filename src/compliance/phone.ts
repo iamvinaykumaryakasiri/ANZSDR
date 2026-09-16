@@ -54,6 +54,25 @@ export function marketOf(jurisdiction: Jurisdiction): Market {
   return jurisdiction.startsWith('au-') ? 'AU' : 'NZ';
 }
 
+/**
+ * Which market's rules govern a dial.
+ *
+ * The market of a *dial* is a property of the number being rung, not of where
+ * the employer is headquartered. A New Zealand bank can perfectly well employ
+ * someone carrying an Australian mobile, and section 7.1 gates on the clock
+ * where the recipient actually is - so the number decides, and the account's
+ * country is only the fallback for reading a number written in national form
+ * (a leading zero, no country code) or one that will not parse at all.
+ *
+ * An unparseable number keeps the fallback deliberately: the gate should reject
+ * it as an invalid number and say so, not as a market mismatch, which would
+ * point the reader at the wrong problem.
+ */
+export function marketForDial(raw: string, fallback: Market): Market {
+  const parsed = parsePhoneNumber(raw, fallback);
+  return parsed.valid ? parsed.market : fallback;
+}
+
 /** Every place a contact in this market might be. Used for mobiles and unknowns. */
 export function allJurisdictions(market: Market): Jurisdiction[] {
   return market === 'AU' ? [...AU_JURISDICTIONS] : [...NZ_JURISDICTIONS];

@@ -63,45 +63,111 @@ describe('DNC washing', () => {
   });
 
   it('refuses mobiles outright until washing is arranged', () => {
-    expect(evaluateDnc(mobile, wash(), p, NOW)).toEqual({ kind: 'mobile-dialling-disabled' });
+    expect(evaluateDnc(mobile, wash(), p, NOW, 'prospect')).toEqual({ kind: 'mobile-dialling-disabled' });
   });
 
   it('does not require a wash for an office direct dial', () => {
-    expect(evaluateDnc(fixed, null, p, NOW)).toEqual({ kind: 'not-required' });
+    expect(evaluateDnc(fixed, null, p, NOW, 'prospect')).toEqual({ kind: 'not-required' });
   });
 
   it('requires a wash once mobile dialling is switched on', () => {
     const open = policy({ allowMobileDialling: true });
-    expect(evaluateDnc(mobile, null, open, NOW)).toEqual({ kind: 'missing' });
+    expect(evaluateDnc(mobile, null, open, NOW, 'prospect')).toEqual({ kind: 'missing' });
   });
 
   it('accepts a fresh clear wash', () => {
     const open = policy({ allowMobileDialling: true });
-    const outcome = evaluateDnc(mobile, wash(), open, NOW);
+    const outcome = evaluateDnc(mobile, wash(), open, NOW, 'prospect');
     expect(outcome.kind).toBe('ok');
   });
 
   it('rejects a wash older than its validity period', () => {
     const open = policy({ allowMobileDialling: true });
-    const outcome = evaluateDnc(mobile, wash({ washedAt: new Date(NOW.getTime() - 31 * DAY) }), open, NOW);
+    const outcome = evaluateDnc(mobile, wash({ washedAt: new Date(NOW.getTime() - 31 * DAY) }), open, NOW, 'prospect');
     expect(outcome.kind).toBe('stale');
   });
 
   it('treats the expiry instant itself as expired', () => {
     const open = policy({ allowMobileDialling: true });
-    const outcome = evaluateDnc(mobile, wash({ washedAt: new Date(NOW.getTime() - 30 * DAY) }), open, NOW);
+    const outcome = evaluateDnc(mobile, wash({ washedAt: new Date(NOW.getTime() - 30 * DAY) }), open, NOW, 'prospect');
     expect(outcome.kind).toBe('stale');
   });
 
   it('refuses a registered number permanently', () => {
     const open = policy({ allowMobileDialling: true });
-    expect(evaluateDnc(mobile, wash({ result: 'registered' }), open, NOW).kind).toBe('registered');
+    expect(evaluateDnc(mobile, wash({ result: 'registered' }), open, NOW, 'prospect').kind).toBe('registered');
   });
 
   it('applies wash rules to fixed lines when policy says to', () => {
     const p2 = policy();
     p2.dnc.wash_required_for = ['mobile', 'fixed'];
-    expect(evaluateDnc(fixed, null, p2, NOW).kind).toBe('missing');
+    expect(evaluateDnc(fixed, null, p2, NOW, 'prospect').kind).toBe('missing');
+  });
+
+  it('refuses a registered number even when its line type needs no wash', () => {
+    // `wash_required_for: [mobile]` is a judgement about which numbers are
+    // likely to be on the register. It is not a reason to ring an office line
+    // we already hold a positive result for.
+    const p2 = policy();
+    expect(p2.dnc.wash_required_for).not.toContain('fixed');
+    const registered = { ...wash({ result: 'registered' }), e164: fixed.e164 };
+    expect(evaluateDnc(fixed, registered, p2, NOW, 'prospect').kind).toBe('registered');
+  });
+});
+
+/**
+ * Section 7.2's mobile ban protects strangers from an unwashed list. It was
+ * never about the operator ringing their own handset - and since every number
+ * the operator controls is a mobile, without this exemption the voice path
+ * could not be tested against any number at all.
+ */
+describe('the operator dialling their own test number', () => {
+  const mobile: ParsedNumber = {
+    e164: '+61400000000',
+    market: 'AU',
+    lineType: 'mobile',
+    nsn: '400000000',
+    areaCode: '4'
+  };
+  const exempt = policy({ exemptTestContacts: true, testContactsOnly: true });
+  const washed = (result: 'clear' | 'registered'): DncWashRecord => ({
+    e164: mobile.e164,
+    result,
+    washedAt: new Date(NOW.getTime() - DAY),
+    register: 'ACMA Do Not Call Register'
+  });
+
+  it('lets a test number through the mobile ban', () => {
+    expect(evaluateDnc(mobile, null, exempt, NOW, 'test')).toEqual({ kind: 'operator-test-number' });
+  });
+
+  it('does nothing for a real prospect on the same number', () => {
+    expect(evaluateDnc(mobile, null, exempt, NOW, 'prospect')).toEqual({ kind: 'mobile-dialling-disabled' });
+  });
+
+  it('does nothing for a contact the blackboard has never heard of', () => {
+    expect(evaluateDnc(mobile, null, exempt, NOW, null)).toEqual({ kind: 'mobile-dialling-disabled' });
+  });
+
+  it('stays off unless it is switched on', () => {
+    const off = policy({ exemptTestContacts: false, testContactsOnly: true });
+    expect(evaluateDnc(mobile, null, off, NOW, 'test')).toEqual({ kind: 'mobile-dialling-disabled' });
+  });
+
+  it('evaporates the moment the system is allowed to call a stranger', () => {
+    // Test mode off takes the exemption with it, whatever the flag says.
+    const live = policy({ exemptTestContacts: true, testContactsOnly: false });
+    expect(evaluateDnc(mobile, null, live, NOW, 'test')).toEqual({ kind: 'mobile-dialling-disabled' });
+  });
+
+  it('still refuses a number a wash says is on the register', () => {
+    expect(evaluateDnc(mobile, washed('registered'), exempt, NOW, 'test').kind).toBe('registered');
+  });
+
+  it('is unbothered by a wash that came back clear', () => {
+    expect(evaluateDnc(mobile, washed('clear'), exempt, NOW, 'test')).toEqual({
+      kind: 'operator-test-number'
+    });
   });
 });
 

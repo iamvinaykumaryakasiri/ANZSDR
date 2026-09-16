@@ -284,6 +284,21 @@ describe('pasting people', () => {
     expect(contact.phoneE164).toBe('+6441119999');
   });
 
+  it('does not walk a researched person back to the start of the pipeline', async () => {
+    const ctx = await withAccount();
+    await paste(ctx, 'Test\tOne\tHead of Data\tkiwibank.co.nz\t+6441112222\t\thead\t\ttest');
+    const before = await ctx.db.contact.findFirstOrThrow();
+    await ctx.db.contact.update({ where: { id: before.id }, data: { status: 'researched' } });
+
+    // Re-pasting the block is how a typo gets corrected. If that reset the
+    // status, the person would drop out of the call plan and never be picked
+    // up for research again - they already have a dossier.
+    await paste(ctx, 'Test\tOne\tChief Data Officer\tkiwibank.co.nz\t+6441112222\t\tc_suite\t\ttest');
+    const after = await ctx.db.contact.findFirstOrThrow();
+    expect(after.status).toBe('researched');
+    expect(after.title).toBe('Chief Data Officer');
+  });
+
   it('keeps a person with no usable number rather than dropping them', async () => {
     const ctx = await withAccount();
     await paste(ctx, 'Test\tOne\tCIO\tkiwibank.co.nz\tnot a number\t\thead\t\ttest');

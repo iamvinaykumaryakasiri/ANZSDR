@@ -25,6 +25,7 @@ export interface PolicyOverrides {
   auHolidayJurisdiction?: string;
   requireDailyPlan?: boolean;
   testContactsOnly?: boolean;
+  exemptTestContacts?: boolean;
 }
 
 export function policy(overrides: PolicyOverrides = {}): CompliancePolicy {
@@ -52,6 +53,7 @@ export function policy(overrides: PolicyOverrides = {}): CompliancePolicy {
     },
     dnc: {
       allow_mobile_dialling: overrides.allowMobileDialling ?? false,
+      exempt_test_contacts: overrides.exemptTestContacts ?? false,
       wash_required_for: ['mobile'],
       wash_validity_days: 30,
       register: 'ACMA Do Not Call Register'

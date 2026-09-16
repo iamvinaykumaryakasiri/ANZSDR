@@ -189,8 +189,7 @@ export async function upsertContact(
     linkedinUrl: row.linkedinUrl === '' ? null : row.linkedinUrl,
     phoneE164: parsedPhone !== null && parsedPhone.valid ? parsedPhone.e164 : null,
     phoneLine: parsedPhone !== null && parsedPhone.valid ? parsedPhone.lineType : null,
-    source: 'operator',
-    status: 'enriched'
+    source: 'operator'
   };
 
   const existing = await db.contact.findFirst({
@@ -199,8 +198,13 @@ export async function upsertContact(
 
   const id = existing?.id ?? randomUUID();
   if (existing === null) {
-    await db.contact.create({ data: { id, campaignId, accountId, ...data } });
+    await db.contact.create({ data: { id, campaignId, accountId, ...data, status: 'enriched' } });
   } else {
+    // Status is deliberately not in `data`. Re-pasting the same block is the
+    // normal way to correct a typo, and it would otherwise walk everyone back to
+    // `enriched` - losing the research already done, and stranding them: they
+    // would no longer be researched enough for the call plan, and no longer
+    // unresearched enough for the Director to queue research again.
     await db.contact.update({ where: { id }, data: { ...data, updatedAt: new Date() } });
   }
 
