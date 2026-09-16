@@ -2,6 +2,11 @@
 
 Put things in here. Run `npm run knowledge:sync`. They become draft claims.
 
+Or do the whole thing from a browser: `npm run serve`, then the **What Lexi may
+say** panel on the account desk. Drag a deck in, press *Read the folder*, and
+approve line by line. Same folder, same claims, same rule — an upload produces
+drafts and nothing else.
+
 ## What it reads
 
 | Extension | What happens |

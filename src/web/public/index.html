@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <title>Account desk — ANZ Voice SDR</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%230d1117'/%3E%3Ccircle cx='8' cy='8' r='3' fill='%237aa2d2'/%3E%3C/svg%3E">
 <style>
   :root {
     --ink: #0d1117;
@@ -34,7 +35,7 @@
   h1 { margin: 0 0 4px; font-size: 20px; font-weight: 600; letter-spacing: -0.01em; }
   .sub { color: var(--steel); font-size: 13px; margin: 0; }
   h2 { font-size: 15px; font-weight: 600; margin: 32px 0 10px; }
-  h2 .hint { font-weight: 400; color: var(--steel); font-size: 13px; margin-left: 8px; }
+  h2 .hint, h3 .hint { font-weight: 400; color: var(--steel); font-size: 13px; margin-left: 8px; }
   section { background: var(--ink-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; }
   label { display: block; font-size: 12px; color: var(--steel); margin-bottom: 4px; }
   input, select, textarea, button {
@@ -96,6 +97,15 @@
     section { padding: 12px; }
     body { padding: 0 12px 48px; }
   }
+  .dropzone { border: 1px dashed var(--line); border-radius: var(--radius); padding: 18px; background: var(--ink-3); }
+  .dropzone.over { border-color: var(--accent); }
+  .claim { border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; margin-bottom: 8px; background: var(--ink-3); }
+  .claim p { margin: 0 0 6px; }
+  .claim .src { font-size: 12px; color: var(--slate); word-break: break-all; }
+  .claim .acts { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+  .claim.is-approved { border-color: #2f6f4f; }
+  .claim.is-rejected { opacity: .55; }
+  .claim.is-orphaned { opacity: .55; border-style: dashed; }
 </style>
 </head>
 <body>
@@ -228,6 +238,31 @@ Another Bank	anotherbank.co.nz	NZ	financial services	2"></textarea>
       <div style="flex:0 0 auto"><button id="export" type="button">Download CSV</button></div>
     </div>
     <p class="note">Copy the cells straight out of Excel or Sheets and paste. A header row is optional; if it is there, the column order is read from it. A domain already on the campaign is updated rather than duplicated.</p>
+  </section>
+
+  <h2>What Lexi may say <span class="hint" id="claim-count"></span></h2>
+  <section>
+    <p class="sub" style="margin-top:0">Drop capability decks and notes here. Every line comes out as a <strong>draft</strong>, and a draft cannot be said on a call. Nothing you upload reaches a prospect until you approve it below.</p>
+
+    <div id="drop-zone" class="dropzone">
+      <input id="drop-file" type="file" accept=".pptx,.md,.txt" multiple hidden>
+      <p style="margin:0"><button id="drop-pick" class="primary" type="button">Choose files</button> <span class="muted">or drag them here</span></p>
+      <p class="note" style="margin:8px 0 0">PowerPoint, Markdown or plain text. Up to 20MB each.</p>
+    </div>
+
+    <table id="drop-files" style="margin-top:14px"><tbody></tbody></table>
+    <p id="drop-empty" class="muted" style="font-size:13px">Nothing in the folder yet.</p>
+
+    <div class="row" style="margin-top:12px">
+      <div style="flex:0 0 auto"><button id="knowledge-sync" type="button">Read the folder</button></div>
+      <div style="flex:0 0 auto"><button id="knowledge-refresh" class="quiet" type="button">Refresh</button></div>
+    </div>
+
+    <div id="conflicts" class="note" hidden></div>
+
+    <h3 style="margin:22px 0 6px;font-size:15px">Waiting for you <span class="hint" id="draft-count"></span></h3>
+    <div id="claims"></div>
+    <p class="note">Approving is one line at a time on purpose. The whole value of this list is that a person read the sentence before an AI said it to a stranger. This panel lives on the desk for now; the console in the brief is Phase 8 and starts with a design review, and Jarvis will reach the same folder when it is built.</p>
   </section>
 
   <div id="status" class="status"></div>
@@ -593,8 +628,232 @@ Another Bank	anotherbank.co.nz	NZ	financial services	2"></textarea>
       $('gate').hidden = true;
       $('app').hidden = false;
       await load();
+      await loadKnowledge();
     } catch (error) {
       if (error.message !== 'unauthorised') say(error.message, false, 'gate-status');
+    }
+  });
+
+  /* ---- the knowledge drop -------------------------------------------- */
+
+  const STATUS_LABEL = { draft: 'waiting for you', approved: 'Lexi may say this', rejected: 'rejected', orphaned: 'source has gone' };
+
+  function renderClaims(state) {
+    const counts = state.counts;
+    $('claim-count').textContent =
+      counts.approved + ' of ' + counts.total + ' approved' +
+      (counts.orphaned > 0 ? ' · ' + counts.orphaned + ' orphaned' : '');
+
+    const live = (state.conflicts || []).filter((c) => c.live);
+    const box = $('conflicts');
+    if (live.length > 0) {
+      box.hidden = false;
+      box.textContent = 'Two approved claims contradict each other: "' + live[0].a.text + '" and "' + live[0].b.text + '". Reject one.';
+    } else {
+      box.hidden = true;
+    }
+
+    const drafts = state.claims.filter((c) => c.status === 'draft');
+    const rest = state.claims.filter((c) => c.status !== 'draft');
+    $('draft-count').textContent = drafts.length === 0 ? 'nothing pending' : drafts.length + ' to review';
+
+    const host = $('claims');
+    host.replaceChildren();
+    if (state.claims.length === 0) {
+      const none = document.createElement('p');
+      none.className = 'muted';
+      none.style.fontSize = '13px';
+      none.textContent = 'No claims yet.';
+      host.append(none);
+      return;
+    }
+
+    for (const claim of [...drafts, ...rest]) {
+      const card = document.createElement('div');
+      card.className = 'claim is-' + claim.status;
+
+      const text = document.createElement('p');
+      text.textContent = claim.text;
+      card.append(text);
+
+      const tag = document.createElement('span');
+      tag.className = 'tag';
+      tag.textContent = STATUS_LABEL[claim.status] || claim.status;
+      card.append(tag);
+
+      if (claim.source) {
+        const src = document.createElement('div');
+        src.className = 'src';
+        src.style.marginTop = '6px';
+        src.textContent = claim.source.ref + (claim.source.locator ? ' · ' + claim.source.locator : '') + ' — "' + claim.source.quote + '"';
+        card.append(src);
+      }
+      if (claim.notes) {
+        const note = document.createElement('div');
+        note.className = 'src';
+        note.style.marginTop = '6px';
+        note.textContent = claim.notes;
+        card.append(note);
+      }
+
+      const acts = document.createElement('div');
+      acts.className = 'acts';
+      if (claim.status !== 'approved' && claim.status !== 'orphaned') {
+        const yes = document.createElement('button');
+        yes.className = 'primary';
+        yes.type = 'button';
+        yes.textContent = 'Lexi may say this';
+        yes.addEventListener('click', () => decide(claim.id, 'approve'));
+        acts.append(yes);
+      }
+      if (claim.status !== 'rejected') {
+        const no = document.createElement('button');
+        no.type = 'button';
+        no.textContent = 'Reject';
+        no.addEventListener('click', () => decide(claim.id, 'reject'));
+        acts.append(no);
+      }
+      if (acts.children.length > 0) card.append(acts);
+
+      host.append(card);
+    }
+  }
+
+  async function decide(id, action) {
+    try {
+      let body = {};
+      if (action === 'reject') {
+        const reason = prompt('Why is this being rejected? It stays on the record.');
+        if (reason === null || reason.trim() === '') return;
+        body = { reason: reason.trim() };
+      }
+      const state = await json('/api/knowledge/claims/' + encodeURIComponent(id) + '/' + action, {
+        method: 'POST',
+        body: JSON.stringify(body)
+      });
+      renderClaims(state);
+      say(action === 'approve' ? 'Approved. Lexi may say that on a call.' : 'Rejected.');
+    } catch (error) {
+      say(error.message, false);
+    }
+  }
+
+  function renderFiles(payload) {
+    const body = $('drop-files').querySelector('tbody');
+    body.replaceChildren();
+    const files = payload.files || [];
+    $('drop-empty').hidden = files.length > 0 || (payload.skipped || []).length > 0;
+
+    for (const file of files) {
+      const row = document.createElement('tr');
+      const name = document.createElement('td');
+      name.textContent = file.name;
+      const count = document.createElement('td');
+      count.className = 'muted';
+      count.textContent = file.candidates + ' line(s) · ' + Math.max(1, Math.round(file.bytes / 1024)) + 'KB';
+      const act = document.createElement('td');
+      act.style.textAlign = 'right';
+      const remove = document.createElement('button');
+      remove.className = 'quiet';
+      remove.type = 'button';
+      remove.textContent = '×';
+      remove.setAttribute('aria-label', 'Remove ' + file.name);
+      remove.addEventListener('click', () => removeFile(file.name));
+      act.append(remove);
+      row.append(name, count, act);
+      body.append(row);
+    }
+
+    for (const skip of payload.skipped || []) {
+      const row = document.createElement('tr');
+      const name = document.createElement('td');
+      name.textContent = skip.file;
+      const why = document.createElement('td');
+      why.className = 'muted';
+      why.colSpan = 2;
+      why.textContent = skip.reason;
+      row.append(name, why);
+      body.append(row);
+    }
+  }
+
+  async function loadKnowledge() {
+    try {
+      renderFiles(await json('/api/knowledge/files'));
+      renderClaims(await json('/api/knowledge'));
+    } catch (error) {
+      say(error.message, false);
+    }
+  }
+
+  async function removeFile(name) {
+    try {
+      await json('/api/knowledge/files/' + encodeURIComponent(name), { method: 'DELETE' });
+      say('Removed ' + name + '. Its claims stay until you read the folder again.');
+      renderFiles(await json('/api/knowledge/files'));
+    } catch (error) {
+      say(error.message, false);
+    }
+  }
+
+  function base64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = () => reject(new Error('could not read ' + file.name));
+      reader.onload = () => {
+        const result = String(reader.result);
+        resolve(result.slice(result.indexOf(',') + 1));
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function upload(files) {
+    let ok = 0;
+    for (const file of files) {
+      try {
+        await json('/api/knowledge/files', {
+          method: 'POST',
+          body: JSON.stringify({ filename: file.name, content: await base64(file) })
+        });
+        ok += 1;
+      } catch (error) {
+        say(file.name + ': ' + error.message, false);
+      }
+    }
+    if (ok > 0) {
+      say(ok + ' file(s) uploaded. Read the folder to turn them into drafts.');
+      renderFiles(await json('/api/knowledge/files'));
+    }
+  }
+
+  $('drop-pick').addEventListener('click', () => $('drop-file').click());
+  $('drop-file').addEventListener('change', async (event) => {
+    await upload([...event.target.files]);
+    event.target.value = '';
+  });
+
+  const zone = $('drop-zone');
+  for (const type of ['dragenter', 'dragover']) {
+    zone.addEventListener(type, (event) => { event.preventDefault(); zone.classList.add('over'); });
+  }
+  for (const type of ['dragleave', 'drop']) {
+    zone.addEventListener(type, (event) => { event.preventDefault(); zone.classList.remove('over'); });
+  }
+  zone.addEventListener('drop', (event) => upload([...event.dataTransfer.files]));
+
+  $('knowledge-refresh').addEventListener('click', loadKnowledge);
+  $('knowledge-sync').addEventListener('click', async () => {
+    try {
+      const result = await json('/api/knowledge/sync', { method: 'POST', body: JSON.stringify({}) });
+      renderClaims(result);
+      renderFiles(await json('/api/knowledge/files'));
+      const parts = [result.added + ' new draft(s)'];
+      if (result.unchanged > 0) parts.push(result.unchanged + ' unchanged');
+      if (result.orphaned > 0) parts.push(result.orphaned + ' orphaned');
+      say('Read ' + result.read + ' line(s): ' + parts.join(', ') + '.');
+    } catch (error) {
+      say(error.message, false);
     }
   });
 
@@ -607,6 +866,7 @@ Another Bank	anotherbank.co.nz	NZ	financial services	2"></textarea>
       await json('/api/campaigns');
       $('app').hidden = false;
       await load();
+      await loadKnowledge();
     } catch { $('gate').hidden = false; }
   })();
 })();

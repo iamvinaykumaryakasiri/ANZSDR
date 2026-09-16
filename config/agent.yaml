@@ -1,0 +1,28 @@
+# Who the agent is, and on whose behalf it calls.
+#
+# The opening script itself is NOT here. It lives in src/agents/caller/opening.ts,
+# frozen in code, because section 11 forbids Coach from touching the identity
+# disclosure, the AI disclosure or the recording announcement. This file supplies
+# the names that opening reads; it cannot change the shape of it, add to it, or
+# take anything out.
+
+agent:
+  # Section 15 item 1, answered 2026-09-17.
+  name: Lexi
+  gender: female
+  # AU-neutral per the brief. The actual voice is chosen in Phase 5 when the
+  # provider is wired; this is the brief given to that choice.
+  accent: au-neutral
+
+operator:
+  name: Vinay Kumar
+  title: Sales Director
+  company: Hexaware Technologies
+  team: the ANZ sales team
+
+# Section 7.3: a real, contactable number, never withheld, never spoofed, and
+# answerable for at least 30 days after the call. Empty until section 15 item 3
+# is answered - and the compliance gate already refuses every dial while it is,
+# so this cannot be forgotten into production.
+callback:
+  number: ""

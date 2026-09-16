@@ -21,6 +21,7 @@ import Fastify, { type FastifyInstance } from 'fastify';
 import type { Blackboard } from '../blackboard/client.js';
 import { createBlackboard } from '../blackboard/client.js';
 import { registerAccountsApi } from './accounts-api.js';
+import { registerKnowledgeApi } from './knowledge-api.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 // Resolved from the repository root rather than from this module, so a compiled
@@ -31,6 +32,8 @@ export interface ServerOptions {
   db: Blackboard;
   /** Shared secret for every /api route. The server refuses to start without one. */
   adminToken: string;
+  /** The knowledge pack directory. Overridden in tests so they never touch the real one. */
+  knowledgeDir?: string;
   logger?: boolean;
 }
 
@@ -46,7 +49,28 @@ export function buildServer(options: ServerOptions): FastifyInstance {
     throw new Error('ADMIN_TOKEN is required: this surface edits the prospect list and is not served unauthenticated');
   }
 
-  const app = Fastify({ logger: options.logger ?? false });
+  const app = Fastify({
+    logger: options.logger ?? false,
+    // A capability deck is routinely bigger than Fastify's 1MB default, and a
+    // silent 413 on an upload looks like the feature is broken. The knowledge
+    // API enforces its own per-file cap inside this.
+    bodyLimit: 24 * 1024 * 1024
+  });
+
+  // A POST with nothing to say still arrives as `content-type: application/json`
+  // from fetch(), and Fastify rejects an empty body as malformed JSON. Buttons
+  // like "read the folder" take no arguments, so treat an empty body as {} and
+  // let each route's own schema decide whether that is enough.
+  app.addContentTypeParser('application/json', { parseAs: 'string' }, (_request, body, done) => {
+    const text = (body as string).trim();
+    if (text === '') return done(null, {});
+    try {
+      done(null, JSON.parse(text) as unknown);
+    } catch (error) {
+      (error as Error & { statusCode?: number }).statusCode = 400;
+      done(error as Error, undefined);
+    }
+  });
 
   app.addHook('onRequest', async (request, reply) => {
     if (!request.url.startsWith('/api/')) return;
@@ -65,6 +89,7 @@ export function buildServer(options: ServerOptions): FastifyInstance {
   });
 
   registerAccountsApi(app, options.db);
+  registerKnowledgeApi(app, { dir: options.knowledgeDir ?? resolve(HERE, '../..', 'knowledge') });
 
   return app;
 }
