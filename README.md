@@ -11,7 +11,7 @@ including the build phases and the rules that override everything else, is in
 ```bash
 npm install
 npm run db:setup      # apply migrations and generate the Prisma client
-npm test              # 265 tests, including the 10,000-request fuzz acceptance
+npm test              # 298 tests, including the 10,000-request fuzz acceptance
 npm run test:coverage # enforces 100% branch coverage on src/compliance
 npm run typecheck
 ```
@@ -104,6 +104,65 @@ permits it.
 **Nothing dials until the day's plan is approved.** Approval covers the named
 people on the named day; it does not carry over to tomorrow and does not extend
 to anyone not on the list. It is enforced in the gate, alongside calling hours.
+
+## The account desk
+
+A small web page for the two lists the system runs on: the organisations to work,
+and the titles worth calling at them. It is **not** the console in section 14 of
+the brief — that is Phase 8 and starts with a design review. It shares a process
+with the Apollo webhook, because that needs a public HTTPS hostname anyway.
+
+```bash
+export ADMIN_TOKEN=$(openssl rand -hex 24)
+npm run serve        # http://localhost:8080/
+```
+
+The server refuses to start without `ADMIN_TOKEN`: this page edits the list of
+people the system will call, and is never served unauthenticated.
+
+What it does:
+
+- **Titles, seniorities and a never-call list.** A title containing a never-call
+  word is dropped whatever the seniority.
+- **A minimum score to enrich.** Below it nobody is enriched, so a loose title
+  list costs nothing — search is free, enrichment is what bills.
+- **Meetings per week and a weekly spend ceiling.** The Campaign Director reads
+  the ceiling from here and will not start work it cannot afford to finish.
+- **Paste straight from Excel.** Copy the cells and paste; tab-separated rows are
+  read literally, a header row is optional, and a domain already on the campaign
+  is updated rather than duplicated.
+- **Removing a worked account closes it** rather than deleting it, so the record
+  of what was said to people there survives.
+
+### Where the list actually lives
+
+`config/campaign.yaml` and `config/accounts.csv` are the committed source of
+truth: the campaign, the ICP titles, the never-call words, the budget, and the
+accounts. A database lives on one machine; these files survive a fresh clone, and
+every change to them is a reviewable diff.
+
+```bash
+npm run accounts:import   # files -> blackboard
+npm run accounts:export   # blackboard -> files, so desk edits can be committed
+```
+
+Edit the files and import, or edit on the desk and export. Either way, commit.
+Import is idempotent: the campaign is matched by name and an account already on
+it is updated rather than duplicated. An account's `status` is left alone on
+import, because that is worked state, not list state.
+
+## Apollo
+
+See [`docs/APOLLO-SETUP.md`](./docs/APOLLO-SETUP.md). The short version: start on
+the free plan, create a scoped API key, and run
+
+```bash
+npm run apollo:check                     # free: search endpoints only
+npm run apollo:check -- --spend-a-credit # also tests enrichment
+```
+
+before paying for anything. Apollo's own documentation does not say which plan
+unlocks which endpoint, so the script asks your account directly.
 
 ## Operating it
 

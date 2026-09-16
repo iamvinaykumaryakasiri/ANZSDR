@@ -1,0 +1,9 @@
+account_name,domain,country,industry,priority,notes
+Kiwibank,kiwibank.co.nz,NZ,financial services,1,State-owned. Fifth largest NZ bank; multi-year core and digital programme. Named by Vinay.
+TSB Bank,tsb.co.nz,NZ,financial services,1,New Plymouth. Community trust owned. Named by Vinay.
+The Co-operative Bank,co-operativebank.co.nz,NZ,financial services,2,Wellington. Customer-owned; small but genuine in-house technology team.
+Heartland Bank,heartland.co.nz,NZ,financial services,2,NZX listed. Digital-first by design; the most likely of the tier 2 set to have a data platform conversation.
+SBS Bank,sbsbank.co.nz,NZ,financial services,2,Invercargill. Building society turned registered bank.
+Rabobank New Zealand,rabobank.co.nz,NZ,financial services,2,Rural and agri banking. NZ arm of a Dutch parent; check where technology decisions actually sit before calling.
+NBS,nbs.co.nz,NZ,financial services,3,Nelson Building Society. Tier 3 - small technology team; expect one or two relevant people at most.
+Unity Credit Union,unitymoney.co.nz,NZ,financial services,3,Tier 3 credit union. Included to test whether the ICP finds anyone at this size at all.

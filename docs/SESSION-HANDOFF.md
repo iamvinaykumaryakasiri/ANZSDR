@@ -6,8 +6,12 @@ behind it, so a fresh session does not re-derive or re-litigate any of it.
 
 **Branch:** `claude/anz-voice-sdr-build-8o6q1m`
 **State:** Phases 1 and 2 complete and accepted. Phase 3 not started.
-**Last verified:** 288 tests green, 100% branch coverage on `src/compliance`,
+**Last verified:** 298 tests green, 100% branch coverage on `src/compliance`,
 working tree clean, everything pushed.
+
+**First campaign is loaded.** `NZ banking pilot`, market NZ: Kiwibank and TSB at
+priority 1, four tier 2 banks at 2, two tier 3 at 3. Twenty-nine technology
+titles from CIO down to engineering manager. Three meetings a week, US$25 ceiling.
 
 ---
 
@@ -16,7 +20,7 @@ working tree clean, everything pushed.
 ```bash
 npm install           # postinstall runs `prisma generate`
 npm run db:setup      # apply migrations
-npm test              # 288 tests, ~10s, includes the 10,000-request fuzz acceptance
+npm test              # 298 tests, ~10s, includes the 10,000-request fuzz acceptance
 npm run test:coverage # fails below 100% branch coverage on src/compliance
 npm run typecheck
 ```
@@ -99,6 +103,8 @@ src/web/                   the account desk (NOT the section 14 console)
 src/ops/                   kill-switch state and CLI
 prisma/                    schema and migrations for the SQLite blackboard
 config/policy.yaml         operator policy — can only ever make calling more restrictive
+config/campaign.yaml       the campaign, the ICP and the budget — committed source of truth
+config/accounts.csv        the account list — committed, survives a fresh clone
 config/holidays/           generated AU and NZ calendars (committed, reviewable diffs)
 scripts/                   holiday rule engine, calendar sign-off, Apollo check, demo seed
 data/sources/              vendored official data.gov.au holiday dataset
@@ -273,11 +279,13 @@ New Zealand publishes no machine-readable dataset at all, so its whole calendar
 is derived from the Holidays Act 2003 and is unverified. `npm run holidays:verify`
 lists everything outstanding.
 
-**Apollo's plan gating is undocumented.** Apollo's own docs say only that "access
-to Apollo API depends on your Apollo plan" without saying which endpoints need
-which tier, and third-party articles contradict each other. `npm run apollo:check`
-asks the account directly rather than guessing. Search costs nothing so those
-checks are free; the enrichment check is opt-in behind `--spend-a-credit`.
+**Apollo's Free plan does not include the search API.** Verified directly against
+the live account, which returned: *"The api/v1/mixed_people/api_search API is not
+included in your Free plan and is not accessible. All paid plans include full API
+access."* Both `mixed_people/search` and `mixed_companies/search` are blocked, so
+Phase 3 cannot begin discovery on Free. Apollo's own wording points at **Basic**
+(~US$49/user/month) rather than the ~US$119 Organization tier third-party articles
+claim. `npm run apollo:check` re-tests this on any key.
 
 ---
 
@@ -293,11 +301,13 @@ goal and the weekly spend ceiling. Paste a block from Excel; export CSV back.
 
 **What is still needed before starting:**
 
-- An **Apollo API key**. `docs/APOLLO-SETUP.md` is the sequence — free plan,
-  scoped key with four endpoints, `npm run apollo:check`, upgrade only if it says
-  so and only to the cheapest tier that passes.
-- **At least a few real accounts and titles** entered on the desk, so there is
-  something to prospect against.
+- **An Apollo Basic plan and an API key.** The connected account is on Free,
+  which blocks both search endpoints — verified, not assumed. See
+  `docs/APOLLO-SETUP.md`. The account holds 180 email credits and 160 direct-dial
+  credits, which is ample for the twenty-contact acceptance run once search works.
+- ~~Real accounts and titles~~ **Done.** `config/campaign.yaml` and
+  `config/accounts.csv` now hold the first campaign: eight New Zealand tier 2/3
+  banks and twenty-nine technology titles. See below.
 - A **public HTTPS hostname**, but only for mobile numbers. Apollo delivers phone
   enrichment asynchronously to a webhook and refuses the request without one.
   Office direct dials need none of it, and mobile dialling is off anyway until
@@ -359,6 +369,9 @@ npm run tick                              # one Campaign Director tick, decision
 
 npm run plan -- draft | show | approve | reject
 npm run serve                             # the account desk (needs ADMIN_TOKEN)
+
+npm run accounts:import                   # config files -> blackboard
+npm run accounts:export                   # blackboard -> config files, to commit
 
 npm run apollo:check                      # what an Apollo key can actually reach, free
 npm run apollo:check -- --spend-a-credit  # also tests enrichment

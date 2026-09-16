@@ -134,6 +134,8 @@ web/                 # the console (§14) — React + Vite, its own build
 ### 5.1 Account list in
 Maintained on the **account desk** (`npm run serve`), a small authenticated web page holding the organisations to work and the titles worth calling at them. It takes a block pasted straight out of Excel or Sheets using the same columns — `account_name`, `domain`, `country`, `industry`, `priority`, `notes` — and exports the same CSV back. New rows get picked up on the next tick.
 
+`config/campaign.yaml` and `config/accounts.csv` are the committed source of truth for the list, so it survives a machine and every change to it is a reviewable diff. `npm run accounts:import` loads them into the blackboard; `npm run accounts:export` writes desk edits back so they can be committed.
+
 The account desk is not the console in §14. That is Phase 8 and starts with a design review. The desk also carries the campaign's **minimum score to enrich**, its **meetings-per-week goal** and its **weekly spend ceiling**, which the Campaign Director reads directly.
 
 ### 5.2 Prospector: people, emails, phones

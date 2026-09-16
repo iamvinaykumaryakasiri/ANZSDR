@@ -15,36 +15,42 @@ people who clear the bar you set on the account desk.
 
 ---
 
-## The honest bit about plans
+## The plan question, now answered
 
-Apollo's own documentation says only this:
+Apollo's documentation says only that "access to Apollo API depends on your
+Apollo plan", and the third-party articles that claim to know which tier
+disagree with each other — several insist the Organization plan (~US$119/user/mo)
+is required for "advanced API access".
 
-> Access to Apollo API depends on your Apollo plan. If you need access, upgrade
-> your plan, or reach out to the Apollo sales team for guidance.
+We now have a direct answer, because we asked the account rather than the blogs.
+Calling the search endpoints on a **Free** plan returns:
 
-It does not say which endpoints need which tier, and the third-party articles that
-claim to know disagree with each other. Published pricing at the time of writing is
-Free, Basic around US$49/user/month, Professional around US$79, and Organization
-around US$119, billed annually — but which of those unlocks the endpoints above is
-not something to take on trust when it is a recurring bill.
-
-So don't guess, and don't pay first. Ask your own account:
-
-```bash
-npm run apollo:check
+```
+The api/v1/mixed_people/api_search API is not included in your Free plan and is
+not accessible. All paid plans include full API access.
 ```
 
-It calls the endpoints Phase 3 actually needs and tells you, per endpoint,
-whether your key can reach it. The free checks cost nothing. Enrichment is
-skipped unless you ask for it:
+Two things follow, both useful:
+
+1. **Free will not work.** Both `mixed_people/search` and `mixed_companies/search`
+   are blocked. Without search there is no discovery, and without discovery the
+   Prospector has nothing to score. Enrichment alone does not substitute: the
+   design is search, then score, then spend.
+2. **The cheapest paid plan should be enough.** "All paid plans include full API
+   access" is Apollo's own wording, from Apollo's own error. That points at
+   **Basic**, around US$49/user/month billed annually — not the ~US$119
+   Organization tier the articles claim.
+
+So: upgrade to **Basic**, then immediately run `npm run apollo:check`. If Basic
+really does include full API access, everything Phase 3 needs will come back OK
+and there is no reason to go further up the tiers. If something is still blocked,
+the check names it, and that is the moment to talk to Apollo rather than to guess
+another upgrade.
 
 ```bash
-npm run apollo:check -- --spend-a-credit
+npm run apollo:check                      # free: search endpoints only
+npm run apollo:check -- --spend-a-credit  # also tests enrichment, costs ~1 credit
 ```
-
----
-
-## The sequence
 
 ### 1. Start on the free plan
 
@@ -79,8 +85,8 @@ APOLLO_API_KEY=your-key-here
 npm run apollo:check
 ```
 
-- **Everything OK** → stay on the free plan for now. Phase 3 can be built and
-  tested against it.
+- **Everything OK** → good, but on a Free plan expect the two search endpoints to
+  come back blocked; see above.
 - **403 on something** → the message tells you whether it reads as a scope problem
   or a plan problem. If the key is scoped, recreate it with those endpoints
   selected. If it is already a master key, the plan is the limit.
@@ -160,10 +166,11 @@ None of this is on your discipline:
 
 ## Summary
 
-1. Free plan, work email.
-2. Scoped API key with the four endpoints.
-3. `npm run apollo:check` — free.
-4. Upgrade only if it tells you to, and only to the cheapest tier that passes.
+1. **Upgrade to Basic** (~US$49/user/month annual). Free does not include the
+   search API, and search is where Phase 3 starts.
+2. Scoped API key with the four endpoints, or a master key.
+3. `npm run apollo:check` — free, and it names anything still blocked.
+4. Go further up the tiers only if the check says so, not because an article did.
 5. Public HTTPS hostname when you want mobile numbers. Not before.
 
 Sources: [Apollo people search reference](https://docs.apollo.io/reference/people-api-search),

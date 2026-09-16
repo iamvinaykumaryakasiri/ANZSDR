@@ -23,7 +23,9 @@
     "seed:demo": "tsx scripts/seed-demo.ts",
     "plan": "tsx src/orchestrator/plan-cli.ts",
     "serve": "tsx src/web/start.ts",
-    "apollo:check": "tsx scripts/apollo-check.ts"
+    "apollo:check": "tsx scripts/apollo-check.ts",
+    "accounts:import": "tsx scripts/accounts.ts import",
+    "accounts:export": "tsx scripts/accounts.ts export"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",

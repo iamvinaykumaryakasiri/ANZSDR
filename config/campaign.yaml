@@ -1,0 +1,90 @@
+# The campaign, and who is worth calling in it.
+#
+# This file and `config/accounts.csv` are the committed source of truth for the
+# account list. The account desk edits the live database; these files survive a
+# machine, a fresh clone or a rebuilt container, and every change to them is a
+# reviewable diff.
+#
+#   npm run accounts:import   these files  ->  the blackboard
+#   npm run accounts:export   the blackboard  ->  these files
+#
+# Edit here and import, or edit on the desk and export. Either way, commit.
+
+campaign:
+  name: NZ banking pilot
+  market: NZ          # AU | NZ
+  status: active      # draft | active | paused | finished
+
+goal:
+  # Deliberately small to start. The Campaign Director reads these directly and
+  # will not begin work whose worst-case cost exceeds what is left of the week.
+  meetingsPerWeek: 3
+  maxUsdPerWeek: 25
+
+icp:
+  # Matched as a case-insensitive SUBSTRING of the person's job title, so short
+  # stems do the most work: "head of data" already catches "Head of Data &
+  # Analytics", "Head of Data Platforms" and "Group Head of Data". Adding every
+  # variant is unnecessary and makes the list harder to read.
+  titles:
+    # C-level
+    - chief information officer
+    - chief technology officer
+    - chief digital officer
+    - chief data officer
+    - cio
+    - cto
+    # General manager — the senior technology title in most NZ banks
+    - general manager technology
+    - general manager digital
+    - general manager data
+    - general manager information
+    - gm technology
+    - gm digital
+    # Head of — senior
+    - head of technology
+    - head of engineering
+    - head of data
+    - head of digital
+    - head of architecture
+    - head of infrastructure
+    - head of platform
+    - head of delivery
+    - head of information technology
+    - head of analytics
+    - head of cloud
+    # Director and manager — mid-senior
+    - director of technology
+    - director of engineering
+    - director of data
+    - technology manager
+    - engineering manager
+    - data platform manager
+
+  # Apollo's seniority bands. These matter: scoring gives 55 for a title match
+  # and 35 for a seniority match, so with a minimum of 60 a title match ALONE is
+  # not enough. The bands here have to cover everyone the titles above describe,
+  # or good people are silently dropped before anyone looks at them.
+  seniorities:
+    - c_suite
+    - vp
+    - head
+    - director
+    - manager
+
+  industries:
+    - financial services
+
+  # A title containing any of these is dropped, however senior the person is.
+  disqualifiers:
+    - intern
+    - graduate
+    - trainee
+    - apprentice
+    - recruiter
+    - talent acquisition
+    - student
+
+  # Below this score nobody is enriched, so nobody costs a credit. Search is
+  # free; enrichment is what bills.
+  minimumScore: 60
