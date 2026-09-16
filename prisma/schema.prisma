@@ -1,0 +1,347 @@
+// The blackboard: one shared store every agent reads from and writes back to.
+//
+// Two conventions worth knowing before reading further.
+//
+// SQLite has no enum type, so every constrained field is a String and is
+// validated by a Zod schema in `src/blackboard/schemas.ts` at the boundary.
+// Structured values are stored as JSON text for the same reason: nothing comes
+// out of this store without passing through a schema first, which is what makes
+// the brief's third rule - every agent output is schema-validated before it is
+// acted on - structurally true rather than a matter of discipline.
+//
+// Nothing here is authoritative about whether a call may happen. That decision
+// belongs to `src/compliance`, which reads this store through narrow ports and
+// makes its own deterministic ruling.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Campaign {
+  id        String   @id
+  name      String
+  market    String // AU | NZ
+  status    String // draft | active | paused | finished
+  icp       String // JSON: target titles, seniorities, disqualifiers
+  goal      String // JSON: { meetingsPerWeek }
+  createdAt DateTime @default(now())
+
+  accounts Account[]
+  contacts Contact[]
+  tasks    Task[]
+}
+
+model Account {
+  id         String   @id
+  campaignId String
+  name       String
+  domain     String
+  country    String // AU | NZ
+  industry   String
+  priority   Int      @default(3)
+  status     String // new | researching | calling | engaged | closed | suppressed
+  notes      String   @default("")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  campaign Campaign      @relation(fields: [campaignId], references: [id])
+  contacts Contact[]
+  calls    Call[]
+  attempts DialAttempt[]
+
+  @@unique([campaignId, domain])
+  @@index([campaignId, status])
+}
+
+model Contact {
+  id           String  @id
+  accountId    String
+  campaignId   String
+  firstName    String
+  lastName     String
+  title        String
+  seniority    String  @default("unknown")
+  linkedinUrl  String?
+  apolloId     String? @unique
+  phoneE164    String?
+  phoneLine    String? // fixed | mobile | non-geographic
+  // Locality hint for the compliance gate. Set at enrichment time; without it a
+  // mobile is gated on the most restrictive window in the market.
+  jurisdiction String?
+  timezone     String?
+  icpScore     Int     @default(0)
+  status       String // discovered | scored | enriched | researched | queued | contacted | done
+
+  // Lawful basis and provenance, held per Privacy Act 1988 (AU) / 2020 (NZ).
+  source      String   @default("apollo")
+  lawfulBasis String   @default("legitimate business interest - B2B professional capacity")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  account  Account        @relation(fields: [accountId], references: [id])
+  campaign Campaign       @relation(fields: [campaignId], references: [id])
+  emails   ContactEmail[]
+  dossiers Dossier[]
+  calls    Call[]
+  attempts DialAttempt[]
+
+  @@index([accountId])
+  @@index([campaignId, status])
+}
+
+// Up to three email states per contact. A confirmed-on-call address always wins.
+model ContactEmail {
+  id         String    @id
+  contactId  String
+  address    String
+  kind       String // apollo_work | apollo_personal | confirmed_on_call
+  verified   Boolean   @default(false)
+  verifiedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  contact Contact @relation(fields: [contactId], references: [id])
+
+  @@unique([contactId, kind])
+  @@index([address])
+}
+
+model Dossier {
+  id         String   @id
+  contactId  String
+  hypothesis String
+  confidence String // high | medium | low
+  person     String // JSON
+  account    String // JSON
+  hooks      String // JSON array, each with a source URL
+  landmines  String // JSON array
+  unverified String // JSON array: what we could not confirm
+  sources    String // JSON array of URLs
+  createdAt  DateTime @default(now())
+
+  contact Contact @relation(fields: [contactId], references: [id])
+
+  @@index([contactId])
+}
+
+model Call {
+  id              String    @id
+  contactId       String
+  accountId       String
+  campaignId      String
+  startedAt       DateTime
+  endedAt         DateTime?
+  durationSec     Int?
+  outcome         String? // see OUTCOMES in src/blackboard/schemas.ts
+  playbookVersion String?
+  sentiment       String?
+  recordingUrl    String?
+  transcriptUrl   String?
+  // Seconds from call start at which each script section began, for the
+  // seconds-to-hangup curve in the console.
+  sectionMarks    String    @default("[]")
+  defects         String    @default("[]")
+
+  contact Contact @relation(fields: [contactId], references: [id])
+  account Account @relation(fields: [accountId], references: [id])
+
+  @@index([contactId])
+  @@index([campaignId, startedAt])
+}
+
+// ---------------------------------------------------------------------------
+// Compliance state. Written here, ruled on in src/compliance.
+// ---------------------------------------------------------------------------
+
+model DialAttempt {
+  id              String   @id
+  contactId       String
+  accountId       String
+  e164            String
+  at              DateTime
+  hadConversation Boolean  @default(false)
+  callId          String?
+
+  contact Contact @relation(fields: [contactId], references: [id])
+  account Account @relation(fields: [accountId], references: [id])
+
+  @@index([contactId])
+  @@index([accountId, at])
+  @@index([at])
+  @@index([e164, at])
+}
+
+// Permanent and cross-campaign. Rows are added, never removed.
+model Suppression {
+  id        String   @id
+  scope     String // contact | number | account | domain
+  key       String
+  source    String
+  reason    String
+  createdAt DateTime @default(now())
+
+  @@index([scope, key])
+}
+
+model DncWash {
+  id       String   @id
+  e164     String
+  result   String // clear | registered
+  washedAt DateTime
+  register String
+
+  @@index([e164, washedAt])
+}
+
+model AuditRecord {
+  id      String   @id
+  at      DateTime
+  kind    String
+  actor   String
+  subject String
+  summary String
+  data    String // JSON
+
+  @@index([at])
+  @@index([kind, at])
+}
+
+// ---------------------------------------------------------------------------
+// Orchestration
+// ---------------------------------------------------------------------------
+
+model Task {
+  id         String  @id
+  kind       String
+  status     String // pending | blocked | running | done | failed | escalated | cancelled
+  priority   Int     @default(3)
+  campaignId String?
+  accountId  String?
+  contactId  String?
+  payload    String // JSON, validated against the target agent's input schema
+  result     String? // JSON, validated against the target agent's output schema
+  // Task ids that must reach `done` before this one may run.
+  dependsOn  String  @default("[]")
+  attempts   Int     @default(0)
+  lastError  String?
+
+  runAfter   DateTime?
+  createdAt  DateTime  @default(now())
+  startedAt  DateTime?
+  finishedAt DateTime?
+
+  campaign Campaign?    @relation(fields: [campaignId], references: [id])
+  runs     AgentRun[]
+  events   TraceEvent[]
+
+  @@index([status, priority])
+  @@index([campaignId, status])
+}
+
+model AgentRun {
+  id     String @id
+  taskId String
+  agent  String
+  status String // running | succeeded | failed | escalated | budget-exceeded
+
+  input  String // JSON
+  output String? // JSON
+  error  String?
+
+  // Everything the run spent, against its contract's budget.
+  turns             Int   @default(0)
+  tokensIn          Int   @default(0)
+  tokensOut         Int   @default(0)
+  usd               Float @default(0)
+  wallClockMs       Int   @default(0)
+  validationFailures Int  @default(0)
+
+  startedAt  DateTime  @default(now())
+  finishedAt DateTime?
+
+  task   Task         @relation(fields: [taskId], references: [id])
+  events TraceEvent[]
+
+  @@index([taskId])
+  @@index([agent, startedAt])
+}
+
+// One row per decision, written to be read by a person. The console's agent
+// trace renders these directly; it does not render raw JSON.
+model TraceEvent {
+  id         String   @id
+  at         DateTime @default(now())
+  taskId     String?
+  agentRunId String?
+  actor      String // campaign-director | prospector | scout | compliance-gate | ...
+  kind       String // decided | dispatched | validated | rejected | escalated | spent | ...
+  summary    String // plain English, one line
+  detail     String   @default("{}") // JSON
+  usd        Float    @default(0)
+
+  task     Task?     @relation(fields: [taskId], references: [id])
+  agentRun AgentRun? @relation(fields: [agentRunId], references: [id])
+
+  @@index([at])
+  @@index([taskId, at])
+}
+
+model Escalation {
+  id        String    @id
+  level     String // orchestrator | human
+  reason    String
+  detail    String    @default("{}")
+  status    String // open | acknowledged | resolved
+  taskId    String?
+  contactId String?
+  createdAt DateTime  @default(now())
+  resolvedAt DateTime?
+
+  @@index([status, createdAt])
+}
+
+model SpendRecord {
+  id       String   @id
+  at       DateTime @default(now())
+  category String // llm | apollo | voice | sms | email
+  usd      Float
+  taskId   String?
+  note     String   @default("")
+
+  @@index([at])
+  @@index([category, at])
+}
+
+// ---------------------------------------------------------------------------
+// Memory (brief section 3.5)
+// ---------------------------------------------------------------------------
+
+model Memory {
+  id        String   @id
+  scope     String // contact | account | playbook | failure
+  key       String // contact id, account id, playbook slot, or failure pattern
+  kind      String
+  summary   String
+  content   String // JSON
+  createdAt DateTime @default(now())
+
+  @@index([scope, key])
+}
+
+model Playbook {
+  id        String   @id
+  slot      String // hook | value-statement | objection | transition | preference-request
+  version   Int
+  status    String // champion | challenger | retired
+  content   String
+  rationale String   @default("")
+  evidence  String   @default("{}")
+  createdAt DateTime @default(now())
+
+  @@unique([slot, version])
+  @@index([slot, status])
+}

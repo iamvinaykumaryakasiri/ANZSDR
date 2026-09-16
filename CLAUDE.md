@@ -469,7 +469,7 @@ is in [`docs/SESSION-HANDOFF.md`](./docs/SESSION-HANDOFF.md).
 | Phase | State |
 |---|---|
 | 1 — Compliance core | **Complete.** Acceptance met: 10,000 fuzzed dial requests, zero out-of-window and zero suppressed dials, checked against an independently written oracle. 100% branch coverage on `src/compliance`. |
-| 2 — Blackboard and orchestrator | Not started |
+| 2 — Blackboard and orchestrator | **Complete.** Acceptance met: a task runs end to end with a full plain-English trace, a deliberately malformed sub-agent output escalates without reaching the blackboard, and a budget breach escalates rather than continuing. |
 | 3 — Prospector and Scout | Not started |
 | 4 — Caller and Guardian | Not started |
 | 5 — Voice | Not started |
@@ -484,3 +484,6 @@ is in [`docs/SESSION-HANDOFF.md`](./docs/SESSION-HANDOFF.md).
 - `dnc.allow_mobile_dialling` ships **false**, so only office direct dials are possible until §15 item 4 is answered.
 - `holidays.require_verified_calendar` ships **true**. The official `data.gov.au` holiday dataset stops at 2025, so 2026 and 2027 are derived from rules and every dial on those dates is denied until a human signs the calendar off with `npm run holidays:verify`.
 - Statutory calling windows live in code (`src/compliance/policy.ts`), not in config. `config/policy.yaml` can only narrow them.
+- A sub-agent is only reachable through `runAgent`. Input and output are validated against its contract, output twice off-contract escalates, and the budget is metered continuously - so a malformed or over-budget result never reaches the blackboard.
+- The Campaign Director dispatches work and decides what follows from a result. A sub-agent never queues another sub-agent's work, and the Director has no route to a dial: only the compliance gate can grant one.
+- Phase 2 ships **stub** Prospector and Scout handlers behind their real contracts. They reach fixtures, not Apollo or the web. Phase 3 replaces the handlers and the tools; the contracts, the task graph and the budgets stay as they are.

@@ -14,3 +14,6 @@ web/dist/
 web/node_modules/
 data/kill-switch.json
 data/*.jsonl
+prisma/dev.db
+config/fixtures.json
+prisma/data/

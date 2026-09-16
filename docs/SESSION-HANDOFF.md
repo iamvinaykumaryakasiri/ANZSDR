@@ -4,27 +4,107 @@ Written at the end of the Phase 1 session so the next one can pick up without
 re-deriving anything. Read `CLAUDE.md` first — it is the brief and it governs.
 
 **Branch:** `claude/anz-voice-sdr-build-8o6q1m`
-**Last commit:** `bf504b7` — "Phase 1: the compliance core"
-**State:** Phase 1 complete and accepted. Phase 2 not started. Working tree clean,
-everything pushed.
+**State:** Phases 1 and 2 complete and accepted. Phase 3 not started. Working tree
+clean, everything pushed.
 
 ---
 
 ## Resume in one minute
 
 ```bash
-npm install
-npm test              # 170 tests, ~7s, includes the 10,000-request fuzz acceptance
+npm install           # postinstall runs `prisma generate`
+npm run db:setup      # apply migrations
+npm test              # 236 tests, ~7s, includes the 10,000-request fuzz acceptance
 npm run test:coverage # fails below 100% branch coverage on src/compliance
 npm run typecheck
 ```
 
-If those three are green, the ground you are standing on is the ground this
-handoff describes.
+If those are green, the ground you are standing on is the ground this handoff
+describes. To watch the loop run:
+
+```bash
+cp config/fixtures.example.json config/fixtures.json
+npm run seed:demo && npm run tick
+```
 
 ---
 
-## What Phase 1 actually delivered
+## What Phase 2 delivered
+
+The blackboard, the agent contract and its runner, the Campaign Director, and two
+stub agents that prove the loop end to end.
+
+```
+prisma/schema.prisma     the blackboard: campaigns, accounts, contacts, emails,
+                         dossiers, calls, compliance state, tasks, runs, traces,
+                         escalations, spend, memory, playbooks
+src/blackboard/
+  schemas.ts             Zod schemas for every constrained column and JSON column
+  client.ts              connection, migration application, repo-root-anchored URLs
+  repositories.ts        tasks and the task graph, escalations, spend, journal, trace
+  compliance-stores.ts   Prisma implementations of the Phase 1 compliance ports
+src/agents/
+  contract.ts            the section 3.1 contract: role, model, input, output,
+                         tools, budget, escalatesTo
+  budget.ts              continuous metering of turns, tokens, dollars, wall clock
+  runner.ts              the only way to run a sub-agent
+  journal.ts             where a run's story is written
+  prospector/, scout/    real contracts, stub handlers, fixture-backed tools
+src/orchestrator/
+  registry.ts            task kind -> agent, and what follows from a result
+  kinds.ts               prospect-account and research-contact, wired end to end
+  director.ts            the Campaign Director tick
+  cli.ts                 `npm run tick`
+```
+
+### Acceptance evidence
+
+> *Phase 2 accept: a task runs end to end with full trace, a deliberately
+> malformed sub-agent output fails closed, and a budget breach escalates rather
+> than continuing.*
+
+All three in `tests/orchestrator/director.test.ts`:
+
+- **End to end with a full trace.** One `prospect-account` task produces two
+  contacts (the recruiter is correctly rejected by the ICP), queues a
+  `research-contact` task each, and both produce sourced dossiers. Sixteen trace
+  lines tell the whole story in plain English, attached to their task.
+- **Malformed output fails closed.** A Prospector returning off-contract data is
+  tried exactly twice, escalated, and writes nothing: no contacts, no dossiers,
+  no task result. The task that depended on it is marked blocked rather than left
+  pending.
+- **Budget breach escalates.** A handler taking one turn too many is stopped at
+  the ceiling, the run is recorded as `budget-exceeded` with no output, and what
+  it spent before being stopped is still on the ledger. The Director also refuses
+  to *start* work whose worst-case cost exceeds the remaining weekly budget.
+
+Also covered: the kill switch halting a tick, an automatic trip on the third
+escalation of the day (the Phase 1 rule, fed by Phase 2 signals), a lost
+blackboard tripping the switch, and an unknown task kind escalating to a human.
+
+Coverage on the Phase 2 modules is 98% of statements and 93% of branches. The
+100% branch threshold remains enforced on `src/compliance` only, as the brief
+specifies.
+
+### Design decisions made in Phase 2 — do not re-litigate
+
+1. **`runAgent` is the only way to run a sub-agent.** Guarantees live in the
+   runner, not in the handler. Two output attempts, then escalate.
+2. **The orchestrator decides what follows from a result**, never the agent that
+   produced it. Sub-agents return results; they do not queue each other's work.
+3. **SQLite has no enums and no JSON type**, so constrained columns are text
+   validated by Zod on the way in and out. A corrupt row throws rather than
+   reaching an agent.
+4. **Sourcing is enforced by the schema.** `sourcedFactSchema` requires a URL, so
+   an unsourced hook cannot be stored at all. The stub Scout drops unsourced
+   findings and reports them as unverified.
+5. **Relative `file:` database URLs are anchored to the repository root.** The
+   Prisma CLI resolves them against the schema directory and the runtime against
+   the working directory, which silently produces two databases.
+6. **Stub handlers sit behind real contracts.** Phase 3 swaps handlers and tools;
+   contracts, task graph and budgets do not move.
+
+## What Phase 1 delivered
 
 The deterministic compliance core. Nothing in the repository can place a call:
 there is no telephony, no voice provider, no model call anywhere in this path.
@@ -182,10 +262,10 @@ Asked at the end of the Phase 1 session; none answered yet.
 | 2 | Hexaware brand/legal sign-off on an AI identifying itself for them | Phase 9 |
 | 3 | Twilio numbers, and the callback number answerable for 30 days | Phase 5, and unblocks caller ID |
 | 4 | DNCR washing arranged, or office direct dials only to start? | Phase 3 onward |
-| 5 | First campaign ICP — which accounts, which titles, AU or NZ first | **Phase 3** |
+| 5 | First campaign ICP — which accounts, which titles, AU or NZ first | **Phase 3, blocking** |
 | 6 | Which email address meeting requests go to; do `.ics` attachments survive his mail client | Phase 6 |
 | 7 | Recording retention (currently 90 days) and whether recordings may leave Australia | Phase 5 |
-| 8 | Budget ceilings — Apollo credits, voice minutes, LLM spend per month | Phase 2 (soft) |
+| 8 | Budget ceilings — Apollo credits, voice minutes, LLM spend per month | Phase 3. Currently a $50/week default in the Campaign Director |
 
 ---
 
@@ -199,4 +279,8 @@ npm run kill -- resume                    # a human, and only a human, restarts 
 npm run holidays:build                    # regenerate calendars from source + rules
 npm run holidays:verify                   # what is not signed off yet
 npm run holidays:verify -- --sign-off all:2026 --by "Vinay Kumar"
+
+npm run db:setup                          # apply migrations, generate the client
+npm run seed:demo                         # example campaign, account and first task
+npm run tick                              # one Campaign Director tick, decisions printed
 ```

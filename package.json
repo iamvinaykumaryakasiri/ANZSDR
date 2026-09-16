@@ -4,7 +4,9 @@
   "private": true,
   "description": "Autonomous multi-agent cold-calling SDR for Hexaware ANZ",
   "type": "module",
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
@@ -13,10 +15,17 @@
     "test:coverage": "vitest run --coverage",
     "holidays:build": "tsx scripts/holidays/build.ts",
     "holidays:verify": "tsx scripts/holidays/verify.ts",
-    "kill": "tsx src/ops/kill-switch-cli.ts"
+    "kill": "tsx src/ops/kill-switch-cli.ts",
+    "db:setup": "prisma migrate deploy && prisma generate",
+    "db:studio": "prisma studio",
+    "tick": "tsx src/orchestrator/cli.ts",
+    "postinstall": "prisma generate",
+    "seed:demo": "tsx scripts/seed-demo.ts"
   },
   "dependencies": {
+    "@prisma/client": "^6.19.3",
     "luxon": "^3.5.0",
+    "prisma": "^6.19.3",
     "yaml": "^2.6.1",
     "zod": "^3.24.1"
   },

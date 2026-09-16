@@ -4,13 +4,14 @@ An autonomous multi-agent cold-calling system for Hexaware ANZ. The full brief,
 including the build phases and the rules that override everything else, is in
 [`CLAUDE.md`](./CLAUDE.md).
 
-**Phase 1 (compliance core) is complete. Nothing in this repository can place a call.**
+**Phases 1 and 2 are complete. Nothing in this repository can place a call.**
 
 ## Getting started
 
 ```bash
 npm install
-npm test              # 170 tests, including the 10,000-request fuzz acceptance
+npm run db:setup      # apply migrations and generate the Prisma client
+npm test              # 236 tests, including the 10,000-request fuzz acceptance
 npm run test:coverage # enforces 100% branch coverage on src/compliance
 npm run typecheck
 ```
@@ -19,11 +20,52 @@ npm run typecheck
 
 ```
 src/compliance/     the dial gate, calling windows, DNC, suppression, caps, kill switch
+src/blackboard/     the shared store: Prisma schema access, typed repositories, memory
+src/agents/         the sub-agent contract, its runner, and the agents themselves
+src/orchestrator/   the Campaign Director, the task graph, budgets, escalation
 src/ops/            kill-switch state and CLI
+prisma/             schema and migrations for the SQLite blackboard
 config/policy.yaml  operator policy - can only ever make calling more restrictive
 config/holidays/    generated AU and NZ holiday calendars
-scripts/holidays/   the rule engine that generates them, and the sign-off tool
+scripts/            the holiday rule engine, the sign-off tool, the demo seed
 data/sources/       the vendored official data.gov.au holiday dataset
+```
+
+## The agent contract
+
+A sub-agent is a contract plus a handler. The contract declares what it may
+receive, what it must return, the only tools it can reach, and what it may spend.
+Handlers are never called directly - `runAgent` is the only way in, because the
+guarantees live in the runner rather than in the goodwill of the handler:
+
+- **Input is validated before the handler sees it, output before anyone else
+  does.** An off-contract answer gets exactly one more attempt and is then
+  escalated. Malformed output is never returned and never written to the
+  blackboard.
+- **Budget is metered continuously** - turns, tokens, dollars and wall clock. A
+  breach throws, and a throw becomes an escalation rather than a truncated
+  answer. A handler that hangs is stopped by its own wall-clock budget.
+- **Tools are the only way out.** A tool the contract does not declare, or
+  arguments that do not match its schema, is a contract breach.
+
+The Campaign Director decides what follows from a result. A sub-agent returns a
+result; it does not get to decide what the system does next, which is what keeps
+the task graph inspectable and stops one agent quietly driving another.
+
+## The trace
+
+Every decision is one plain-English line against the task it concerns, so the
+console's agent trace never has to render raw JSON:
+
+```
+[campaign-director] running prospect-account for 8ea550ba at priority 1; its
+                    dependencies are satisfied and it is the oldest work of that priority
+[prospector]        searched examplebank.com.au and found 3 people
+[prospector]        2 passed the ICP threshold of 60, 1 did not
+[campaign-director] prospect-account finished; queued 2 research-contact task(s)
+[scout]             dropped 1 unsourced fact(s): a rumour about cost pressure in technology
+[scout]             built a high-confidence dossier from 3 sourced fact(s)
+[campaign-director] nothing runnable; standing by
 ```
 
 ## The compliance gate
@@ -59,7 +101,19 @@ npm run kill -- resume            # a human, and only a human, restarts it
 npm run holidays:build            # regenerate the calendars from source + rules
 npm run holidays:verify           # what is not signed off yet
 npm run holidays:verify -- --sign-off all:2026 --by "Vinay Kumar"
+
+npm run db:setup                  # apply migrations, generate the client
+npm run seed:demo                 # an example campaign, account and first task
+npm run tick                      # run one Campaign Director tick and print its decisions
 ```
+
+`npm run tick` is exactly what the scheduler will call in later phases, so the
+decisions an operator sees by hand are the decisions the system makes on its own.
+
+Phase 2 ships **stub** Prospector and Scout handlers behind their real contracts.
+They read `config/fixtures.json` (copy `config/fixtures.example.json`) rather than
+Apollo or the open web. Phase 3 replaces the handlers and the tools; the
+contracts, the task graph and the budgets do not move.
 
 ## Three things ship deliberately blocked
 

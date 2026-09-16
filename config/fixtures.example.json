@@ -1,0 +1,53 @@
+{
+  "_comment": "Development fixtures for the Phase 2 stub agents. Copy to config/fixtures.json to make `npm run tick` do something visible. Phase 3 replaces these with the real Apollo and web-search tools; nothing here ships to production.",
+  "people": {
+    "examplebank.com.au": [
+      {
+        "externalId": "demo-1",
+        "firstName": "Priya",
+        "lastName": "Raman",
+        "title": "Chief Data Officer",
+        "seniority": "c_suite",
+        "linkedinUrl": "https://www.linkedin.com/in/example-priya"
+      },
+      {
+        "externalId": "demo-2",
+        "firstName": "Tom",
+        "lastName": "Whitcombe",
+        "title": "Head of Data Platforms",
+        "seniority": "director"
+      },
+      {
+        "externalId": "demo-3",
+        "firstName": "Sam",
+        "lastName": "Keller",
+        "title": "Technical Recruiter",
+        "seniority": "manager"
+      }
+    ]
+  },
+  "research": {
+    "examplebank.com.au": {
+      "whatTheyDo": "A mid-tier Australian retail and business bank",
+      "size": "4,000 staff",
+      "findings": [
+        {
+          "kind": "announcement",
+          "fact": "announced a three-year core banking modernisation in its FY25 results",
+          "sourceUrl": "https://examplebank.com.au/news/fy25-results"
+        },
+        {
+          "kind": "tech-signal",
+          "fact": "is hiring six data platform engineers with Databricks in the requirements",
+          "sourceUrl": "https://examplebank.com.au/careers/data-platform-engineer"
+        },
+        { "kind": "pressure", "fact": "a rumour about cost pressure in technology" },
+        {
+          "kind": "landmine",
+          "fact": "an APRA remediation programme is under way",
+          "sourceUrl": "https://examplebank.com.au/news/apra-update"
+        }
+      ]
+    }
+  }
+}

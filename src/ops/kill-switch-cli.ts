@@ -6,12 +6,18 @@
  *   npm run kill -- resume            allow dialling again (a human only)
  */
 
-import { resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { JsonlAuditLog } from '../compliance/audit.js';
 import { KillSwitch } from '../compliance/kill-switch.js';
 import { FileKillSwitchStore } from './kill-switch-store.js';
 
-const ROOT = resolve(import.meta.dirname, '../..');
+// `import.meta.dirname` is rewritten to the entry module's directory under some
+// bundlers and test transforms, which silently resolves repository paths to the
+// wrong place. The URL of this module is not rewritten.
+const HERE = dirname(fileURLToPath(import.meta.url));
+
+const ROOT = resolve(HERE, '../..');
 const STATE_PATH = process.env.KILL_SWITCH_PATH ?? resolve(ROOT, 'data/kill-switch.json');
 const AUDIT_PATH = process.env.COMPLIANCE_AUDIT_PATH ?? resolve(ROOT, 'data/compliance-audit.jsonl');
 

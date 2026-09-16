@@ -9,11 +9,17 @@
  */
 
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { AU_RULES, NZ_RULES, NZ_REGIONS, type HolidayRule } from './rules.js';
 import { observe, type CivilDate } from './evaluate.js';
 
-const ROOT = resolve(import.meta.dirname, '../..');
+// `import.meta.dirname` is rewritten to the entry module's directory under some
+// bundlers and test transforms, which silently resolves repository paths to the
+// wrong place. The URL of this module is not rewritten.
+const HERE = dirname(fileURLToPath(import.meta.url));
+
+const ROOT = resolve(HERE, '../..');
 const OFFICIAL_AU = resolve(ROOT, 'data/sources/australian-public-holidays-combined-2021-2025.csv');
 
 /** Years the official AU dataset covers, and therefore the years we can call verified. */

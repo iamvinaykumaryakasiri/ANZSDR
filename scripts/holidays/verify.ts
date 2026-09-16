@@ -12,9 +12,15 @@
  */
 
 import { readFileSync, writeFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const ROOT = resolve(import.meta.dirname, '../..');
+// `import.meta.dirname` is rewritten to the entry module's directory under some
+// bundlers and test transforms, which silently resolves repository paths to the
+// wrong place. The URL of this module is not rewritten.
+const HERE = dirname(fileURLToPath(import.meta.url));
+
+const ROOT = resolve(HERE, '../..');
 const FILES = ['config/holidays/au.json', 'config/holidays/nz.json'].map((p) => resolve(ROOT, p));
 
 interface Provenance {
