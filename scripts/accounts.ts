@@ -14,7 +14,7 @@
  */
 
 import { randomUUID } from 'node:crypto';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parse as parseYaml } from 'yaml';
@@ -27,12 +27,19 @@ import {
   icpSchema,
   marketSchema
 } from '../src/blackboard/schemas.js';
-import { parseAccountRows, toCsv } from '../src/web/accounts-api.js';
+import {
+  CONTACT_CSV_COLUMNS,
+  contactRowSchema,
+  parseAccountRows,
+  toCsv,
+  upsertContact
+} from '../src/web/accounts-api.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, '..');
 const CAMPAIGN_FILE = resolve(ROOT, 'config/campaign.yaml');
 const ACCOUNTS_FILE = resolve(ROOT, 'config/accounts.csv');
+const CONTACTS_FILE = resolve(ROOT, 'config/contacts.csv');
 
 const fileSchema = z.object({
   campaign: z.object({
@@ -115,6 +122,63 @@ async function importFiles(): Promise<void> {
 
   console.log(`  ${added} account(s) added, ${updated} updated`);
   for (const s of skipped) console.log(`  skipped ${s}`);
+
+  await importContacts(campaignId);
+}
+
+/**
+ * People. Every row lands as either a test number the operator controls or a real
+ * prospect, and the count of each is printed, because which one a row is decides
+ * whether the compliance gate will let it be dialled at all.
+ */
+async function importContacts(campaignId: string): Promise<void> {
+  if (!existsSync(CONTACTS_FILE)) return;
+
+  let added = 0;
+  let updated = 0;
+  let prospects = 0;
+  const skipped: string[] = [];
+
+  for (const { row, values } of parseAccountRows(readFileSync(CONTACTS_FILE, 'utf8'), CONTACT_CSV_COLUMNS)) {
+    const parsed = contactRowSchema.safeParse({
+      firstName: values.first_name,
+      lastName: values.last_name,
+      title: values.title,
+      accountDomain: values.account_domain ?? values.domain,
+      phone: values.phone,
+      email: values.email,
+      seniority: values.seniority,
+      linkedinUrl: values.linkedin_url,
+      kind: values.kind,
+      notes: values.notes
+    });
+    if (!parsed.success) {
+      skipped.push(`row ${row}: ${parsed.error.issues.map((i) => `${i.path.join('.')} ${i.message}`).join(', ')}`);
+      continue;
+    }
+
+    const account = await db.account.findFirst({
+      where: { campaignId, domain: parsed.data.accountDomain }
+    });
+    if (account === null) {
+      skipped.push(`row ${row}: no account on this campaign with the domain ${parsed.data.accountDomain}`);
+      continue;
+    }
+
+    const outcome = await upsertContact(db, campaignId, account.id, parsed.data);
+    if (outcome === 'added') added += 1;
+    else updated += 1;
+    if (parsed.data.kind === 'prospect') prospects += 1;
+  }
+
+  if (added + updated + skipped.length === 0) return;
+  console.log(`  ${added} contact(s) added, ${updated} updated`);
+  console.log(
+    prospects === 0
+      ? '  all of them test numbers, so the gate will allow them while the system is in test mode'
+      : `  ${prospects} of them real prospects, which the gate refuses while dialling.test_contacts_only is true`
+  );
+  for (const s of skipped) console.log(`  skipped ${s}`);
 }
 
 async function exportFiles(): Promise<void> {
@@ -151,7 +215,32 @@ async function exportFiles(): Promise<void> {
     .replace(/^(\s*minimumScore:\s*)\d+/m, `$1${icp.minimumScore as number}`);
   writeFileSync(CAMPAIGN_FILE, patched);
 
+  const contacts = await db.contact.findMany({
+    where: { campaignId: campaign.id },
+    orderBy: [{ kind: 'asc' }, { lastName: 'asc' }],
+    include: { account: { select: { domain: true } }, emails: true }
+  });
+  writeFileSync(
+    CONTACTS_FILE,
+    `${toCsv(
+      contacts.map((c) => ({
+        first_name: c.firstName,
+        last_name: c.lastName,
+        title: c.title,
+        account_domain: c.account.domain,
+        phone: c.phoneE164 ?? '',
+        email: c.emails[0]?.address ?? '',
+        seniority: c.seniority,
+        linkedin_url: c.linkedinUrl ?? '',
+        kind: c.kind,
+        notes: ''
+      })),
+      CONTACT_CSV_COLUMNS
+    )}\n`
+  );
+
   console.log(`exported ${accounts.length} account(s) to config/accounts.csv`);
+  console.log(`exported ${contacts.length} contact(s) to config/contacts.csv`);
   console.log('goal and minimum score written back to config/campaign.yaml');
   console.log('Title and never-call lists are not rewritten automatically — edit those in the file.');
   console.log('\nCommit both so the list survives this machine.');

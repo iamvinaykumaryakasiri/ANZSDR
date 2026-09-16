@@ -21,6 +21,7 @@ import type { CompliancePolicy } from '../../src/compliance/policy.js';
 import type {
   AttemptRecord,
   ComplianceSnapshot,
+  ContactKind,
   DayPlanState,
   DialRequest,
   DncWashRecord,
@@ -214,6 +215,7 @@ interface Generated {
   lineType: 'fixed' | 'mobile' | 'non-geographic';
   suppressed: boolean;
   planDate: string;
+  contactKind: ContactKind | null;
 }
 
 function digits(rand: () => number, n: number): string {
@@ -352,6 +354,11 @@ function generate(rand: () => number, index: number): Generated {
     };
   }
 
+  // Who the number belongs to. A small share are not on the blackboard at all,
+  // which the gate has to refuse rather than assume anything about.
+  const kindRoll = rand();
+  const contactKind: ContactKind | null = kindRoll < 0.04 ? null : kindRoll < 0.28 ? 'prospect' : 'test';
+
   const request: DialRequest = {
     requestId: `fuzz-${index}`,
     contactId,
@@ -366,6 +373,7 @@ function generate(rand: () => number, index: number): Generated {
   const snapshot: ComplianceSnapshot = {
     killSwitch: rand() < 0.03 ? { active: true, reason: 'fuzz' } : { active: false },
     dayPlan,
+    contactKind,
     suppressions,
     dncWash,
     contactAttempts,
@@ -384,7 +392,8 @@ function generate(rand: () => number, index: number): Generated {
     marketMismatch: numberMarket !== market,
     lineType,
     suppressed,
-    planDate
+    planDate,
+    contactKind
   };
 }
 
@@ -428,6 +437,12 @@ function oracleReasons(g: Generated, p: CompliancePolicy): string[] {
 
   if (g.candidates.some((j) => !oracleOpen(r.at, j, r.market, p))) reasons.push('window');
 
+  if (s.contactKind === null) {
+    reasons.push('no-contact-record');
+  } else if (p.dialling.test_contacts_only && s.contactKind !== 'test') {
+    reasons.push('not-a-test-contact');
+  }
+
   if (p.approval.require_daily_plan) {
     const plan = s.dayPlan;
     if (
@@ -450,7 +465,13 @@ describe('compliance gate fuzz', () => {
     it(`agrees with an independent oracle across 5,000 requests (verified calendar required: ${requireVerified})`, () => {
       // The approval gate is on in both runs: a dial that slipped past it would
       // be as serious as one that slipped past the calling hours.
-      const p = policy({ requireVerifiedCalendar: requireVerified, requireDailyPlan: true });
+      // Both extra gates are on in both runs. A dial that slipped past either
+      // would be as serious as one that slipped past the calling hours.
+      const p = policy({
+        requireVerifiedCalendar: requireVerified,
+        requireDailyPlan: true,
+        testContactsOnly: true
+      });
       const rand = mulberry32(requireVerified ? 0xc0ffee : 0xbadc0de);
 
       let allowed = 0;
@@ -459,6 +480,7 @@ describe('compliance gate fuzz', () => {
       const suppressedDials: string[] = [];
       const unapprovedDials: string[] = [];
       const saturdayDials: string[] = [];
+      const prospectDials: string[] = [];
 
       for (let i = 0; i < 5000; i++) {
         const g = generate(rand, i);
@@ -487,6 +509,9 @@ describe('compliance gate fuzz', () => {
             }
           }
           if (g.suppressed) suppressedDials.push(`#${i} ${g.request.contactId} allowed while suppressed`);
+          if (g.contactKind !== 'test') {
+            prospectDials.push(`#${i} allowed a ${g.contactKind ?? 'unknown'} contact while in test mode`);
+          }
           if (
             g.snapshot.dayPlan === null ||
             g.snapshot.dayPlan.status !== 'approved' ||
@@ -502,9 +527,10 @@ describe('compliance gate fuzz', () => {
       expect(suppressedDials).toEqual([]);
       expect(unapprovedDials).toEqual([]);
       expect(saturdayDials).toEqual([]);
+      expect(prospectDials).toEqual([]);
       expect(disagreements.slice(0, 10)).toEqual([]);
       // Proof the gate is not simply refusing everything.
-      expect(allowed).toBeGreaterThan(requireVerified ? 35 : 120);
+      expect(allowed).toBeGreaterThan(requireVerified ? 25 : 80);
     });
   }
 });

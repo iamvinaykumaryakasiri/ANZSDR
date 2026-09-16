@@ -211,6 +211,124 @@ describe('accounts', () => {
   });
 });
 
+describe('pasting people', () => {
+  async function withAccount() {
+    const ctx = await server();
+    await ctx.app.inject({
+      method: 'POST',
+      url: `/api/campaigns/${ctx.campaignId}/accounts`,
+      headers: auth,
+      payload: { name: 'Kiwibank', domain: 'kiwibank.co.nz', country: 'NZ' }
+    });
+    return ctx;
+  }
+
+  const paste = (ctx: Awaited<ReturnType<typeof withAccount>>, text: string) =>
+    ctx.app.inject({
+      method: 'POST',
+      url: `/api/campaigns/${ctx.campaignId}/contacts/import`,
+      headers: auth,
+      payload: { text }
+    });
+
+  it('imports a person and normalises the number for the compliance gate', async () => {
+    const ctx = await withAccount();
+    const response = await paste(ctx, 'Test\tOne\tHead of Data\tkiwibank.co.nz\t04 111 2222\tt1@example.com\thead\t\ttest');
+    expect(response.json()).toMatchObject({ added: 1, updated: 0, prospects: 0 });
+
+    const contact = await ctx.db.contact.findFirstOrThrow({ include: { emails: true } });
+    expect(contact.firstName).toBe('Test');
+    expect(contact.kind).toBe('test');
+    // Stored as E.164 with its line type worked out, not as the spreadsheet had it.
+    expect(contact.phoneE164).toBe('+6441112222');
+    expect(contact.phoneLine).toBe('fixed');
+    expect(contact.status).toBe('enriched');
+    expect(contact.source).toBe('operator');
+    expect(contact.emails[0]?.address).toBe('t1@example.com');
+  });
+
+  it('treats anything that does not say "test" as a real person', async () => {
+    const ctx = await withAccount();
+    const response = await paste(
+      ctx,
+      [
+        'A\tOne\tCIO\tkiwibank.co.nz\t+6441112222\t\tc_suite\t\ttest',
+        'B\tTwo\tCIO\tkiwibank.co.nz\t+6441112223\t\tc_suite\t\tprospect',
+        'C\tThree\tCIO\tkiwibank.co.nz\t+6441112224\t\tc_suite\t\t',
+        'D\tFour\tCIO\tkiwibank.co.nz\t+6441112225\t\tc_suite\t\ttypo'
+      ].join('\n')
+    );
+    // Only the explicit "test" row is dialable in test mode. A blank or a typo
+    // defaults to a real person, because the other default could ring a stranger.
+    expect(response.json()).toMatchObject({ added: 4, prospects: 3 });
+    const kinds = await ctx.db.contact.findMany({ orderBy: { firstName: 'asc' }, select: { kind: true } });
+    expect(kinds.map((k) => k.kind)).toEqual(['test', 'prospect', 'prospect', 'prospect']);
+  });
+
+  it('refuses a person at an account that is not on the campaign', async () => {
+    const ctx = await withAccount();
+    const response = await paste(ctx, 'Test\tOne\tCIO\tnotonthelist.co.nz\t+6441112222\t\thead\t\ttest');
+    expect(response.json()).toMatchObject({ added: 0, updated: 0 });
+    expect(response.json().skipped[0].reason).toContain('notonthelist.co.nz');
+  });
+
+  it('corrects rather than duplicates when the same person is pasted again', async () => {
+    const ctx = await withAccount();
+    await paste(ctx, 'Test\tOne\tHead of Data\tkiwibank.co.nz\t+6441112222\t\thead\t\ttest');
+    const second = await paste(ctx, 'Test\tOne\tChief Data Officer\tkiwibank.co.nz\t+6441119999\t\tc_suite\t\ttest');
+
+    expect(second.json()).toMatchObject({ added: 0, updated: 1 });
+    expect(await ctx.db.contact.count()).toBe(1);
+    const contact = await ctx.db.contact.findFirstOrThrow();
+    expect(contact.title).toBe('Chief Data Officer');
+    expect(contact.phoneE164).toBe('+6441119999');
+  });
+
+  it('keeps a person with no usable number rather than dropping them', async () => {
+    const ctx = await withAccount();
+    await paste(ctx, 'Test\tOne\tCIO\tkiwibank.co.nz\tnot a number\t\thead\t\ttest');
+    const contact = await ctx.db.contact.findFirstOrThrow();
+    expect(contact.phoneE164).toBeNull();
+    expect(contact.phoneLine).toBeNull();
+  });
+
+  it('skips a row missing a name or a title, saying which', async () => {
+    const ctx = await withAccount();
+    const response = await paste(ctx, '\t\t\tkiwibank.co.nz\t+6441112222\t\thead\t\ttest');
+    expect(response.json().added).toBe(0);
+    expect(response.json().skipped[0].reason).toContain('firstName');
+  });
+
+  it('lists people with whether each one is dialable', async () => {
+    const ctx = await withAccount();
+    await paste(
+      ctx,
+      ['A\tOne\tCIO\tkiwibank.co.nz\t+6441112222\t\tc_suite\t\ttest',
+       'B\tTwo\tCIO\tkiwibank.co.nz\t+6441112223\t\tc_suite\t\tprospect'].join('\n')
+    );
+    const listed = (
+      await ctx.app.inject({ method: 'GET', url: `/api/campaigns/${ctx.campaignId}/contacts`, headers: auth })
+    ).json();
+    expect(listed).toHaveLength(2);
+    expect(listed.map((c: { kind: string }) => c.kind).sort()).toEqual(['prospect', 'test']);
+    expect(listed[0].account).toBe('Kiwibank');
+  });
+
+  it('exports what it imported', async () => {
+    const ctx = await withAccount();
+    await paste(ctx, 'Test\tOne\tHead of Data\tkiwibank.co.nz\t+6441112222\tt1@example.com\thead\t\ttest');
+    const csv = await ctx.app.inject({
+      method: 'GET',
+      url: `/api/campaigns/${ctx.campaignId}/contacts.csv`,
+      headers: auth
+    });
+    expect(csv.body.split('\n')[0]).toBe(
+      'first_name,last_name,title,account_domain,phone,email,seniority,linkedin_url,kind,notes'
+    );
+    expect(csv.body).toContain('Test,One,Head of Data,kiwibank.co.nz,+6441112222,t1@example.com,head,,test,');
+  });
+});
+
 describe('pasting a spreadsheet', () => {
   it('reads tab-separated rows without a header', () => {
     const rows = parseAccountRows('Example Bank\texamplebank.com.au\tAU\tfinancial services\t1\tmet at a conference');

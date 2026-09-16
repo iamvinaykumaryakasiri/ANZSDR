@@ -24,6 +24,7 @@ export interface PolicyOverrides {
   auTimezone?: string;
   auHolidayJurisdiction?: string;
   requireDailyPlan?: boolean;
+  testContactsOnly?: boolean;
 }
 
 export function policy(overrides: PolicyOverrides = {}): CompliancePolicy {
@@ -65,6 +66,7 @@ export function policy(overrides: PolicyOverrides = {}): CompliancePolicy {
       max_dials_per_number_per_day: 1
     },
     holidays: { require_verified_calendar: overrides.requireVerifiedCalendar ?? false },
+    dialling: { test_contacts_only: overrides.testContactsOnly ?? false },
     approval: { require_daily_plan: overrides.requireDailyPlan ?? false },
     recording: { retention_days: 90 },
     kill_switch: {
@@ -84,6 +86,7 @@ export function cleanSnapshot(overrides: Partial<import('../../src/compliance/ty
   return {
     killSwitch: { active: false },
     dayPlan: null,
+    contactKind: 'test' as const,
     suppressions: [],
     dncWash: null,
     contactAttempts: [],

@@ -6,7 +6,7 @@ behind it, so a fresh session does not re-derive or re-litigate any of it.
 
 **Branch:** `claude/anz-voice-sdr-build-8o6q1m`
 **State:** Phases 1 and 2 complete and accepted. Phase 3 not started.
-**Last verified:** 298 tests green, 100% branch coverage on `src/compliance`,
+**Last verified:** 314 tests green, 100% branch coverage on `src/compliance`,
 working tree clean, everything pushed.
 
 **First campaign is loaded.** `NZ banking pilot`, market NZ: Kiwibank and TSB at
@@ -20,7 +20,7 @@ titles from CIO down to engineering manager. Three meetings a week, US$25 ceilin
 ```bash
 npm install           # postinstall runs `prisma generate`
 npm run db:setup      # apply migrations
-npm test              # 298 tests, ~10s, includes the 10,000-request fuzz acceptance
+npm test              # 314 tests, ~10s, includes the 10,000-request fuzz acceptance
 npm run test:coverage # fails below 100% branch coverage on src/compliance
 npm run typecheck
 ```
@@ -105,6 +105,7 @@ prisma/                    schema and migrations for the SQLite blackboard
 config/policy.yaml         operator policy — can only ever make calling more restrictive
 config/campaign.yaml       the campaign, the ICP and the budget — committed source of truth
 config/accounts.csv        the account list — committed, survives a fresh clone
+config/contacts.csv        the people — `kind` decides whether each can be dialled
 config/holidays/           generated AU and NZ calendars (committed, reviewable diffs)
 scripts/                   holiday rule engine, calendar sign-off, Apollo check, demo seed
 data/sources/              vendored official data.gov.au holiday dataset
@@ -255,6 +256,7 @@ and with no approved plan, `DAY_PLAN_NOT_APPROVED`.
 | No caller ID numbers | `config/policy.yaml` → `caller_id` | §15 item 3 answered |
 | `allow_mobile_dialling: false` | `config/policy.yaml` → `dnc` | §15 item 4 answered |
 | `require_verified_calendar: true` | `config/policy.yaml` → `holidays` | a human runs `npm run holidays:verify -- --sign-off all:2026 --by "<name>"` |
+| `test_contacts_only: true` | `config/policy.yaml` → `dialling` | deliberately, once §15 items 2, 3 and 4 are answered |
 | `require_daily_plan: true` | `config/policy.yaml` → `approval` | not waiting on anything — this is how the system is meant to run |
 
 The first three are one-line changes and none should be made without the

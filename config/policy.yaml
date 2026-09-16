@@ -66,6 +66,15 @@ holidays:
   # human. See `npm run holidays:verify`.
   require_verified_calendar: true
 
+dialling:
+  # Only numbers Vinay controls are dialled while this is true, which is how it
+  # ships. A contact marked `prospect` is refused by the gate outright, so a real
+  # person cannot be called by accident during build-out or testing.
+  #
+  # Turning this off is the moment the system starts calling strangers. Do it
+  # deliberately, with section 15 items 2, 3 and 4 answered, and not before.
+  test_contacts_only: true
+
 approval:
   # Every day's calling is planned first and dialled only once Vinay has approved
   # that day's list. Approval covers the named people on the named day and does

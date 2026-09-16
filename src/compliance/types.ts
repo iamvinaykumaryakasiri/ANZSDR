@@ -142,7 +142,9 @@ export const DENY_CODES = [
   'DAILY_DIAL_CAP',
   'CONCURRENCY_LIMIT',
   'NUMBER_ALREADY_DIALLED_TODAY',
-  'DAY_PLAN_NOT_APPROVED'
+  'DAY_PLAN_NOT_APPROVED',
+  'NOT_A_TEST_CONTACT',
+  'CONTACT_NOT_ON_BLACKBOARD'
 ] as const;
 export type DenyCode = (typeof DENY_CODES)[number];
 
@@ -231,6 +233,12 @@ export interface AttemptRecord {
   hadConversation: boolean;
 }
 
+/**
+ * `test` is a number the operator controls. `prospect` is a real person.
+ * While the system is in test mode only the former may be dialled.
+ */
+export type ContactKind = 'test' | 'prospect';
+
 export const PLAN_STATUSES = ['draft', 'pending_approval', 'approved', 'rejected', 'superseded'] as const;
 export type PlanStatus = (typeof PLAN_STATUSES)[number];
 
@@ -274,6 +282,8 @@ export interface ComplianceSnapshot {
   killSwitch: KillSwitchState;
   /** The live plan for the operational day this request falls in, if there is one. */
   dayPlan: DayPlanState | null;
+  /** Whether this contact is a test number or a real prospect. Null when unknown. */
+  contactKind: ContactKind | null;
   /** All suppression entries matching this contact, number, account or domain. */
   suppressions: SuppressionEntry[];
   dncWash: DncWashRecord | null;

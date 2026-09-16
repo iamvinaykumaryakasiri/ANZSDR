@@ -25,6 +25,7 @@ import { campaignGoalSchema, decode } from '../blackboard/schemas.js';
 import { evaluateAutoTrip, type KillSwitch, type SafetySignals } from '../compliance/kill-switch.js';
 import type { CompliancePolicy } from '../compliance/policy.js';
 import type { TaskRegistry } from './registry.js';
+import { RESEARCH_CONTACT } from './kinds.js';
 
 export interface CampaignDirectorDeps {
   db: Blackboard;
@@ -150,6 +151,7 @@ export class CampaignDirector {
       return report;
     }
 
+    await this.queueResearchForUnresearchedContacts(decide);
     await this.reportPlans(report, decide);
 
     let budgetRemaining = ceiling - spentThisWeek;
@@ -242,6 +244,58 @@ export class CampaignDirector {
 
     await this.evaluateSafety(report, decide);
     return report;
+  }
+
+  /**
+   * Queue research for anyone who has arrived without it.
+   *
+   * A contact found by Prospector already gets a research task as a consequence
+   * of that run. A contact the operator entered by hand does not, so without
+   * this they would sit at `enriched` forever and never reach a call plan. The
+   * Director notices them rather than the import queueing its own work, because
+   * deciding what happens next is the Director's job.
+   */
+  private async queueResearchForUnresearchedContacts(
+    decide: (summary: string, opts?: { taskId?: string }) => Promise<void>
+  ): Promise<void> {
+    const waiting = await this.deps.db.contact.findMany({
+      where: { status: 'enriched', dossiers: { none: {} } },
+      include: { account: true },
+      orderBy: [{ icpScore: 'desc' }, { createdAt: 'asc' }],
+      take: 25
+    });
+    if (waiting.length === 0) return;
+
+    let queued = 0;
+    for (const contact of waiting) {
+      // Do not stack a second research task on someone already waiting for one.
+      const pending = await this.deps.db.task.findFirst({
+        where: { kind: RESEARCH_CONTACT, contactId: contact.id, status: { in: ['pending', 'blocked', 'running'] } }
+      });
+      if (pending !== null) continue;
+
+      await this.deps.tasks.create({
+        kind: RESEARCH_CONTACT,
+        priority: contact.icpScore >= 85 ? 1 : 2,
+        campaignId: contact.campaignId,
+        accountId: contact.accountId,
+        contactId: contact.id,
+        payload: {
+          contactId: contact.id,
+          contactName: `${contact.firstName} ${contact.lastName}`,
+          title: contact.title,
+          accountId: contact.accountId,
+          accountName: contact.account.name,
+          domain: contact.account.domain,
+          ...(contact.linkedinUrl !== null ? { linkedinUrl: contact.linkedinUrl } : {})
+        }
+      });
+      queued += 1;
+    }
+
+    if (queued > 0) {
+      await decide(`${queued} contact(s) arrived without research; queued a dossier for each`);
+    }
   }
 
   /**

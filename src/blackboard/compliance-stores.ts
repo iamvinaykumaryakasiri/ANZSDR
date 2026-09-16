@@ -12,6 +12,7 @@ import { randomUUID } from 'node:crypto';
 import type {
   AttemptStore,
   CallStateStore,
+  ContactStore,
   DncStore,
   SuppressionStore
 } from '../compliance/ports.js';
@@ -19,6 +20,7 @@ import type { SuppressionSubject } from '../compliance/suppression.js';
 import { applicableSuppressions } from '../compliance/suppression.js';
 import type {
   AttemptRecord,
+  ContactKind,
   DncWashRecord,
   SuppressionEntry,
   SuppressionScope,
@@ -172,6 +174,22 @@ export class PrismaCallStateStore implements CallStateStore {
 
   async liveCalls(): Promise<number> {
     return this.db.call.count({ where: { endedAt: null } });
+  }
+}
+
+/**
+ * Who a number belongs to, read from the blackboard rather than taken from the
+ * dial request, so nothing upstream can assert a real prospect into test mode.
+ * A contact that is not on the blackboard returns null, and the gate treats that
+ * as a denial.
+ */
+export class PrismaContactStore implements ContactStore {
+  constructor(private readonly db: Blackboard) {}
+
+  async kind(contactId: string): Promise<ContactKind | null> {
+    const row = await this.db.contact.findUnique({ where: { id: contactId }, select: { kind: true } });
+    if (row === null) return null;
+    return row.kind === 'test' ? 'test' : 'prospect';
   }
 }
 

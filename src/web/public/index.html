@@ -200,7 +200,26 @@
     <div id="accounts-empty" class="empty" hidden>No accounts yet. Add one above, or paste a block from your spreadsheet below.</div>
   </section>
 
-  <h2>Paste from a spreadsheet <span class="hint">account_name, domain, country, industry, priority, notes</span></h2>
+  <h2>People <span class="hint" id="contact-count"></span></h2>
+  <section>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Name</th><th>Account</th><th>Phone</th><th>Status</th><th>Dialable</th></tr></thead>
+        <tbody id="contacts"></tbody>
+      </table>
+    </div>
+    <div id="contacts-empty" class="empty" hidden>Nobody yet. Paste a block below.</div>
+
+    <label style="margin-top:18px" for="contact-text">Paste people <span class="muted">first_name, last_name, title, account_domain, phone, email, seniority, linkedin_url, kind, notes</span></label>
+    <textarea id="contact-text" placeholder="Test	One	Head of Data	kiwibank.co.nz	+6421000000	you+test1@example.com	head		test	rings my own phone"></textarea>
+    <div class="row" style="margin-top:10px">
+      <div style="flex:0 0 auto"><button id="import-contacts" class="primary" type="button">Import people</button></div>
+      <div style="flex:0 0 auto"><button id="export-contacts" type="button">Download CSV</button></div>
+    </div>
+    <p class="note"><strong>The <code>kind</code> column decides whether anyone can be called.</strong> Only <code>test</code> rows can be dialled while the system is in test mode, and a test number has to be one you actually control &mdash; your own mobile, or a Twilio number you own. Anything that does not say <code>test</code> is treated as a real person and refused. The account_domain must already be on the campaign above.</p>
+  </section>
+
+  <h2>Paste accounts from a spreadsheet <span class="hint">account_name, domain, country, industry, priority, notes</span></h2>
   <section>
     <textarea id="import-text" placeholder="Example Bank	examplebank.com.au	AU	financial services	1	met at a conference
 Another Bank	anotherbank.co.nz	NZ	financial services	2"></textarea>
@@ -383,9 +402,52 @@ Another Bank	anotherbank.co.nz	NZ	financial services	2"></textarea>
     }
   }
 
+  function renderContacts(contacts) {
+    const body = $('contacts');
+    body.replaceChildren();
+    $('contacts-empty').hidden = contacts.length > 0;
+    const dialable = contacts.filter((c) => c.kind === 'test').length;
+    $('contact-count').textContent = contacts.length === 0
+      ? ''
+      : contacts.length + ' on this campaign, ' + dialable + ' dialable in test mode';
+
+    for (const contact of contacts) {
+      const tr = document.createElement('tr');
+
+      const name = document.createElement('td');
+      name.append(
+        Object.assign(document.createElement('div'), { textContent: contact.name }),
+        Object.assign(document.createElement('div'), { className: 'domain', textContent: contact.title })
+      );
+
+      const account = document.createElement('td');
+      account.textContent = contact.account;
+
+      const phone = document.createElement('td');
+      phone.textContent = contact.phone || 'none';
+      if (contact.phone === null) phone.className = 'muted';
+
+      const status = document.createElement('td');
+      status.append(Object.assign(document.createElement('span'), { className: 'tag', textContent: contact.status }));
+
+      const kind = document.createElement('td');
+      kind.textContent = contact.kind === 'test' ? 'test number' : 'real person — not in test mode';
+      if (contact.kind !== 'test') kind.className = 'muted';
+
+      tr.append(name, account, phone, status, kind);
+      body.append(tr);
+    }
+  }
+
+  async function loadContacts() {
+    if (current === null) return;
+    renderContacts(await json('/api/campaigns/' + current.id + '/contacts'));
+  }
+
   async function loadAccounts() {
     if (current === null) return;
     renderAccounts(await json('/api/campaigns/' + current.id + '/accounts'));
+    await loadContacts();
   }
 
   async function load() {
@@ -476,17 +538,45 @@ Another Bank	anotherbank.co.nz	NZ	financial services	2"></textarea>
     } catch (error) { say(error.message, false); }
   });
 
-  $('export').addEventListener('click', async () => {
+  $('import-contacts').addEventListener('click', async () => {
     if (current === null) return;
     try {
-      const response = await api('/api/campaigns/' + current.id + '/accounts.csv');
-      const url = URL.createObjectURL(await response.blob());
-      const link = Object.assign(document.createElement('a'), { href: url, download: 'accounts.csv' });
-      document.body.append(link);
-      link.click();
-      link.remove();
-      URL.revokeObjectURL(url);
+      const result = await json('/api/campaigns/' + current.id + '/contacts/import', {
+        method: 'POST',
+        body: JSON.stringify({ text: $('contact-text').value })
+      });
+      const skipped = result.skipped.length === 0
+        ? ''
+        : ', ' + result.skipped.length + ' skipped: ' + result.skipped.map((s) => 'row ' + s.row + ' (' + s.reason + ')').join('; ');
+      const prospects = result.prospects === 0
+        ? ' All test numbers.'
+        : ' ' + result.prospects + ' of them real people, which the gate refuses while in test mode.';
+      say(result.added + ' added, ' + result.updated + ' updated.' + prospects + skipped, result.skipped.length === 0);
+      if (result.skipped.length === 0) $('contact-text').value = '';
+      await loadContacts();
     } catch (error) { say(error.message, false); }
+  });
+
+  async function download(path, filename) {
+    const response = await api(path);
+    const url = URL.createObjectURL(await response.blob());
+    const link = Object.assign(document.createElement('a'), { href: url, download: filename });
+    document.body.append(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  $('export-contacts').addEventListener('click', async () => {
+    if (current === null) return;
+    try { await download('/api/campaigns/' + current.id + '/contacts.csv', 'contacts.csv'); }
+    catch (error) { say(error.message, false); }
+  });
+
+  $('export').addEventListener('click', async () => {
+    if (current === null) return;
+    try { await download('/api/campaigns/' + current.id + '/accounts.csv', 'accounts.csv'); }
+    catch (error) { say(error.message, false); }
   });
 
   $('sign-out').addEventListener('click', () => {

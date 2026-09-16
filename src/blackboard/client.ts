@@ -30,13 +30,29 @@ const MIGRATIONS_DIR = resolve(ROOT, 'prisma/migrations');
  */
 export function resolveDatabaseUrl(url: string): string {
   if (!url.startsWith('file:')) return url;
-  const path = url.slice('file:'.length);
-  if (path.startsWith('/')) return `file:${path}`;
-  return `file:${resolve(ROOT, path)}`;
+  const [path, query] = url.slice('file:'.length).split('?');
+  const suffix = query === undefined ? '' : `?${query}`;
+  const absolute = (path as string).startsWith('/') ? (path as string) : resolve(ROOT, path as string);
+  return `file:${absolute}${suffix}`;
+}
+
+/**
+ * SQLite is a single-writer database, so a connection pool buys nothing and
+ * costs correctness: `PRAGMA` settings are per-connection, so a migration that
+ * turns foreign keys off to rebuild a table can have its `DROP TABLE` land on a
+ * different connection than the PRAGMA that made it safe. Pinning to one
+ * connection makes the sequence mean what it reads like.
+ */
+function pinToOneConnection(url: string): string {
+  if (!url.startsWith('file:')) return url;
+  if (url.includes('connection_limit=')) return url;
+  return `${url}${url.includes('?') ? '&' : '?'}connection_limit=1`;
 }
 
 export function createBlackboard(databaseUrl?: string): PrismaClient {
-  const url = resolveDatabaseUrl(databaseUrl ?? process.env.DATABASE_URL ?? 'file:./data/anzsdr.db');
+  const url = pinToOneConnection(
+    resolveDatabaseUrl(databaseUrl ?? process.env.DATABASE_URL ?? 'file:./data/anzsdr.db')
+  );
   return new PrismaClient({ datasources: { db: { url } } });
 }
 

@@ -119,6 +119,15 @@ export const policySchema = z.object({
     max_dials_per_number_per_day: z.number().int().positive()
   }),
   holidays: z.object({ require_verified_calendar: z.boolean() }),
+  dialling: z.object({
+    /**
+     * While true, only contacts marked `test` may be dialled - numbers the
+     * operator controls. A real prospect is refused outright. This is how the
+     * system ships, and it is what makes "calls only to numbers I control" a
+     * property of the compliance gate rather than a matter of care.
+     */
+    test_contacts_only: z.boolean()
+  }),
   approval: z.object({
     /**
      * No call goes out until the operator has approved that day's plan. Approval

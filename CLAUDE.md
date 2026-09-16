@@ -504,6 +504,7 @@ is in [`docs/SESSION-HANDOFF.md`](./docs/SESSION-HANDOFF.md).
 ## Standing constraints the build has already put in place
 
 - `config/policy.yaml` ships with **no caller ID numbers set**, so the gate denies every dial with `CALLER_ID_NOT_CONFIGURED` until §15 item 3 is answered.
+- `dialling.test_contacts_only` ships **true**: only contacts marked `test` — numbers Vinay controls — can be dialled. A real prospect is refused with `NOT_A_TEST_CONTACT`, and a contact with no blackboard record is refused too. Anything not explicitly marked `test` counts as a real person, so a typo stops a call rather than starting one. This is what makes §13 Phase 5's "calls only to numbers I control" a property of the gate.
 - `dnc.allow_mobile_dialling` ships **false**, so only office direct dials are possible until §15 item 4 is answered.
 - The account desk (`npm run serve`) refuses to start without `ADMIN_TOKEN`. It edits the list of people the system will call and is never served unauthenticated.
 - `holidays.require_verified_calendar` ships **true**. The official `data.gov.au` holiday dataset stops at 2025, so 2026 and 2027 are derived from rules and every dial on those dates is denied until a human signs the calendar off with `npm run holidays:verify`.

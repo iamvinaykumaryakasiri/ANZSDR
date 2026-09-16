@@ -6,7 +6,7 @@
  * decision logic changing a line.
  */
 
-import type { AttemptRecord, DayPlanState, DncWashRecord, SuppressionEntry } from './types.js';
+import type { AttemptRecord, ContactKind, DayPlanState, DncWashRecord, SuppressionEntry } from './types.js';
 import type { SuppressionSubject } from './suppression.js';
 import { applicableSuppressions } from './suppression.js';
 
@@ -32,6 +32,11 @@ export interface AttemptStore {
 
 export interface CallStateStore {
   liveCalls(): Promise<number>;
+}
+
+export interface ContactStore {
+  /** Whether this contact is a test number or a real prospect. Null if unknown. */
+  kind(contactId: string): Promise<ContactKind | null>;
 }
 
 export interface DayPlanStore {
@@ -98,6 +103,18 @@ export class InMemoryAttemptStore implements AttemptStore {
 
   async record(attempt: AttemptRecord): Promise<void> {
     this.attempts.push(attempt);
+  }
+}
+
+export class InMemoryContactStore implements ContactStore {
+  private readonly kinds = new Map<string, ContactKind>();
+
+  async kind(contactId: string): Promise<ContactKind | null> {
+    return this.kinds.get(contactId) ?? null;
+  }
+
+  set(contactId: string, kind: ContactKind): void {
+    this.kinds.set(contactId, kind);
   }
 }
 

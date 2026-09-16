@@ -153,9 +153,26 @@ describe('nothing dials until it is approved', () => {
     const plan = await h.planner.draft({ campaignId: h.campaignId });
     await h.plans.approve(plan.id, 'vinay', GOOD);
 
-    const stranger = await h.gate.request(dialRequest(h, 'someone-else', contact.accountId));
+    // Somebody real, at the same account, who simply is not on today's list.
+    const offPlan = await h.db.contact.create({
+      data: {
+        id: 'off-plan-contact',
+        accountId: contact.accountId,
+        campaignId: h.campaignId,
+        firstName: 'Not',
+        lastName: 'Planned',
+        title: 'CIO',
+        status: 'researched',
+        kind: 'test'
+      }
+    });
+
+    const stranger = await h.gate.request(dialRequest(h, offPlan.id, contact.accountId));
     expect(stranger.allowed).toBe(false);
-    expect(stranger.reasons[0]?.detail).toContain('someone-else is not one of them');
+    expect(stranger.reasons.map((r) => r.code)).toContain('DAY_PLAN_NOT_APPROVED');
+    expect(stranger.reasons.find((r) => r.code === 'DAY_PLAN_NOT_APPROVED')?.detail).toContain(
+      'off-plan-contact is not one of them'
+    );
   });
 
   it('does not let an approval carry over to the next day', async () => {

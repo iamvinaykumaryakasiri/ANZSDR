@@ -6,6 +6,7 @@ import {
   PrismaAttemptStore,
   PrismaAuditLog,
   PrismaCallStateStore,
+  PrismaContactStore,
   PrismaDncStore,
   PrismaSuppressionStore
 } from '../../src/blackboard/compliance-stores.js';
@@ -113,6 +114,7 @@ export interface HarnessOptions {
   /** Swap in a differently-behaved agent for a task kind, to exercise failure paths. */
   overrides?: (registry: TaskRegistry) => void;
   requireDailyPlan?: boolean;
+  testContactsOnly?: boolean;
 }
 
 export async function harness(options: HarnessOptions = {}): Promise<Harness> {
@@ -126,7 +128,8 @@ export async function harness(options: HarnessOptions = {}): Promise<Harness> {
   const killSwitch = new KillSwitch(new InMemoryKillSwitchStore(), audit);
   const plans = new CallPlanRepository(db);
   const compliancePolicy = policy({
-    ...(options.requireDailyPlan !== undefined ? { requireDailyPlan: options.requireDailyPlan } : {})
+    ...(options.requireDailyPlan !== undefined ? { requireDailyPlan: options.requireDailyPlan } : {}),
+    ...(options.testContactsOnly !== undefined ? { testContactsOnly: options.testContactsOnly } : {})
   });
   const gate = new ComplianceGate({
     policy: compliancePolicy,
@@ -137,6 +140,7 @@ export async function harness(options: HarnessOptions = {}): Promise<Harness> {
     attempts: new PrismaAttemptStore(db),
     calls: new PrismaCallStateStore(db),
     dayPlans: plans,
+    contacts: new PrismaContactStore(db),
     audit
   });
 

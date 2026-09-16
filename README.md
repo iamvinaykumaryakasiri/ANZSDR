@@ -11,7 +11,7 @@ including the build phases and the rules that override everything else, is in
 ```bash
 npm install
 npm run db:setup      # apply migrations and generate the Prisma client
-npm test              # 298 tests, including the 10,000-request fuzz acceptance
+npm test              # 314 tests, including the 10,000-request fuzz acceptance
 npm run test:coverage # enforces 100% branch coverage on src/compliance
 npm run typecheck
 ```
@@ -134,6 +134,28 @@ What it does:
 - **Removing a worked account closes it** rather than deleting it, so the record
   of what was said to people there survives.
 
+### People, and the one column that decides whether anyone gets called
+
+The desk takes a block of people the same way it takes accounts:
+
+```
+first_name, last_name, title, account_domain, phone, email, seniority, linkedin_url, kind, notes
+```
+
+**`kind` is the important one.** `test` means a number the operator controls.
+Anything else — including a blank or a typo — is treated as a real person. While
+`dialling.test_contacts_only` is true, which is how the system ships, the
+compliance gate refuses a real person outright with `NOT_A_TEST_CONTACT`. A
+contact that is not on the blackboard at all is refused too, because there is
+then no record of whose number it is.
+
+That is what makes "calls only to numbers I control" a property of the gate
+rather than a matter of remembering to be careful. The default falls the safe
+way round on purpose: getting `kind` wrong should stop a call, never start one.
+
+A phone number is normalised to E.164 and classified on the way in, so the gate
+gets `+6441112222 / fixed` rather than whatever shape the spreadsheet held.
+
 ### Where the list actually lives
 
 `config/campaign.yaml` and `config/accounts.csv` are the committed source of
@@ -142,8 +164,8 @@ accounts. A database lives on one machine; these files survive a fresh clone, an
 every change to them is a reviewable diff.
 
 ```bash
-npm run accounts:import   # files -> blackboard
-npm run accounts:export   # blackboard -> files, so desk edits can be committed
+npm run accounts:import   # config/campaign.yaml + accounts.csv + contacts.csv -> blackboard
+npm run accounts:export   # blackboard -> those files, so desk edits can be committed
 ```
 
 Edit the files and import, or edit on the desk and export. Either way, commit.

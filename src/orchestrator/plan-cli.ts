@@ -18,6 +18,7 @@ import {
   PrismaAttemptStore,
   PrismaAuditLog,
   PrismaCallStateStore,
+  PrismaContactStore,
   PrismaDncStore,
   PrismaSuppressionStore
 } from '../blackboard/compliance-stores.js';
@@ -54,6 +55,7 @@ async function main(): Promise<void> {
     attempts: new PrismaAttemptStore(db),
     calls: new PrismaCallStateStore(db),
     dayPlans: plans,
+    contacts: new PrismaContactStore(db),
     audit
   });
 

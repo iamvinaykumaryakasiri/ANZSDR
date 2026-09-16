@@ -77,6 +77,14 @@ model Contact {
   icpScore     Int     @default(0)
   status       String // discovered | scored | enriched | researched | queued | contacted | done
 
+  /// `test` is a number the operator controls, used to exercise the system end to
+  /// end. `prospect` is a real person. The compliance gate treats these as
+  /// different things: while `dialling.test_contacts_only` is true - which is how
+  /// it ships - a prospect cannot be dialled at all. That is what makes Phase 5's
+  /// "calls only to numbers I control" a property of the system rather than a
+  /// promise to be careful.
+  kind         String  @default("prospect")
+
   // Lawful basis and provenance, held per Privacy Act 1988 (AU) / 2020 (NZ).
   source      String   @default("apollo")
   lawfulBasis String   @default("legitimate business interest - B2B professional capacity")

@@ -11,6 +11,7 @@ import {
 } from '../../src/compliance/audit.js';
 import {
   InMemoryAttemptStore,
+  InMemoryContactStore,
   InMemoryCallStateStore,
   InMemoryDayPlanStore,
   InMemoryDncStore,
@@ -101,6 +102,16 @@ describe('in-memory stores', () => {
     expect(await store.countSince(new Date('2026-03-05T00:00:00Z'))).toBe(1);
     expect(await store.countForNumberSince('+61280001234', new Date('2026-02-01T00:00:00Z'))).toBe(2);
     expect(await store.countForNumberSince('+61399990000', new Date('2026-02-01T00:00:00Z'))).toBe(0);
+  });
+
+  it('reports whether a contact is a test number, and null when it has never heard of them', async () => {
+    const store = new InMemoryContactStore();
+    expect(await store.kind('contact-1')).toBeNull();
+    store.set('contact-1', 'test');
+    store.set('contact-2', 'prospect');
+    expect(await store.kind('contact-1')).toBe('test');
+    expect(await store.kind('contact-2')).toBe('prospect');
+    expect(await store.kind('contact-9')).toBeNull();
   });
 
   it('reports the day plan, and whether a contact is on it', async () => {

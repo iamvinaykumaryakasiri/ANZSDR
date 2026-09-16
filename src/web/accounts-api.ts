@@ -15,6 +15,7 @@ import { randomUUID } from 'node:crypto';
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import type { Blackboard } from '../blackboard/client.js';
+import { parsePhoneNumber } from '../compliance/phone.js';
 import {
   accountStatusSchema,
   campaignGoalSchema,
@@ -54,6 +55,24 @@ const accountPatch = z.object({
 
 /** The column names from section 5.1, so a block of Excel rows pastes straight in. */
 export const CSV_COLUMNS = ['account_name', 'domain', 'country', 'industry', 'priority', 'notes'] as const;
+
+/**
+ * Contact columns. `kind` decides whether the compliance gate will let the number
+ * be dialled at all while the system is in test mode, so it defaults to the safe
+ * value: a row that does not say `test` is treated as a real person.
+ */
+export const CONTACT_CSV_COLUMNS = [
+  'first_name',
+  'last_name',
+  'title',
+  'account_domain',
+  'phone',
+  'email',
+  'seniority',
+  'linkedin_url',
+  'kind',
+  'notes'
+] as const;
 
 export interface ImportResult {
   added: number;
@@ -105,20 +124,25 @@ function delimiterFor(text: string): string {
  * Parse pasted rows. A header line is optional; when present its column order is
  * honoured, so a sheet with the columns in a different order still imports.
  */
-export function parseAccountRows(text: string): Array<{ row: number; values: Record<string, string> }> {
+export function parseAccountRows(
+  text: string,
+  columns: readonly string[] = CSV_COLUMNS
+): Array<{ row: number; values: Record<string, string> }> {
   const lines = text.split(/\r?\n/).filter((l) => l.trim() !== '');
   if (lines.length === 0) return [];
 
   const delimiter = delimiterFor(text);
   const first = splitLine(lines[0] as string, delimiter).map((h) => h.toLowerCase().replace(/\s+/g, '_'));
-  const hasHeader = first.includes('domain') || first.includes('account_name');
-  const columns = hasHeader ? first : [...CSV_COLUMNS];
+  // A header is optional. When one is present its order is honoured, so a sheet
+  // with the columns rearranged still imports correctly.
+  const hasHeader = first.some((h) => columns.includes(h));
+  const order = hasHeader ? first : [...columns];
   const body = hasHeader ? lines.slice(1) : lines;
 
   return body.map((line, index) => {
     const cells = splitLine(line, delimiter);
     const values: Record<string, string> = {};
-    for (const [i, column] of columns.entries()) {
+    for (const [i, column] of order.entries()) {
       const cell = cells[i];
       if (cell !== undefined && cell !== '') values[column] = cell;
     }
@@ -126,15 +150,98 @@ export function parseAccountRows(text: string): Array<{ row: number; values: Rec
   });
 }
 
-export function toCsv(rows: Array<Record<string, string | number>>): string {
+export function toCsv(
+  rows: Array<Record<string, string | number>>,
+  columns: readonly string[] = CSV_COLUMNS
+): string {
   const escape = (v: string | number): string => {
     const s = String(v);
     return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
   };
   return [
-    CSV_COLUMNS.join(','),
-    ...rows.map((r) => CSV_COLUMNS.map((c) => escape(r[c] ?? '')).join(','))
+    columns.join(','),
+    ...rows.map((r) => columns.map((c) => escape(r[c] ?? '')).join(','))
   ].join('\n');
+}
+
+/**
+ * Write one person, matching an existing record on name within the account so a
+ * re-paste corrects rather than duplicates. The phone number is parsed here so
+ * the compliance gate gets a normalised E.164 and a line type rather than
+ * whatever shape the spreadsheet held it in.
+ */
+export async function upsertContact(
+  db: Blackboard,
+  campaignId: string,
+  accountId: string,
+  row: z.infer<typeof contactRowSchema>
+): Promise<'added' | 'updated'> {
+  const account = await db.account.findUniqueOrThrow({ where: { id: accountId } });
+  const market = account.country === 'NZ' ? 'NZ' : 'AU';
+  const parsedPhone = row.phone.trim() === '' ? null : parsePhoneNumber(row.phone, market);
+
+  const data = {
+    firstName: row.firstName,
+    lastName: row.lastName,
+    title: row.title,
+    seniority: row.seniority,
+    kind: row.kind,
+    linkedinUrl: row.linkedinUrl === '' ? null : row.linkedinUrl,
+    phoneE164: parsedPhone !== null && parsedPhone.valid ? parsedPhone.e164 : null,
+    phoneLine: parsedPhone !== null && parsedPhone.valid ? parsedPhone.lineType : null,
+    source: 'operator',
+    status: 'enriched'
+  };
+
+  const existing = await db.contact.findFirst({
+    where: { campaignId, accountId, firstName: row.firstName, lastName: row.lastName }
+  });
+
+  const id = existing?.id ?? randomUUID();
+  if (existing === null) {
+    await db.contact.create({ data: { id, campaignId, accountId, ...data } });
+  } else {
+    await db.contact.update({ where: { id }, data: { ...data, updatedAt: new Date() } });
+  }
+
+  if (row.email.trim() !== '') {
+    await db.contactEmail.upsert({
+      where: { contactId_kind: { contactId: id, kind: 'apollo_work' } },
+      create: { id: randomUUID(), contactId: id, address: row.email.trim().toLowerCase(), kind: 'apollo_work' },
+      update: { address: row.email.trim().toLowerCase() }
+    });
+  }
+
+  return existing === null ? 'added' : 'updated';
+}
+
+export const contactRowSchema = z.object({
+  firstName: z.string().min(1),
+  lastName: z.string().min(1),
+  title: z.string().min(1),
+  accountDomain: z
+    .string()
+    .min(3)
+    .transform((d) => d.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/.*$/, '')),
+  phone: z.string().default(''),
+  email: z.string().default(''),
+  seniority: z.string().default('unknown'),
+  linkedinUrl: z.string().default(''),
+  // Anything that is not explicitly "test" is a real person. Defaulting the other
+  // way would mean a typo could put a stranger's number into a test run.
+  kind: z
+    .string()
+    .default('prospect')
+    .transform((k) => (k.trim().toLowerCase() === 'test' ? 'test' : 'prospect')),
+  notes: z.string().default('')
+});
+
+export interface ContactImportResult {
+  added: number;
+  updated: number;
+  skipped: Array<{ row: number; reason: string }>;
+  /** How many of the imported rows are real people rather than test numbers. */
+  prospects: number;
 }
 
 export function registerAccountsApi(app: FastifyInstance, db: Blackboard): void {
@@ -306,6 +413,108 @@ export function registerAccountsApi(app: FastifyInstance, db: Blackboard): void 
       }
     }
     return result;
+  });
+
+  app.get('/api/campaigns/:id/contacts', async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const campaign = await db.campaign.findUnique({ where: { id } });
+    if (campaign === null) return reply.code(404).send({ error: 'no such campaign' });
+    const rows = await db.contact.findMany({
+      where: { campaignId: id },
+      orderBy: [{ kind: 'asc' }, { lastName: 'asc' }],
+      include: { account: { select: { name: true, domain: true } }, emails: true }
+    });
+    return rows.map((c) => ({
+      id: c.id,
+      name: `${c.firstName} ${c.lastName}`,
+      title: c.title,
+      account: c.account.name,
+      domain: c.account.domain,
+      phone: c.phoneE164,
+      phoneLine: c.phoneLine,
+      email: c.emails[0]?.address ?? null,
+      seniority: c.seniority,
+      kind: c.kind,
+      status: c.status,
+      icpScore: c.icpScore
+    }));
+  });
+
+  /** Paste a block of people straight out of a spreadsheet. */
+  app.post('/api/campaigns/:id/contacts/import', async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const body = z.object({ text: z.string() }).safeParse(request.body);
+    if (!body.success) return reply.code(400).send({ error: body.error.issues });
+    const campaign = await db.campaign.findUnique({ where: { id } });
+    if (campaign === null) return reply.code(404).send({ error: 'no such campaign' });
+
+    const result: ContactImportResult = { added: 0, updated: 0, skipped: [], prospects: 0 };
+
+    for (const { row, values } of parseAccountRows(body.data.text, CONTACT_CSV_COLUMNS)) {
+      const parsed = contactRowSchema.safeParse({
+        firstName: values.first_name,
+        lastName: values.last_name,
+        title: values.title,
+        accountDomain: values.account_domain ?? values.domain,
+        phone: values.phone,
+        email: values.email,
+        seniority: values.seniority,
+        linkedinUrl: values.linkedin_url,
+        kind: values.kind,
+        notes: values.notes
+      });
+      if (!parsed.success) {
+        result.skipped.push({
+          row,
+          reason: parsed.error.issues.map((i) => `${i.path.join('.')} ${i.message}`).join('; ')
+        });
+        continue;
+      }
+
+      const account = await db.account.findFirst({
+        where: { campaignId: id, domain: parsed.data.accountDomain }
+      });
+      if (account === null) {
+        result.skipped.push({
+          row,
+          reason: `no account on this campaign with the domain ${parsed.data.accountDomain}`
+        });
+        continue;
+      }
+
+      const outcome = await upsertContact(db, id, account.id, parsed.data);
+      if (outcome === 'added') result.added += 1;
+      else result.updated += 1;
+      if (parsed.data.kind === 'prospect') result.prospects += 1;
+    }
+
+    return result;
+  });
+
+  app.get('/api/campaigns/:id/contacts.csv', async (request, reply) => {
+    const { id } = request.params as { id: string };
+    const rows = await db.contact.findMany({
+      where: { campaignId: id },
+      orderBy: [{ kind: 'asc' }, { lastName: 'asc' }],
+      include: { account: { select: { domain: true } }, emails: true }
+    });
+    reply.header('content-type', 'text/csv; charset=utf-8');
+    reply.header('content-disposition', 'attachment; filename="contacts.csv"');
+    return toCsv(
+      rows.map((c) => ({
+        first_name: c.firstName,
+        last_name: c.lastName,
+        title: c.title,
+        account_domain: c.account.domain,
+        phone: c.phoneE164 ?? '',
+        email: c.emails[0]?.address ?? '',
+        seniority: c.seniority,
+        linkedin_url: c.linkedinUrl ?? '',
+        kind: c.kind,
+        notes: ''
+      })),
+      CONTACT_CSV_COLUMNS
+    );
   });
 
   app.get('/api/campaigns/:id/accounts.csv', async (request, reply) => {

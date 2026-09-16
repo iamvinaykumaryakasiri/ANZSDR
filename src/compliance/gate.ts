@@ -325,6 +325,26 @@ export function evaluateDialRequest(
     );
   }
 
+  // Who this number belongs to. A prospect is a real person; a test contact is a
+  // number the operator controls. The distinction is read from the blackboard,
+  // never taken from the request, so nothing upstream can assert its way past it.
+  if (snapshot.contactKind === null) {
+    reasons.push(
+      deny(
+        'CONTACT_NOT_ON_BLACKBOARD',
+        `${request.contactId} is not on the blackboard, so there is no record of who this number belongs to`,
+        { permanent: true }
+      )
+    );
+  } else if (policy.dialling.test_contacts_only && snapshot.contactKind !== 'test') {
+    reasons.push(
+      deny(
+        'NOT_A_TEST_CONTACT',
+        `${request.contactId} is a real prospect and the system is in test mode; only numbers the operator controls may be dialled`
+      )
+    );
+  }
+
   if (policy.approval.require_daily_plan) {
     const reason = dayPlanReason(snapshot.dayPlan, operationalDate(at, policy), request.contactId);
     // No retry time: a plan is approved when a person decides to approve it,

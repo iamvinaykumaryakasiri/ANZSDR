@@ -88,4 +88,14 @@ describe('database url', () => {
     expect(resolveDatabaseUrl('file:/tmp/x.db')).toBe('file:/tmp/x.db');
     expect(resolveDatabaseUrl('postgresql://localhost/anzsdr')).toBe('postgresql://localhost/anzsdr');
   });
+
+  it('keeps query parameters when it makes the path absolute', () => {
+    // SQLite is pinned to one connection, and that parameter has to survive the
+    // rewrite: PRAGMA settings are per-connection, so a migration that rebuilds a
+    // table can otherwise have its DROP land on a connection where foreign keys
+    // are still on.
+    expect(resolveDatabaseUrl('file:./data/x.db?connection_limit=1')).toMatch(
+      /^file:\/.*\/data\/x\.db\?connection_limit=1$/
+    );
+  });
 });
