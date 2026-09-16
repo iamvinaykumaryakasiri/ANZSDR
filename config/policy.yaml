@@ -9,14 +9,29 @@ policy_version: "1.0.0"
 # The operator's day, used for the global daily dial cap.
 operational_timezone: Australia/Sydney
 
-# Policy default, deliberately tighter than the law: mid-morning to mid-afternoon,
-# Tuesday to Thursday, in the RECIPIENT's local time.
+# The operator's working day, deliberately tighter than the law.
+#
+# `timezone` is the clock the calling plan is written and read on - Vinay's own,
+# not the prospect's. One plan, one clock, whoever is being called.
+#
+# This does NOT relax the legal check. Every dial is ALSO tested against the
+# statutory window where the recipient actually is, so 09:30 Sydney is refused
+# for a Perth number until it is 09:00 in Perth. Anchoring the plan to Sydney
+# time can only ever delay a call, never permit one that would otherwise be
+# unlawful.
+#
+# Saturday is closed in code (src/compliance/policy.ts) and cannot be re-opened
+# here, even though the Industry Standard permits it.
 calling_windows:
   AU:
+    timezone: Australia/Sydney
+    holiday_jurisdiction: au-nsw
     days: [tue, wed, thu]
     start: "09:30"
     end: "16:30"
   NZ:
+    timezone: Pacific/Auckland
+    holiday_jurisdiction: nz-national
     days: [tue, wed, thu]
     start: "09:30"
     end: "16:30"
@@ -50,6 +65,12 @@ holidays:
   # Deny dials on any date whose jurisdiction-year has not been signed off by a
   # human. See `npm run holidays:verify`.
   require_verified_calendar: true
+
+approval:
+  # Every day's calling is planned first and dialled only once Vinay has approved
+  # that day's list. Approval covers the named people on the named day and does
+  # not carry over to the next. See `npm run plan`.
+  require_daily_plan: true
 
 recording:
   retention_days: 90

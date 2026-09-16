@@ -9,9 +9,10 @@
  */
 
 import { readFileSync } from 'node:fs';
+import { IANAZone } from 'luxon';
 import { parse as parseYaml } from 'yaml';
 import { z } from 'zod';
-import type { Market } from './types.js';
+import { AU_JURISDICTIONS, NZ_JURISDICTIONS, NZ_NATIONAL, type Jurisdiction, type Market } from './types.js';
 
 export const WEEKDAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'] as const;
 export type WeekdayKey = (typeof WEEKDAYS)[number];
@@ -27,8 +28,12 @@ export type WeekWindow = Record<WeekdayKey, DayWindow | null>;
 
 /**
  * Australia: Telecommunications (Telemarketing and Research Calls) Industry
- * Standard 2017 - weekdays 09:00-20:00, Saturday 09:00-17:00, no Sundays, no
- * public holidays.
+ * Standard 2017 - weekdays 09:00-20:00, no Sundays, no public holidays.
+ *
+ * The Standard also permits Saturday 09:00-17:00. The operator has ruled Saturday
+ * out entirely, so it is closed here in code rather than in config: no edit to
+ * `config/policy.yaml` can re-open it. Being stricter than the Standard is always
+ * allowed; being looser never is.
  */
 const AU_STATUTORY: WeekWindow = Object.freeze({
   mon: { start: '09:00', end: '20:00' },
@@ -36,7 +41,7 @@ const AU_STATUTORY: WeekWindow = Object.freeze({
   wed: { start: '09:00', end: '20:00' },
   thu: { start: '09:00', end: '20:00' },
   fri: { start: '09:00', end: '20:00' },
-  sat: { start: '09:00', end: '17:00' },
+  sat: null,
   sun: null
 });
 
@@ -62,13 +67,25 @@ export const STATUTORY_WINDOWS: Readonly<Record<Market, WeekWindow>> = Object.fr
 
 const timeSchema = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'expected HH:mm');
 
+const jurisdictionSchema = z.enum([...AU_JURISDICTIONS, ...NZ_JURISDICTIONS, NZ_NATIONAL]);
+
 const windowSchema = z
   .object({
+    /**
+     * The clock the calling plan is written in - the operator's own, not the
+     * recipient's. Australia/Sydney means every plan is read in Sydney time
+     * whoever is being called. It does NOT relax the statutory check, which is
+     * always evaluated where the recipient actually is.
+     */
+    timezone: z.string().min(1),
+    /** Whose public holidays close the operator's own working day. */
+    holiday_jurisdiction: jurisdictionSchema,
     days: z.array(z.enum(WEEKDAYS)).min(0),
     start: timeSchema,
     end: timeSchema
   })
-  .refine((w) => w.start < w.end, { message: 'window start must be before end' });
+  .refine((w) => w.start < w.end, { message: 'window start must be before end' })
+  .refine((w) => IANAZone.isValidZone(w.timezone), { message: 'unknown IANA timezone' });
 
 export const policySchema = z.object({
   policy_version: z.string().min(1),
@@ -102,6 +119,13 @@ export const policySchema = z.object({
     max_dials_per_number_per_day: z.number().int().positive()
   }),
   holidays: z.object({ require_verified_calendar: z.boolean() }),
+  approval: z.object({
+    /**
+     * No call goes out until the operator has approved that day's plan. Approval
+     * covers one named list on one named day; it never carries over.
+     */
+    require_daily_plan: z.boolean()
+  }),
   recording: z.object({ retention_days: z.number().int().positive() }),
   kill_switch: z.object({
     auto_trip: z.object({
@@ -116,9 +140,17 @@ export const policySchema = z.object({
 
 export type PolicyFile = z.infer<typeof policySchema>;
 
+/** Where the operator sits: the clock and calendar the plan is written against. */
+export interface MarketAnchor {
+  timezone: string;
+  jurisdiction: Jurisdiction;
+}
+
 export interface CompliancePolicy extends PolicyFile {
   /** Policy windows expressed per weekday, for direct comparison with statutory. */
   policyWindows: Record<Market, WeekWindow>;
+  /** The operator's clock and calendar per market. */
+  anchors: Record<Market, MarketAnchor>;
   /** Anything in the config that tried to be more permissive than the law allows. */
   warnings: string[];
 }
@@ -161,9 +193,20 @@ export function loadPolicyFromObject(raw: unknown): CompliancePolicy {
     AU: toWeekWindow(file.calling_windows.AU),
     NZ: toWeekWindow(file.calling_windows.NZ)
   };
+  const anchors: Record<Market, MarketAnchor> = {
+    AU: {
+      timezone: file.calling_windows.AU.timezone,
+      jurisdiction: file.calling_windows.AU.holiday_jurisdiction
+    },
+    NZ: {
+      timezone: file.calling_windows.NZ.timezone,
+      jurisdiction: file.calling_windows.NZ.holiday_jurisdiction
+    }
+  };
   return {
     ...file,
     policyWindows,
+    anchors,
     warnings: [...widerThanStatute('AU', policyWindows.AU), ...widerThanStatute('NZ', policyWindows.NZ)]
   };
 }

@@ -6,7 +6,7 @@
  * decision logic changing a line.
  */
 
-import type { AttemptRecord, DncWashRecord, SuppressionEntry } from './types.js';
+import type { AttemptRecord, DayPlanState, DncWashRecord, SuppressionEntry } from './types.js';
 import type { SuppressionSubject } from './suppression.js';
 import { applicableSuppressions } from './suppression.js';
 
@@ -32,6 +32,14 @@ export interface AttemptStore {
 
 export interface CallStateStore {
   liveCalls(): Promise<number>;
+}
+
+export interface DayPlanStore {
+  /**
+   * The live plan for this campaign on this operational date, and whether this
+   * contact is on it. Returns null when no plan has been drawn up at all.
+   */
+  current(campaignId: string, planDate: string, contactId: string): Promise<DayPlanState | null>;
 }
 
 export class InMemorySuppressionStore implements SuppressionStore {
@@ -90,6 +98,22 @@ export class InMemoryAttemptStore implements AttemptStore {
 
   async record(attempt: AttemptRecord): Promise<void> {
     this.attempts.push(attempt);
+  }
+}
+
+export class InMemoryDayPlanStore implements DayPlanStore {
+  private readonly plans = new Map<string, Omit<DayPlanState, 'includesContact'> & { contactIds: string[] }>();
+
+  async current(campaignId: string, planDate: string, contactId: string): Promise<DayPlanState | null> {
+    const plan = this.plans.get(`${campaignId}:${planDate}`) ?? [...this.plans.values()].at(-1);
+    if (plan === undefined) return null;
+    const { contactIds, ...rest } = plan;
+    return { ...rest, includesContact: contactIds.includes(contactId) };
+  }
+
+  set(plan: Omit<DayPlanState, 'includesContact'> & { campaignId: string; contactIds: string[] }): void {
+    const { campaignId, ...rest } = plan;
+    this.plans.set(`${campaignId}:${plan.planDate}`, rest);
   }
 }
 

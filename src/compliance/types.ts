@@ -141,7 +141,8 @@ export const DENY_CODES = [
   'ACCOUNT_WEEKLY_CAP',
   'DAILY_DIAL_CAP',
   'CONCURRENCY_LIMIT',
-  'NUMBER_ALREADY_DIALLED_TODAY'
+  'NUMBER_ALREADY_DIALLED_TODAY',
+  'DAY_PLAN_NOT_APPROVED'
 ] as const;
 export type DenyCode = (typeof DENY_CODES)[number];
 
@@ -164,6 +165,8 @@ export interface DecisionEvidence {
   locality?: ResolvedLocality;
   /** Local wall-clock time in each candidate locality, for the audit trail. */
   localTimes: Array<{ jurisdiction: Jurisdiction; timezone: string; local: string }>;
+  /** The operator's own clock, which the calling plan is written against. */
+  operatorTime?: { timezone: string; local: string; weekday: string };
   attemptsUsed: number;
   attemptsRemaining: number;
   dialsToday: number;
@@ -228,6 +231,29 @@ export interface AttemptRecord {
   hadConversation: boolean;
 }
 
+export const PLAN_STATUSES = ['draft', 'pending_approval', 'approved', 'rejected', 'superseded'] as const;
+export type PlanStatus = (typeof PLAN_STATUSES)[number];
+
+/**
+ * The operator's approval of one day's calling.
+ *
+ * Approval is of a specific list of people on a specific day. A contact who is
+ * not on the approved plan is not approved, and a plan approved yesterday does
+ * not authorise anything today.
+ */
+export interface DayPlanState {
+  planId: string;
+  /** Calendar date in the operational timezone, `yyyy-MM-dd`. */
+  planDate: string;
+  status: PlanStatus;
+  approvedBy?: string;
+  approvedAt?: Date;
+  /** Whether this particular contact is on that plan. */
+  includesContact: boolean;
+  /** How many people the plan covers, for the denial message. */
+  entryCount: number;
+}
+
 export type KillSwitchTripSource =
   | 'operator'
   | 'escalation-threshold'
@@ -246,6 +272,8 @@ export interface KillSwitchState {
 /** Everything the pure gate needs. Loaded by the gate's adapter, never by the gate itself. */
 export interface ComplianceSnapshot {
   killSwitch: KillSwitchState;
+  /** The live plan for the operational day this request falls in, if there is one. */
+  dayPlan: DayPlanState | null;
   /** All suppression entries matching this contact, number, account or domain. */
   suppressions: SuppressionEntry[];
   dncWash: DncWashRecord | null;

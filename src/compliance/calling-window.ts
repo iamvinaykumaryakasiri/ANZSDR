@@ -1,33 +1,41 @@
 /**
- * Calling-window evaluation, in the recipient's local time.
+ * Calling-window evaluation.
  *
- * A dial is only inside the window if it is inside the window in EVERY locality
- * the recipient might be in. For an office direct dial that is usually one place;
- * for a mobile it is the whole market, which makes the effective window the
- * intersection of every state's window - exactly the conservative behaviour
- * section 7.1 asks for when the location is unknown.
+ * Two separate questions, deliberately not collapsed into one.
+ *
+ * The POLICY window is the operator's own working day. It is evaluated on one
+ * clock per market - Sydney time for Australia, Auckland time for New Zealand -
+ * because the calling plan is written, read and approved by one person in one
+ * place, and a plan that means a different thing for every prospect is not a plan.
+ *
+ * The STATUTORY window is where the recipient actually is, and it is evaluated in
+ * every locality they might be in. A dial is legal only if it is inside the
+ * window in all of them.
+ *
+ * A dial needs both. Anchoring the plan to Sydney time therefore cannot make an
+ * illegal call legal: 09:30 in Sydney is 06:30 in Perth, and the statutory check
+ * refuses it. What it does is let one plan cover the whole country, with each
+ * prospect reached during the part of the operator's day that is lawful where
+ * they are.
  */
 
 import { DateTime, Interval } from 'luxon';
 import type { CompliancePolicy, DayWindow, WeekdayKey, WeekWindow } from './policy.js';
 import { STATUTORY_WINDOWS, WEEKDAYS } from './policy.js';
 import type { HolidayCalendar, HolidayStatus } from './holidays.js';
-import type { Locality, Market } from './types.js';
+import type { Jurisdiction, Locality, Market } from './types.js';
 
-export interface LocalityEvaluation {
-  locality: Locality;
-  /** Local wall-clock time, for the audit record. */
+export interface WindowEvaluation {
+  jurisdiction: Jurisdiction;
+  timezone: string;
+  /** Local wall-clock time on the clock this window is measured against. */
   localTime: string;
   localDate: string;
   weekday: WeekdayKey;
-  statutoryOpen: boolean;
-  policyOpen: boolean;
   holiday: HolidayStatus;
-  /** True when a holiday is what closed this locality, rather than the clock. */
+  /** True when a holiday is what closed this window, rather than the clock. */
   holidayBlocks: boolean;
-  /** The holidays in force on this local date, ready to name in a denial. */
   holidayNames: string[];
-  /** True only if every check above passes. */
   open: boolean;
 }
 
@@ -51,74 +59,87 @@ function clipForHoliday(window: DayWindow | null, holiday: HolidayStatus): DayWi
   return null;
 }
 
-function holidayStatusFor(
+function evaluateWindow(
+  at: Date,
+  jurisdiction: Jurisdiction,
+  timezone: string,
+  week: WeekWindow,
   calendar: HolidayCalendar,
-  locality: Locality,
-  localDate: string,
   requireVerified: boolean
-): HolidayStatus {
-  return calendar.status(locality.jurisdiction, localDate, requireVerified);
+): WindowEvaluation {
+  const dt = DateTime.fromJSDate(at, { zone: timezone });
+  const day = weekdayKey(dt);
+  const hhmm = dt.toFormat('HH:mm');
+  const localDate = dt.toFormat('yyyy-MM-dd');
+  const holiday = calendar.status(jurisdiction, localDate, requireVerified);
+  const named = holiday.kind === 'holiday' || holiday.kind === 'part-day-holiday' ? holiday.names : [];
+
+  return {
+    jurisdiction,
+    timezone,
+    localTime: dt.toFormat("yyyy-MM-dd'T'HH:mm:ssZZ"),
+    localDate,
+    weekday: day,
+    holiday,
+    holidayBlocks:
+      holiday.kind === 'holiday' || (holiday.kind === 'part-day-holiday' && hhmm >= holiday.from),
+    holidayNames: named,
+    open: withinWindow(hhmm, clipForHoliday(week[day], holiday))
+  };
 }
 
-export function evaluateLocality(
+/** Is the recipient inside the legal window where they actually are? */
+export function evaluateStatutory(
   at: Date,
   locality: Locality,
   market: Market,
   policy: CompliancePolicy,
   calendar: HolidayCalendar
-): LocalityEvaluation {
-  const dt = DateTime.fromJSDate(at, { zone: locality.timezone });
-  const day = weekdayKey(dt);
-  const hhmm = dt.toFormat('HH:mm');
-  const localDate = dt.toFormat('yyyy-MM-dd');
-  const holiday = holidayStatusFor(calendar, locality, localDate, policy.holidays.require_verified_calendar);
-
-  const statutoryOpen = withinWindow(hhmm, clipForHoliday(STATUTORY_WINDOWS[market][day], holiday));
-  const policyOpen = withinWindow(hhmm, clipForHoliday(policy.policyWindows[market][day], holiday));
-  const named = holiday.kind === 'holiday' || holiday.kind === 'part-day-holiday' ? holiday.names : [];
-  const holidayBlocks =
-    holiday.kind === 'holiday' || (holiday.kind === 'part-day-holiday' && hhmm >= holiday.from);
-
-  return {
-    locality,
-    localTime: dt.toFormat("yyyy-MM-dd'T'HH:mm:ssZZ"),
-    localDate,
-    weekday: day,
-    statutoryOpen,
-    policyOpen,
-    holiday,
-    holidayBlocks,
-    holidayNames: named,
-    open: statutoryOpen && policyOpen
-  };
+): WindowEvaluation {
+  return evaluateWindow(
+    at,
+    locality.jurisdiction,
+    locality.timezone,
+    STATUTORY_WINDOWS[market],
+    calendar,
+    policy.holidays.require_verified_calendar
+  );
 }
 
-/** Intersect statutory and policy for one weekday, before holidays are applied. */
-function effectiveDayWindow(market: Market, policy: CompliancePolicy, day: WeekdayKey): DayWindow | null {
-  const statutory: WeekWindow = STATUTORY_WINDOWS[market];
-  const s = statutory[day];
-  const p = policy.policyWindows[market][day];
-  if (s === null || p === null) return null;
-  const start = s.start > p.start ? s.start : p.start;
-  const end = s.end < p.end ? s.end : p.end;
-  return start < end ? { start, end } : null;
-}
-
-/** Absolute open intervals for one locality across the next `days` local days. */
-function openIntervals(
-  from: DateTime,
-  locality: Locality,
+/** Is the operator inside their own working day? One clock per market. */
+export function evaluatePolicy(
+  at: Date,
   market: Market,
   policy: CompliancePolicy,
+  calendar: HolidayCalendar
+): WindowEvaluation {
+  const anchor = policy.anchors[market];
+  return evaluateWindow(
+    at,
+    anchor.jurisdiction,
+    anchor.timezone,
+    policy.policyWindows[market],
+    calendar,
+    policy.holidays.require_verified_calendar
+  );
+}
+
+/** Absolute open intervals for one window across the next `days` local days. */
+function openIntervals(
+  from: DateTime,
+  jurisdiction: Jurisdiction,
+  timezone: string,
+  week: WeekWindow,
   calendar: HolidayCalendar,
+  requireVerified: boolean,
   days: number
 ): Interval[] {
   const out: Interval[] = [];
-  let cursor = from.setZone(locality.timezone).startOf('day');
+  let cursor = from.setZone(timezone).startOf('day');
   for (let i = 0; i < days; i++) {
     const localDate = cursor.toFormat('yyyy-MM-dd');
-    const holiday = holidayStatusFor(calendar, locality, localDate, policy.holidays.require_verified_calendar);
-    const window = clipForHoliday(effectiveDayWindow(market, policy, weekdayKey(cursor)), holiday);
+    const holiday = calendar.status(jurisdiction, localDate, requireVerified);
+    const window = clipForHoliday(week[weekdayKey(cursor)], holiday);
     if (window !== null) {
       const start = cursor.set({
         hour: Number(window.start.slice(0, 2)),
@@ -150,10 +171,9 @@ function intersectAll(lists: Interval[][]): Interval[] {
 }
 
 /**
- * The next instant at which every candidate locality is simultaneously inside its
- * window. Drives the retry timestamp on a window denial and the console's
- * "next dial" countdown. Returns null if nothing opens inside the horizon, which
- * is what happens when a mobile's candidate set has no common window at all.
+ * The next instant at which the operator's working day and every candidate
+ * locality's legal window are open at once. Drives the retry timestamp on a
+ * window denial and the console's "next dial" countdown.
  */
 export function nextOpenAt(
   from: Date,
@@ -164,12 +184,36 @@ export function nextOpenAt(
   horizonDays = 30
 ): Date | null {
   const start = DateTime.fromJSDate(from);
+  const anchor = policy.anchors[market];
+  const requireVerified = policy.holidays.require_verified_calendar;
+
   // Most denials clear within a day or two, and a mobile can carry twelve
   // candidate localities, so widen the search in steps rather than always
   // projecting a month of windows for every locality.
   for (const horizon of [3, 10, horizonDays].filter((h, i, all) => h <= horizonDays && all.indexOf(h) === i)) {
-    const perLocality = localities.map((l) => openIntervals(start, l, market, policy, calendar, horizon + 1));
-    const common = intersectAll(perLocality)
+    const lists = [
+      openIntervals(
+        start,
+        anchor.jurisdiction,
+        anchor.timezone,
+        policy.policyWindows[market],
+        calendar,
+        requireVerified,
+        horizon + 1
+      ),
+      ...localities.map((l) =>
+        openIntervals(
+          start,
+          l.jurisdiction,
+          l.timezone,
+          STATUTORY_WINDOWS[market],
+          calendar,
+          requireVerified,
+          horizon + 1
+        )
+      )
+    ];
+    const common = intersectAll(lists)
       .filter((i) => i.end !== null && i.end > start)
       .sort((a, b) => (a.start as DateTime).toMillis() - (b.start as DateTime).toMillis());
 

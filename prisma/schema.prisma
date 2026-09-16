@@ -345,3 +345,54 @@ model Playbook {
   @@unique([slot, version])
   @@index([slot, status])
 }
+
+// ---------------------------------------------------------------------------
+// The daily call plan
+//
+// Nothing is dialled until the operator has approved the day's plan. Approval is
+// of a named list on a named day: it does not carry over to tomorrow, and it does
+// not extend to anyone who is not on it. The compliance gate enforces this the
+// same way it enforces calling hours - deterministically, and failing closed.
+// ---------------------------------------------------------------------------
+
+model CallPlan {
+  id         String    @id
+  campaignId String
+  /// Calendar date in the operational timezone, yyyy-MM-dd.
+  planDate   String
+  status     String // draft | pending_approval | approved | rejected | superseded
+  createdAt  DateTime  @default(now())
+  submittedAt DateTime?
+  decidedAt  DateTime?
+  decidedBy  String?
+  note       String    @default("")
+
+  entries CallPlanEntry[]
+
+  @@index([campaignId, planDate, status])
+  @@index([status, planDate])
+}
+
+model CallPlanEntry {
+  id          String @id
+  planId      String
+  contactId   String
+  accountId   String
+  position    Int
+  e164        String
+  displayName String
+  title       String
+  accountName String
+  hypothesis  String @default("")
+  /// What the compliance gate said when the plan was drawn up, so the operator
+  /// approves a list they can actually see the state of.
+  gateAllowed Boolean
+  gateReasons String @default("[]")
+  /// Earliest instant this contact could lawfully be called on the plan date.
+  earliestAt  DateTime?
+
+  plan CallPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  @@unique([planId, contactId])
+  @@index([planId, position])
+}

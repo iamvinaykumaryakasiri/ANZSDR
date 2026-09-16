@@ -7,6 +7,11 @@ re-deriving anything. Read `CLAUDE.md` first — it is the brief and it governs.
 **State:** Phases 1 and 2 complete and accepted. Phase 3 not started. Working tree
 clean, everything pushed.
 
+**Three operator rules were added after Phase 2 and are now part of the brief:**
+no Saturday calling ever; the calling plan runs on Sydney time for Australia and
+Auckland time for New Zealand; and every day's calling is approved by Vinay before
+any of it is dialled. See CLAUDE.md sections 7.1 and 7.6.
+
 ---
 
 ## Resume in one minute
@@ -14,7 +19,7 @@ clean, everything pushed.
 ```bash
 npm install           # postinstall runs `prisma generate`
 npm run db:setup      # apply migrations
-npm test              # 236 tests, ~7s, includes the 10,000-request fuzz acceptance
+npm test              # 265 tests, ~10s, includes the 10,000-request fuzz acceptance
 npm run test:coverage # fails below 100% branch coverage on src/compliance
 npm run typecheck
 ```
@@ -25,6 +30,9 @@ describes. To watch the loop run:
 ```bash
 cp config/fixtures.example.json config/fixtures.json
 npm run seed:demo && npm run tick
+npm run seed:demo -- phones      # example numbers, so the plan has something to plan
+npm run plan -- draft            # today's calling, with what the gate says about each entry
+npm run plan -- approve          # release it: these people, today only
 ```
 
 ---
@@ -85,6 +93,35 @@ blackboard tripping the switch, and an unknown task kind escalating to a human.
 Coverage on the Phase 2 modules is 98% of statements and 93% of branches. The
 100% branch threshold remains enforced on `src/compliance` only, as the brief
 specifies.
+
+### The three operator rules, and how they are enforced
+
+1. **No Saturdays.** `AU_STATUTORY.sat` is `null` in `src/compliance/policy.ts`.
+   Stricter than the Industry Standard, which permits Saturday 09:00-17:00.
+   It lives in code, so no edit to `config/policy.yaml` can re-open it, and the
+   fuzz test asserts no allowed dial ever lands on a Saturday in any candidate
+   locality or on the operator's clock.
+
+2. **One clock per market.** `calling-window.ts` evaluates two separate windows.
+   `evaluatePolicy` runs once, on the operator's clock and calendar
+   (`Australia/Sydney` / `au-nsw`, `Pacific/Auckland` / `nz-national`).
+   `evaluateStatutory` runs per candidate recipient locality, unchanged. A dial
+   needs both.
+
+   This was the one instruction that needed care: a naive "everything is AEST"
+   would call Perth at 06:30 local and breach the Standard. Keeping the statutory
+   check means anchoring to Sydney can only delay a call, never permit one. A
+   Perth prospect is reachable between noon and 16:30 Sydney, which is 09:00 to
+   13:30 their time.
+
+3. **Daily plan approval.** A new deny code, `DAY_PLAN_NOT_APPROVED`, enforced in
+   the gate alongside calling hours - not in the orchestrator and not in a prompt.
+   `src/blackboard/call-plans.ts` holds the record, `src/orchestrator/planner.ts`
+   drafts it, `npm run plan` is the operator's side. Approval is of named people
+   on a named day: it does not carry over and does not extend to anyone not on
+   the list. The planner asks the gate about every candidate with the approval
+   check switched off, so the plan can be honest about its own blocks before
+   anyone approves it.
 
 ### Design decisions made in Phase 2 — do not re-litigate
 

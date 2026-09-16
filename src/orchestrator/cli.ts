@@ -12,6 +12,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createBlackboard } from '../blackboard/client.js';
+import { CallPlanRepository } from '../blackboard/call-plans.js';
 import {
   EscalationRepository,
   PrismaJournal,
@@ -67,6 +68,7 @@ async function main(): Promise<void> {
     killSwitch,
     policy,
     registry,
+    plans: new CallPlanRepository(db),
     ...(process.env.WEEKLY_USD_CEILING !== undefined
       ? { weeklyUsdCeiling: Number(process.env.WEEKLY_USD_CEILING) }
       : {})

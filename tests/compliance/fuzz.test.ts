@@ -21,8 +21,10 @@ import type { CompliancePolicy } from '../../src/compliance/policy.js';
 import type {
   AttemptRecord,
   ComplianceSnapshot,
+  DayPlanState,
   DialRequest,
   DncWashRecord,
+  PlanStatus,
   SuppressionEntry
 } from '../../src/compliance/types.js';
 import {
@@ -87,13 +89,15 @@ const ZONES: Record<string, string> = {
   'nz-westland': 'Pacific/Auckland'
 };
 
+// Saturday is closed: stricter than the Industry Standard, by the operator's
+// instruction, and closed in code rather than config.
 const AU_STATUTORY: Record<number, [string, string] | null> = {
   1: ['09:00', '20:00'],
   2: ['09:00', '20:00'],
   3: ['09:00', '20:00'],
   4: ['09:00', '20:00'],
   5: ['09:00', '20:00'],
-  6: ['09:00', '17:00'],
+  6: null,
   7: null
 };
 const NZ_STATUTORY: Record<number, [string, string] | null> = {
@@ -106,29 +110,34 @@ const NZ_STATUTORY: Record<number, [string, string] | null> = {
   7: null
 };
 
-/** Is this instant inside the window in this one jurisdiction? */
-function oracleOpen(at: Date, jurisdiction: string, market: 'AU' | 'NZ', p: CompliancePolicy): boolean {
+/**
+ * Is a window open in one jurisdiction at one instant?
+ *
+ * `bounds` is the window being tested - the statutory one where the recipient
+ * is, or the operator's own. The holiday calendar is read raw, from the JSON.
+ */
+function oracleWindowOpen(
+  at: Date,
+  jurisdiction: string,
+  timezone: string,
+  bounds: (weekday: number) => [string, string] | null,
+  p: CompliancePolicy
+): boolean {
   const entry = rawJurisdiction(jurisdiction);
   if (entry === null) return false;
 
-  const dt = DateTime.fromJSDate(at, { zone: ZONES[jurisdiction] as string });
+  const dt = DateTime.fromJSDate(at, { zone: timezone });
   const date = dt.toFormat('yyyy-MM-dd');
   const hhmm = dt.toFormat('HH:mm');
-  const year = date.slice(0, 4);
 
-  const provenance = entry.j.years[year];
+  const provenance = entry.j.years[date.slice(0, 4)];
   if (provenance === undefined) return false;
   if (p.holidays.require_verified_calendar && !provenance.verified) return false;
 
-  const statutory = (market === 'AU' ? AU_STATUTORY : NZ_STATUTORY)[dt.weekday];
-  if (statutory === null || statutory === undefined) return false;
-
-  const policyDays = p.calling_windows[market].days as string[];
-  const dayKey = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'][dt.weekday - 1] as string;
-  if (!policyDays.includes(dayKey)) return false;
-
-  let start = statutory[0] > p.calling_windows[market].start ? statutory[0] : p.calling_windows[market].start;
-  let end = statutory[1] < p.calling_windows[market].end ? statutory[1] : p.calling_windows[market].end;
+  const window = bounds(dt.weekday);
+  if (window === null) return false;
+  const [start, rawEnd] = window;
+  let end = rawEnd;
 
   const entries = [
     ...(entry.j.holidays[date] ?? []),
@@ -142,6 +151,33 @@ function oracleOpen(at: Date, jurisdiction: string, market: 'AU' | 'NZ', p: Comp
 
   if (start >= end) return false;
   return hhmm >= start && hhmm < end;
+}
+
+/** The legal window, where the recipient actually is. */
+function oracleStatutoryOpen(at: Date, jurisdiction: string, market: 'AU' | 'NZ', p: CompliancePolicy): boolean {
+  const table = market === 'AU' ? AU_STATUTORY : NZ_STATUTORY;
+  return oracleWindowOpen(at, jurisdiction, ZONES[jurisdiction] as string, (w) => table[w] ?? null, p);
+}
+
+/** The operator's working day, on one clock per market. */
+function oraclePolicyOpen(at: Date, market: 'AU' | 'NZ', p: CompliancePolicy): boolean {
+  const spec = p.calling_windows[market];
+  const days = spec.days as string[];
+  return oracleWindowOpen(
+    at,
+    spec.holiday_jurisdiction,
+    spec.timezone,
+    (w) => {
+      const key = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'][w - 1] as string;
+      return days.includes(key) ? [spec.start, spec.end] : null;
+    },
+    p
+  );
+}
+
+/** Both windows, which is what the gate requires. */
+function oracleOpen(at: Date, jurisdiction: string, market: 'AU' | 'NZ', p: CompliancePolicy): boolean {
+  return oraclePolicyOpen(at, market, p) && oracleStatutoryOpen(at, jurisdiction, market, p);
 }
 
 /* ---------------------------------------------------------------- */
@@ -177,6 +213,7 @@ interface Generated {
   marketMismatch: boolean;
   lineType: 'fixed' | 'mobile' | 'non-geographic';
   suppressed: boolean;
+  planDate: string;
 }
 
 function digits(rand: () => number, n: number): string {
@@ -294,6 +331,27 @@ function generate(rand: () => number, index: number): Generated {
     };
   }
 
+  // The day's plan, in every state an operator could leave it in.
+  const planDate = DateTime.fromJSDate(at, { zone: 'Australia/Sydney' }).toFormat('yyyy-MM-dd');
+  const planRoll = rand();
+  let dayPlan: DayPlanState | null;
+  if (planRoll < 0.08) {
+    dayPlan = null;
+  } else {
+    const status: PlanStatus =
+      planRoll < 0.16 ? 'pending_approval' : planRoll < 0.2 ? 'rejected' : planRoll < 0.24 ? 'draft' : 'approved';
+    const staleDate = planRoll >= 0.24 && planRoll < 0.3;
+    dayPlan = {
+      planId: `plan-${index}`,
+      planDate: staleDate
+        ? DateTime.fromJSDate(at, { zone: 'Australia/Sydney' }).minus({ days: 1 }).toFormat('yyyy-MM-dd')
+        : planDate,
+      status,
+      includesContact: planRoll >= 0.38,
+      entryCount: 12
+    };
+  }
+
   const request: DialRequest = {
     requestId: `fuzz-${index}`,
     contactId,
@@ -307,6 +365,7 @@ function generate(rand: () => number, index: number): Generated {
 
   const snapshot: ComplianceSnapshot = {
     killSwitch: rand() < 0.03 ? { active: true, reason: 'fuzz' } : { active: false },
+    dayPlan,
     suppressions,
     dncWash,
     contactAttempts,
@@ -317,7 +376,16 @@ function generate(rand: () => number, index: number): Generated {
     liveCalls: rand() < 0.1 ? 1 : 0
   };
 
-  return { request, snapshot, candidates, valid, marketMismatch: numberMarket !== market, lineType, suppressed };
+  return {
+    request,
+    snapshot,
+    candidates,
+    valid,
+    marketMismatch: numberMarket !== market,
+    lineType,
+    suppressed,
+    planDate
+  };
 }
 
 /** Everything the oracle thinks is wrong with a request, from the brief's rules. */
@@ -360,6 +428,18 @@ function oracleReasons(g: Generated, p: CompliancePolicy): string[] {
 
   if (g.candidates.some((j) => !oracleOpen(r.at, j, r.market, p))) reasons.push('window');
 
+  if (p.approval.require_daily_plan) {
+    const plan = s.dayPlan;
+    if (
+      plan === null ||
+      plan.planDate !== g.planDate ||
+      plan.status !== 'approved' ||
+      !plan.includesContact
+    ) {
+      reasons.push('day-plan');
+    }
+  }
+
   return reasons;
 }
 
@@ -368,13 +448,17 @@ describe('compliance gate fuzz', () => {
 
   for (const requireVerified of [false, true]) {
     it(`agrees with an independent oracle across 5,000 requests (verified calendar required: ${requireVerified})`, () => {
-      const p = policy({ requireVerifiedCalendar: requireVerified });
+      // The approval gate is on in both runs: a dial that slipped past it would
+      // be as serious as one that slipped past the calling hours.
+      const p = policy({ requireVerifiedCalendar: requireVerified, requireDailyPlan: true });
       const rand = mulberry32(requireVerified ? 0xc0ffee : 0xbadc0de);
 
       let allowed = 0;
       const disagreements: string[] = [];
       const outOfWindow: string[] = [];
       const suppressedDials: string[] = [];
+      const unapprovedDials: string[] = [];
+      const saturdayDials: string[] = [];
 
       for (let i = 0; i < 5000; i++) {
         const g = generate(rand, i);
@@ -389,6 +473,12 @@ describe('compliance gate fuzz', () => {
 
         if (decision.allowed) {
           allowed += 1;
+          for (const j of [...g.candidates, 'operator']) {
+            const zone = j === 'operator' ? 'Australia/Sydney' : (ZONES[j] as string);
+            if (DateTime.fromJSDate(g.request.at, { zone }).weekday === 6) {
+              saturdayDials.push(`#${i} allowed on a Saturday in ${j}`);
+            }
+          }
           // The two invariants Phase 1 is accepted on, asserted directly rather
           // than inferred from the oracle agreeing.
           for (const j of g.candidates) {
@@ -397,14 +487,24 @@ describe('compliance gate fuzz', () => {
             }
           }
           if (g.suppressed) suppressedDials.push(`#${i} ${g.request.contactId} allowed while suppressed`);
+          if (
+            g.snapshot.dayPlan === null ||
+            g.snapshot.dayPlan.status !== 'approved' ||
+            g.snapshot.dayPlan.planDate !== g.planDate ||
+            !g.snapshot.dayPlan.includesContact
+          ) {
+            unapprovedDials.push(`#${i} ${g.request.contactId} allowed without an approved plan for the day`);
+          }
         }
       }
 
       expect(outOfWindow).toEqual([]);
       expect(suppressedDials).toEqual([]);
+      expect(unapprovedDials).toEqual([]);
+      expect(saturdayDials).toEqual([]);
       expect(disagreements.slice(0, 10)).toEqual([]);
       // Proof the gate is not simply refusing everything.
-      expect(allowed).toBeGreaterThan(requireVerified ? 60 : 200);
+      expect(allowed).toBeGreaterThan(requireVerified ? 35 : 120);
     });
   }
 });

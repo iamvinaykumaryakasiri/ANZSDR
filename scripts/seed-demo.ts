@@ -27,6 +27,31 @@ const ICP: Icp = {
 };
 
 const db = createBlackboard();
+
+/**
+ * `npm run seed:demo -- phones` puts example office numbers on the contacts a
+ * tick has researched, so the call plan has something to plan. Phase 3 gets real
+ * numbers from Apollo enrichment; these are example data and are not dialled by
+ * anything in this repository.
+ */
+if (process.argv[2] === 'phones') {
+  const contacts = await db.contact.findMany({ where: { status: 'researched' } });
+  for (const [index, contact] of contacts.entries()) {
+    await db.contact.update({
+      where: { id: contact.id },
+      data: {
+        phoneE164: `+61280005${String(100 + index).padStart(3, '0')}`,
+        phoneLine: 'fixed',
+        jurisdiction: 'au-nsw',
+        timezone: 'Australia/Sydney'
+      }
+    });
+  }
+  console.log(`put example office numbers on ${contacts.length} researched contact(s)`);
+  await db.$disconnect();
+  process.exit(0);
+}
+
 const campaignId = randomUUID();
 const accountId = randomUUID();
 

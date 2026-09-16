@@ -12,6 +12,7 @@ import {
 import {
   InMemoryAttemptStore,
   InMemoryCallStateStore,
+  InMemoryDayPlanStore,
   InMemoryDncStore,
   InMemorySuppressionStore
 } from '../../src/compliance/ports.js';
@@ -100,6 +101,30 @@ describe('in-memory stores', () => {
     expect(await store.countSince(new Date('2026-03-05T00:00:00Z'))).toBe(1);
     expect(await store.countForNumberSince('+61280001234', new Date('2026-02-01T00:00:00Z'))).toBe(2);
     expect(await store.countForNumberSince('+61399990000', new Date('2026-02-01T00:00:00Z'))).toBe(0);
+  });
+
+  it('reports the day plan, and whether a contact is on it', async () => {
+    const store = new InMemoryDayPlanStore();
+    expect(await store.current('campaign-1', '2026-03-11', 'contact-1')).toBeNull();
+
+    store.set({
+      campaignId: 'campaign-1',
+      planId: 'plan-1',
+      planDate: '2026-03-11',
+      status: 'approved',
+      entryCount: 2,
+      contactIds: ['contact-1', 'contact-2']
+    });
+
+    const onIt = await store.current('campaign-1', '2026-03-11', 'contact-1');
+    expect(onIt?.status).toBe('approved');
+    expect(onIt?.includesContact).toBe(true);
+    expect((await store.current('campaign-1', '2026-03-11', 'contact-9'))?.includesContact).toBe(false);
+
+    // Asking about another day still reports the plan that exists, so the gate can
+    // say "the only plan is for another day" rather than "there is no plan".
+    const otherDay = await store.current('campaign-1', '2026-03-12', 'contact-1');
+    expect(otherDay?.planDate).toBe('2026-03-11');
   });
 
   it('reports live calls', async () => {

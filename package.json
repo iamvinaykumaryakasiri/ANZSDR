@@ -20,7 +20,8 @@
     "db:studio": "prisma studio",
     "tick": "tsx src/orchestrator/cli.ts",
     "postinstall": "prisma generate",
-    "seed:demo": "tsx scripts/seed-demo.ts"
+    "seed:demo": "tsx scripts/seed-demo.ts",
+    "plan": "tsx src/orchestrator/plan-cli.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",

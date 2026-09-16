@@ -5,6 +5,7 @@ import { InMemoryKillSwitchStore, KillSwitch } from '../../src/compliance/kill-s
 import {
   InMemoryAttemptStore,
   InMemoryCallStateStore,
+  InMemoryDayPlanStore,
   InMemoryDncStore,
   InMemorySuppressionStore
 } from '../../src/compliance/ports.js';
@@ -20,6 +21,7 @@ function harness(overrides: PolicyOverrides = {}) {
   const dnc = new InMemoryDncStore();
   const attempts = new InMemoryAttemptStore();
   const calls = new InMemoryCallStateStore();
+  const dayPlans = new InMemoryDayPlanStore();
   const killSwitch = new KillSwitch(new InMemoryKillSwitchStore(), audit);
   const gate = new ComplianceGate({
     policy: policy(overrides),
@@ -29,9 +31,10 @@ function harness(overrides: PolicyOverrides = {}) {
     dnc,
     attempts,
     calls,
+    dayPlans,
     audit
   });
-  return { gate, audit, suppression, dnc, attempts, calls, killSwitch };
+  return { gate, audit, suppression, dnc, attempts, calls, dayPlans, killSwitch };
 }
 
 describe('ComplianceGate', () => {

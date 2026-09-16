@@ -20,6 +20,7 @@ import type {
   SpendLedger,
   TaskRepository
 } from '../blackboard/repositories.js';
+import type { CallPlanRepository } from '../blackboard/call-plans.js';
 import { evaluateAutoTrip, type KillSwitch, type SafetySignals } from '../compliance/kill-switch.js';
 import type { CompliancePolicy } from '../compliance/policy.js';
 import type { TaskRegistry } from './registry.js';
@@ -33,6 +34,8 @@ export interface CampaignDirectorDeps {
   killSwitch: KillSwitch;
   policy: CompliancePolicy;
   registry: TaskRegistry;
+  /** Reads the day's plan so the tick can say what is waiting on the operator. */
+  plans?: CallPlanRepository;
   now?: () => Date;
   /** How much work one tick will take on. Keeps a tick bounded and interruptible. */
   maxTasksPerTick?: number;
@@ -50,6 +53,8 @@ export interface TickReport {
   stopped: string | null;
   /** Every decision, in order, one line each. */
   decisions: string[];
+  /** Today's calling, per active campaign, and whether it is cleared to run. */
+  plans: Array<{ campaignId: string; planDate: string; status: string; entries: number }>;
 }
 
 export class CampaignDirector {
@@ -76,7 +81,8 @@ export class CampaignDirector {
       escalated: 0,
       usdSpent: 0,
       stopped: null,
-      decisions: []
+      decisions: [],
+      plans: []
     };
 
     // Every decision is attached to the task it is about, so the console's agent
@@ -122,6 +128,8 @@ export class CampaignDirector {
       await decide(report.stopped);
       return report;
     }
+
+    await this.reportPlans(report, decide);
 
     let budgetRemaining = this.weeklyUsdCeiling - spentThisWeek;
 
@@ -213,6 +221,47 @@ export class CampaignDirector {
 
     await this.evaluateSafety(report, decide);
     return report;
+  }
+
+  /**
+   * Say where today's calling stands for each active campaign.
+   *
+   * This does not stop research or prospecting - neither of those is a call. It
+   * exists so that "nothing is dialling because nobody has approved today's list"
+   * appears in the tick, rather than being something the operator has to deduce
+   * from an absence.
+   */
+  private async reportPlans(
+    report: TickReport,
+    decide: (summary: string, opts?: { taskId?: string }) => Promise<void>
+  ): Promise<void> {
+    const plans = this.deps.plans;
+    if (plans === undefined || !this.deps.policy.approval.require_daily_plan) return;
+
+    const today = DateTime.fromJSDate(this.now(), { zone: this.deps.policy.operational_timezone }).toFormat(
+      'yyyy-MM-dd'
+    );
+    const campaigns = await this.deps.db.campaign.findMany({ where: { status: 'active' } });
+
+    for (const campaign of campaigns) {
+      const plan = await plans.live(campaign.id, today);
+      if (plan === null) {
+        report.plans.push({ campaignId: campaign.id, planDate: today, status: 'none', entries: 0 });
+        await decide(`no call plan for ${today} on ${campaign.name}; nothing will dial until one is drawn up and approved`);
+        continue;
+      }
+      report.plans.push({
+        campaignId: campaign.id,
+        planDate: plan.planDate,
+        status: plan.status,
+        entries: plan.entries.length
+      });
+      await decide(
+        plan.status === 'approved'
+          ? `${campaign.name}: ${plan.entries.length} contact(s) approved for ${today} by ${plan.decidedBy ?? 'the operator'}`
+          : `${campaign.name}: the plan for ${today} is ${plan.status.replace('_', ' ')}; nothing will dial until it is approved`
+      );
+    }
   }
 
   /**

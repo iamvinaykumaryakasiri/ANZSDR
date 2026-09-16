@@ -33,7 +33,7 @@ A single-operator autonomous SDR that cold calls B2B prospects in Australia and 
 | Voice layer | Managed provider (**Vapi** default, Retell acceptable) pointed at a **custom LLM endpoint we own**, running Claude |
 | Telephony | Twilio numbers as BYO carrier into the voice provider. AU number for AU, NZ number for NZ |
 | Prospect data | **Apollo.io API** for people search, email and phone enrichment |
-| Autonomy | **Fully autonomous** dialling through an approved account list. No per-call approval |
+| Autonomy | **Fully autonomous** dialling through an approved account list. No per-call approval, but **the day's call plan is approved by Vinay before any of it is dialled** (§7.7) |
 | Meetings | **No calendar integration.** The agent captures the prospect's preferred times and emails the request to Vinay, who confirms (§12) |
 | Script evolution | **Autonomous self-tuning** inside the promotion gate in §11 |
 | Follow-up | SMS + email + LinkedIn connect queued (§12) |
@@ -188,12 +188,19 @@ If confidence is `low`, Caller opens generically. A wrong specific is worse than
 ## 7. The compliance engine (deterministic, tested, non-negotiable)
 
 ### 7.1 Calling windows — the recipient's local time, never the server's
-**Australia** (Telecommunications (Telemarketing and Research Calls) Industry Standard 2017): Mon–Fri 09:00–20:00, Sat 09:00–17:00, no Sundays, no public holidays.
+Two windows, both of which must be open. They answer different questions and are deliberately not collapsed into one.
+
+**The statutory window — where the recipient actually is.**
+**Australia** (Telecommunications (Telemarketing and Research Calls) Industry Standard 2017): Mon–Fri 09:00–20:00, no Sundays, no public holidays. The Standard also permits Sat 09:00–17:00; **we do not call on Saturdays**. Saturday is closed in code, not in config, and no configuration change can re-open it.
 **New Zealand** — no statutory equivalent; apply the NZ Marketing Association convention conservatively: weekdays 09:00–17:00, no weekends, no public holidays.
 
 Australia spans five offsets and only some states observe DST. Geo-tag every number to a state and timezone at enrichment time and gate on the recipient's clock. Unknown location defaults to the most restrictive window. Load a maintained holiday calendar per AU state/territory plus NZ national and regional anniversary days.
 
-Policy default, tighter than the law: **09:30–16:30 local, Tue–Thu**, configurable.
+**The operator window — Vinay's own working day, on one clock per market.** AU runs on **Sydney time** (`Australia/Sydney`), NZ on **Auckland time** (`Pacific/Auckland`). The calling plan is written, read and approved by one person in one place, so it is expressed in one clock rather than meaning a different thing for every prospect. Public holidays where the operator is close the operator's day.
+
+Anchoring the plan to Sydney time can only ever delay a call, never permit one that would otherwise be unlawful: a dial needs both windows, so 09:30 Sydney is refused for a Perth number until it is 09:00 in Perth, and a Perth prospect's day ends at 16:30 Sydney even though Perth is still inside legal hours.
+
+Policy default, tighter than the law: **09:30–16:30 on the operator's clock, Tue–Thu**, configurable.
 
 ### 7.2 Do Not Call
 Australia's DNCR covers numbers used primarily for domestic purposes; business lines generally aren't eligible, and genuine B2B calls to someone in their professional capacity sit outside the prohibition. But **Apollo returns personal mobiles**, and a personal mobile can be registered. Don't lean on the B2B carve-out to excuse an unwashed list.
@@ -214,7 +221,19 @@ Announce recording in the opening. If the prospect objects, stop recording and c
 ### 7.5 Volume limits
 Max 3 attempts per contact ever, within a 21-day window, then permanent stop. Minimum 5 days between attempts. Max 1 contact per account per week until a conversation happens. Global daily dial cap (default 60), concurrency of 1 live call, any number dialled at most once per day.
 
-### 7.6 Kill switch
+### 7.6 Daily call plan, approved before anything is dialled
+
+Every day's calling is written down before it happens and dialled only once Vinay has approved it.
+
+The plan lists, in order: who would be called, their number, the hypothesis behind the call, the earliest lawful moment they could be reached that day, and what the compliance gate already says about each of them. He therefore approves a list whose state he can see, not a promise that the system will behave.
+
+- Approval covers **the named people on the named day**. It does not carry over to tomorrow and does not extend to anyone not on the list
+- A plan may be drafted, submitted, approved or rejected. Only `approved` releases anything
+- Redrafting supersedes the previous plan rather than deleting it, so a rejection and its reason stay on the record
+- Enforcement is in the compliance gate (`DAY_PLAN_NOT_APPROVED`), alongside calling hours and suppression — not in the orchestrator, and not in a prompt
+- Prospecting and research continue without approval. Neither is a call
+
+### 7.7 Kill switch
 One command and one dashboard button halt all dialling within seconds, drain the queue and hold state. Auto-trips on: 3 escalations in a day, error rate above threshold, unsupported-claim defects above threshold, sentiment collapse, or the orchestrator losing contact with the blackboard.
 
 ---
@@ -469,7 +488,7 @@ is in [`docs/SESSION-HANDOFF.md`](./docs/SESSION-HANDOFF.md).
 | Phase | State |
 |---|---|
 | 1 — Compliance core | **Complete.** Acceptance met: 10,000 fuzzed dial requests, zero out-of-window and zero suppressed dials, checked against an independently written oracle. 100% branch coverage on `src/compliance`. |
-| 2 — Blackboard and orchestrator | **Complete.** Acceptance met: a task runs end to end with a full plain-English trace, a deliberately malformed sub-agent output escalates without reaching the blackboard, and a budget breach escalates rather than continuing. |
+| 2 — Blackboard and orchestrator | **Complete.** Includes the daily call plan and its approval gate. Acceptance met: a task runs end to end with a full plain-English trace, a deliberately malformed sub-agent output escalates without reaching the blackboard, and a budget breach escalates rather than continuing. |
 | 3 — Prospector and Scout | Not started |
 | 4 — Caller and Guardian | Not started |
 | 5 — Voice | Not started |
@@ -483,7 +502,9 @@ is in [`docs/SESSION-HANDOFF.md`](./docs/SESSION-HANDOFF.md).
 - `config/policy.yaml` ships with **no caller ID numbers set**, so the gate denies every dial with `CALLER_ID_NOT_CONFIGURED` until §15 item 3 is answered.
 - `dnc.allow_mobile_dialling` ships **false**, so only office direct dials are possible until §15 item 4 is answered.
 - `holidays.require_verified_calendar` ships **true**. The official `data.gov.au` holiday dataset stops at 2025, so 2026 and 2027 are derived from rules and every dial on those dates is denied until a human signs the calendar off with `npm run holidays:verify`.
-- Statutory calling windows live in code (`src/compliance/policy.ts`), not in config. `config/policy.yaml` can only narrow them.
+- Statutory calling windows live in code (`src/compliance/policy.ts`), not in config. `config/policy.yaml` can only narrow them. **Saturday is closed there and cannot be re-opened by configuration.**
+- The operator window runs on one clock per market — Sydney for AU, Auckland for NZ — and is checked *in addition to* the statutory window in the recipient's own timezone. Anchoring the plan to Sydney can delay a call but never permit an unlawful one.
+- `approval.require_daily_plan` ships **true**: nothing dials until that day's plan has been approved, for the people on it, on that day. `npm run plan -- draft | show | approve | reject`.
 - A sub-agent is only reachable through `runAgent`. Input and output are validated against its contract, output twice off-contract escalates, and the budget is metered continuously - so a malformed or over-budget result never reaches the blackboard.
 - The Campaign Director dispatches work and decides what follows from a result. A sub-agent never queues another sub-agent's work, and the Director has no route to a dial: only the compliance gate can grant one.
 - Phase 2 ships **stub** Prospector and Scout handlers behind their real contracts. They reach fixtures, not Apollo or the web. Phase 3 replaces the handlers and the tools; the contracts, the task graph and the budgets stay as they are.

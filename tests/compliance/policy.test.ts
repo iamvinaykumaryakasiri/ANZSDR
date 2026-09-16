@@ -6,10 +6,16 @@ import { policy, ROOT } from '../support/fixtures.js';
 describe('statutory windows', () => {
   it('encodes the AU Industry Standard and is frozen', () => {
     expect(STATUTORY_WINDOWS.AU.mon).toEqual({ start: '09:00', end: '20:00' });
-    expect(STATUTORY_WINDOWS.AU.sat).toEqual({ start: '09:00', end: '17:00' });
     expect(STATUTORY_WINDOWS.AU.sun).toBeNull();
     expect(Object.isFrozen(STATUTORY_WINDOWS)).toBe(true);
     expect(Object.isFrozen(STATUTORY_WINDOWS.AU)).toBe(true);
+  });
+
+  it('closes Saturday in code, though the Industry Standard permits it', () => {
+    // Stricter than the Standard, which allows Saturday 09:00-17:00. Being
+    // stricter is always allowed; this lives in code so no config can undo it.
+    expect(STATUTORY_WINDOWS.AU.sat).toBeNull();
+    expect(STATUTORY_WINDOWS.NZ.sat).toBeNull();
   });
 
   it('applies the NZ Marketing Association convention as if statutory', () => {
@@ -24,6 +30,11 @@ describe('policy loading', () => {
     const p = loadPolicy(resolve(ROOT, 'config/policy.yaml'));
     expect(p.policy_version).toBe('1.0.0');
     expect(p.calling_windows.AU.days).toEqual(['tue', 'wed', 'thu']);
+    // One clock per market: the operator's, not the prospect's.
+    expect(p.anchors.AU).toEqual({ timezone: 'Australia/Sydney', jurisdiction: 'au-nsw' });
+    expect(p.anchors.NZ).toEqual({ timezone: 'Pacific/Auckland', jurisdiction: 'nz-national' });
+    // Nothing dials until the day's plan is approved.
+    expect(p.approval.require_daily_plan).toBe(true);
     // Ships with dialling blocked until real caller ID numbers are configured.
     expect(p.caller_id.au_number).toBe('');
     expect(p.dnc.allow_mobile_dialling).toBe(false);
@@ -42,8 +53,16 @@ describe('policy loading', () => {
   });
 
   it('warns when policy opens a day the statute closes', () => {
-    const p = policy({ days: ['sun'] });
-    expect(p.warnings.some((w) => w.includes('sun'))).toBe(true);
+    expect(policy({ days: ['sun'] }).warnings.some((w) => w.includes('sun'))).toBe(true);
+    expect(policy({ days: ['sat'] }).warnings.some((w) => w.includes('sat'))).toBe(true);
+  });
+
+  it('rejects an unusable operator timezone', () => {
+    expect(() => policy({ auTimezone: 'Mars/Olympus_Mons' })).toThrow(/unknown IANA timezone/);
+  });
+
+  it('rejects an operator holiday jurisdiction that does not exist', () => {
+    expect(() => policy({ auHolidayJurisdiction: 'au-narnia' })).toThrow();
   });
 
   it('rejects a window whose end precedes its start', () => {

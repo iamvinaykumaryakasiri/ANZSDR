@@ -1,6 +1,15 @@
 import { randomUUID } from 'node:crypto';
-import { InMemoryAuditLog } from '../../src/compliance/audit.js';
 import { InMemoryKillSwitchStore, KillSwitch } from '../../src/compliance/kill-switch.js';
+import { ComplianceGate } from '../../src/compliance/service.js';
+import { CallPlanRepository } from '../../src/blackboard/call-plans.js';
+import {
+  PrismaAttemptStore,
+  PrismaAuditLog,
+  PrismaCallStateStore,
+  PrismaDncStore,
+  PrismaSuppressionStore
+} from '../../src/blackboard/compliance-stores.js';
+import { DailyCallPlanner } from '../../src/orchestrator/planner.js';
 import { createTestBlackboard, type Blackboard } from '../../src/blackboard/client.js';
 import {
   EscalationRepository,
@@ -15,7 +24,7 @@ import { prospectAccountKind, researchContactKind } from '../../src/orchestrator
 import { createStubProspector, type FixturePerson } from '../../src/agents/prospector/stub.js';
 import { createStubScout, type AccountResearch } from '../../src/agents/scout/stub.js';
 import type { Icp } from '../../src/blackboard/schemas.js';
-import { policy } from './fixtures.js';
+import { calendar, policy } from './fixtures.js';
 
 export const ANZ_ICP: Icp = {
   titles: ['chief data officer', 'head of data', 'director of engineering'],
@@ -87,6 +96,9 @@ export interface Harness {
   killSwitch: KillSwitch;
   registry: TaskRegistry;
   director: CampaignDirector;
+  plans: CallPlanRepository;
+  gate: ComplianceGate;
+  planner: DailyCallPlanner;
   campaignId: string;
   accountId: string;
   close(): Promise<void>;
@@ -100,6 +112,7 @@ export interface HarnessOptions {
   research?: Record<string, AccountResearch>;
   /** Swap in a differently-behaved agent for a task kind, to exercise failure paths. */
   overrides?: (registry: TaskRegistry) => void;
+  requireDailyPlan?: boolean;
 }
 
 export async function harness(options: HarnessOptions = {}): Promise<Harness> {
@@ -109,7 +122,23 @@ export async function harness(options: HarnessOptions = {}): Promise<Harness> {
   const spend = new SpendLedger(db);
   const trace = new TraceRepository(db);
   const journal = new PrismaJournal(db);
-  const killSwitch = new KillSwitch(new InMemoryKillSwitchStore(), new InMemoryAuditLog());
+  const audit = new PrismaAuditLog(db);
+  const killSwitch = new KillSwitch(new InMemoryKillSwitchStore(), audit);
+  const plans = new CallPlanRepository(db);
+  const compliancePolicy = policy({
+    ...(options.requireDailyPlan !== undefined ? { requireDailyPlan: options.requireDailyPlan } : {})
+  });
+  const gate = new ComplianceGate({
+    policy: compliancePolicy,
+    calendar: calendar(),
+    killSwitch,
+    suppression: new PrismaSuppressionStore(db),
+    dnc: new PrismaDncStore(db),
+    attempts: new PrismaAttemptStore(db),
+    calls: new PrismaCallStateStore(db),
+    dayPlans: plans,
+    audit
+  });
 
   const registry = new TaskRegistry()
     .register(prospectAccountKind(createStubProspector(options.people ?? PEOPLE_FIXTURES)))
@@ -148,8 +177,9 @@ export async function harness(options: HarnessOptions = {}): Promise<Harness> {
     spend,
     journal,
     killSwitch,
-    policy: policy(),
+    policy: compliancePolicy,
     registry,
+    plans,
     ...(options.now !== undefined ? { now: options.now } : {}),
     ...(options.weeklyUsdCeiling !== undefined ? { weeklyUsdCeiling: options.weeklyUsdCeiling } : {}),
     ...(options.maxTasksPerTick !== undefined ? { maxTasksPerTick: options.maxTasksPerTick } : {})
@@ -165,6 +195,16 @@ export async function harness(options: HarnessOptions = {}): Promise<Harness> {
     killSwitch,
     registry,
     director: new CampaignDirector(deps),
+    plans,
+    gate,
+    planner: new DailyCallPlanner({
+      db,
+      plans,
+      gate,
+      policy: compliancePolicy,
+      calendar: calendar(),
+      ...(options.now !== undefined ? { now: options.now } : {})
+    }),
     campaignId,
     accountId,
     close: async () => {

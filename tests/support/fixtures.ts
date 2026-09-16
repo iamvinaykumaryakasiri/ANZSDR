@@ -20,6 +20,10 @@ export interface PolicyOverrides {
   days?: string[];
   start?: string;
   end?: string;
+  /** The operator's clock. Defaults to Sydney for AU and Auckland for NZ. */
+  auTimezone?: string;
+  auHolidayJurisdiction?: string;
+  requireDailyPlan?: boolean;
 }
 
 export function policy(overrides: PolicyOverrides = {}): CompliancePolicy {
@@ -29,7 +33,16 @@ export function policy(overrides: PolicyOverrides = {}): CompliancePolicy {
   return loadPolicyFromObject({
     policy_version: 'test-1.0.0',
     operational_timezone: 'Australia/Sydney',
-    calling_windows: { AU: { days, start, end }, NZ: { days, start, end } },
+    calling_windows: {
+      AU: {
+        timezone: overrides.auTimezone ?? 'Australia/Sydney',
+        holiday_jurisdiction: overrides.auHolidayJurisdiction ?? 'au-nsw',
+        days,
+        start,
+        end
+      },
+      NZ: { timezone: 'Pacific/Auckland', holiday_jurisdiction: 'nz-national', days, start, end }
+    },
     caller_id: {
       au_number: overrides.callerIdAu ?? '+61280000000',
       nz_number: overrides.callerIdNz ?? '+6498000000',
@@ -52,6 +65,7 @@ export function policy(overrides: PolicyOverrides = {}): CompliancePolicy {
       max_dials_per_number_per_day: 1
     },
     holidays: { require_verified_calendar: overrides.requireVerifiedCalendar ?? false },
+    approval: { require_daily_plan: overrides.requireDailyPlan ?? false },
     recording: { retention_days: 90 },
     kill_switch: {
       auto_trip: {
@@ -69,6 +83,7 @@ export function policy(overrides: PolicyOverrides = {}): CompliancePolicy {
 export function cleanSnapshot(overrides: Partial<import('../../src/compliance/types.js').ComplianceSnapshot> = {}) {
   return {
     killSwitch: { active: false },
+    dayPlan: null,
     suppressions: [],
     dncWash: null,
     contactAttempts: [],

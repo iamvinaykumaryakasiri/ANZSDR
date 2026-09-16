@@ -7,12 +7,12 @@
 import { DateTime } from 'luxon';
 import type { AuditLog } from './audit.js';
 import { dialDecisionRecord } from './audit.js';
-import { evaluateDialRequest } from './gate.js';
+import { evaluateDialRequest, operationalDate } from './gate.js';
 import type { HolidayCalendar } from './holidays.js';
 import type { KillSwitch } from './kill-switch.js';
 import { parsePhoneNumber, resolveLocality } from './phone.js';
 import type { CompliancePolicy } from './policy.js';
-import type { AttemptStore, CallStateStore, DncStore, SuppressionStore } from './ports.js';
+import type { AttemptStore, CallStateStore, DayPlanStore, DncStore, SuppressionStore } from './ports.js';
 import type { ComplianceSnapshot, DialDecision, DialRequest } from './types.js';
 
 export interface ComplianceGateDeps {
@@ -23,6 +23,7 @@ export interface ComplianceGateDeps {
   dnc: DncStore;
   attempts: AttemptStore;
   calls: CallStateStore;
+  dayPlans: DayPlanStore;
   audit: AuditLog;
 }
 
@@ -59,9 +60,10 @@ export class ComplianceGate {
       .toJSDate();
     const weekAgo = new Date(request.at.getTime() - 7 * DAY_MS);
 
-    const [killSwitch, suppressions, dncWash, contactAttempts, accountAttemptsThisWeek, accountHasConversed, dialsToday, numberDialsToday, liveCalls] =
+    const [killSwitch, dayPlan, suppressions, dncWash, contactAttempts, accountAttemptsThisWeek, accountHasConversed, dialsToday, numberDialsToday, liveCalls] =
       await Promise.all([
         this.deps.killSwitch.state(),
+        this.deps.dayPlans.current(request.campaignId, operationalDate(request.at, policy), request.contactId),
         this.deps.suppression.find({
           contactId: request.contactId,
           e164,
@@ -79,6 +81,7 @@ export class ComplianceGate {
 
     return {
       killSwitch,
+      dayPlan,
       suppressions,
       dncWash,
       contactAttempts,

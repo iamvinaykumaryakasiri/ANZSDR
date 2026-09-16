@@ -198,9 +198,12 @@ describe('the gate says no', () => {
     const monday = DateTime.fromISO('2025-03-10T11:00', { zone: 'Australia/Brisbane' }).toJSDate();
     const d = evaluateDialRequest(request({ at: monday, phone: '+61730001234' }), cleanSnapshot(), policy(), cal);
     expect(codes(d.reasons)).toEqual(['OUTSIDE_POLICY_WINDOW']);
+    // The plan opens at 09:30 Sydney, which is 08:30 in Brisbane and therefore
+    // still unlawful there. The first moment both allow is 09:00 Brisbane.
     expect(DateTime.fromJSDate(d.retryableAt as Date, { zone: 'Australia/Brisbane' }).toFormat('yyyy-MM-dd HH:mm')).toBe(
-      '2025-03-11 09:30'
+      '2025-03-11 09:00'
     );
+    expect(DateTime.fromJSDate(d.retryableAt as Date, { zone: 'Australia/Sydney' }).toFormat('HH:mm')).toBe('10:00');
   });
 
   it('blocks a Sydney number on a Canberra Day it cannot rule out', () => {
@@ -252,7 +255,8 @@ describe('the gate says no', () => {
       cal
     );
     expect(codes(d.reasons)).toEqual(['PUBLIC_HOLIDAY']);
-    expect(d.reasons[0]?.detail.split(';')).toHaveLength(8);
+    // Eight candidate states plus the operator's own day, all closed for Christmas.
+    expect(d.reasons[0]?.detail.split(';')).toHaveLength(9);
   });
 
   it('refuses a date the calendar does not cover, with no invented retry time', () => {
@@ -294,6 +298,119 @@ describe('the gate says no', () => {
       'PUBLIC_HOLIDAY',
       'SUPPRESSED'
     ]);
+  });
+});
+
+describe('the day\'s plan has to be approved', () => {
+  const planned = policy({ requireDailyPlan: true });
+  const today = '2025-03-12'; // the operational date of GOOD, in Sydney
+
+  const plan = (over: Partial<NonNullable<ReturnType<typeof cleanSnapshot>['dayPlan']>> = {}) => ({
+    planId: 'plan-1',
+    planDate: today,
+    status: 'approved' as const,
+    includesContact: true,
+    entryCount: 12,
+    ...over
+  });
+
+  it('allows a contact on an approved plan for today', () => {
+    const d = evaluateDialRequest(request({ at: GOOD }), cleanSnapshot({ dayPlan: plan() }), planned, cal);
+    expect(d.allowed).toBe(true);
+  });
+
+  it('refuses when no plan has been drawn up at all', () => {
+    const d = evaluateDialRequest(request({ at: GOOD }), cleanSnapshot(), planned, cal);
+    expect(codes(d.reasons)).toEqual(['DAY_PLAN_NOT_APPROVED']);
+    expect(d.reasons[0]?.detail).toContain(`drawn up for ${today}`);
+    // A person decides when to approve, so there is no retry time to offer.
+    expect(d.retryableAt).toBeUndefined();
+  });
+
+  it('refuses a plan that is drafted or waiting on the operator', () => {
+    for (const status of ['draft', 'pending_approval', 'rejected'] as const) {
+      const d = evaluateDialRequest(
+        request({ at: GOOD }),
+        cleanSnapshot({ dayPlan: plan({ status }) }),
+        planned,
+        cal
+      );
+      expect(codes(d.reasons)).toEqual(['DAY_PLAN_NOT_APPROVED']);
+      expect(d.reasons[0]?.detail).toContain(status.replace('_', ' '));
+    }
+  });
+
+  it('will not let yesterday\'s approval authorise today', () => {
+    const d = evaluateDialRequest(
+      request({ at: GOOD }),
+      cleanSnapshot({ dayPlan: plan({ planDate: '2025-03-11' }) }),
+      planned,
+      cal
+    );
+    expect(codes(d.reasons)).toEqual(['DAY_PLAN_NOT_APPROVED']);
+    expect(d.reasons[0]?.detail).toContain('does not carry over');
+  });
+
+  it('refuses somebody who is not on the approved list', () => {
+    const d = evaluateDialRequest(
+      request({ at: GOOD }),
+      cleanSnapshot({ dayPlan: plan({ includesContact: false }) }),
+      planned,
+      cal
+    );
+    expect(codes(d.reasons)).toEqual(['DAY_PLAN_NOT_APPROVED']);
+    expect(d.reasons[0]?.detail).toContain('contact-1 is not one of them');
+  });
+
+  it('is off when the operator has turned it off', () => {
+    const d = evaluateDialRequest(request({ at: GOOD }), cleanSnapshot(), policy(), cal);
+    expect(d.allowed).toBe(true);
+  });
+});
+
+describe('Saturday', () => {
+  it('is refused even with every day and the full legal span configured', () => {
+    const saturday = DateTime.fromISO('2025-03-08T11:00', { zone: 'Australia/Sydney' }).toJSDate();
+    const everyDay = policy({
+      days: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'],
+      start: '09:00',
+      end: '17:00'
+    });
+    const d = evaluateDialRequest(request({ at: saturday, phone: '+61730001234' }), cleanSnapshot(), everyDay, cal);
+    expect(codes(d.reasons)).toContain('OUTSIDE_STATUTORY_WINDOW');
+    // The next opening is Monday, not the rest of Saturday.
+    expect(DateTime.fromJSDate(d.retryableAt as Date, { zone: 'Australia/Brisbane' }).toFormat('cccc')).toBe(
+      'Monday'
+    );
+
+    // A Sydney number skips further still: the ACT observes Canberra Day that
+    // Monday, and an 02 number could be in Canberra.
+    const sydney = evaluateDialRequest(request({ at: saturday }), cleanSnapshot(), everyDay, cal);
+    expect(DateTime.fromJSDate(sydney.retryableAt as Date, { zone: 'Australia/Sydney' }).toFormat('cccc')).toBe(
+      'Tuesday'
+    );
+  });
+});
+
+describe('the operator\'s clock', () => {
+  it('refuses a Perth number at 09:30 Sydney and allows it at noon', () => {
+    const perth = { phone: '+61892001234', localityHint: { jurisdiction: 'au-wa' as const } };
+    const tooEarly = DateTime.fromISO('2025-03-12T09:30', { zone: 'Australia/Sydney' }).toJSDate();
+    const later = DateTime.fromISO('2025-03-12T12:00', { zone: 'Australia/Sydney' }).toJSDate();
+
+    const early = evaluateDialRequest(request({ at: tooEarly, ...perth }), cleanSnapshot(), policy(), cal);
+    expect(codes(early.reasons)).toEqual(['OUTSIDE_STATUTORY_WINDOW']);
+    expect(early.reasons[0]?.detail).toContain('06:30');
+
+    const noon = evaluateDialRequest(request({ at: later, ...perth }), cleanSnapshot(), policy(), cal);
+    expect(noon.allowed).toBe(true);
+  });
+
+  it('records both clocks in the evidence', () => {
+    const d = evaluateDialRequest(request({ at: GOOD }), cleanSnapshot(), policy(), cal);
+    expect(d.evidence.operatorTime?.timezone).toBe('Australia/Sydney');
+    expect(d.evidence.operatorTime?.weekday).toBe('wed');
+    expect(d.evidence.localTimes[0]?.timezone).toBe('Australia/Sydney');
   });
 });
 

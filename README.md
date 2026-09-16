@@ -11,7 +11,7 @@ including the build phases and the rules that override everything else, is in
 ```bash
 npm install
 npm run db:setup      # apply migrations and generate the Prisma client
-npm test              # 236 tests, including the 10,000-request fuzz acceptance
+npm test              # 265 tests, including the 10,000-request fuzz acceptance
 npm run test:coverage # enforces 100% branch coverage on src/compliance
 npm run typecheck
 ```
@@ -79,17 +79,31 @@ It returns every reason at once rather than the first one it hits, so the consol
 can show exactly why nothing is dialling, and each reason carries whether it is
 permanent and when it could clear.
 
-Two properties are worth knowing about:
+Four properties are worth knowing about:
+
+**Two windows, both of which must be open.** The *statutory* window is where the
+recipient actually is; the *operator* window is Vinay's own working day, on one
+clock per market — Sydney for Australia, Auckland for New Zealand. One plan, one
+clock, whoever is being called. Anchoring the plan to Sydney can only ever delay
+a call, never permit an unlawful one: 09:30 Sydney is refused for a Perth number
+until it is 09:00 in Perth, and a Perth prospect's day ends at 16:30 Sydney even
+though Perth is still well inside legal hours.
 
 **The recipient's clock, not the server's.** A number resolves to every place its
 holder might be. An `02` number could be in Sydney or Canberra; a mobile could be
-anywhere in the country. The window has to be open in *all* of them, so an
-unhinted mobile is gated on the intersection of every state's window and a
+anywhere in the country. The statutory window has to be open in *all* of them, so
+an unhinted mobile is gated on the intersection of every state's window and a
 Sydney number is blocked on Canberra Day unless enrichment has pinned it to NSW.
 
 **Policy can only narrow.** The statutory windows are frozen in
 `src/compliance/policy.ts` and are checked independently of `config/policy.yaml`.
-There is no configuration change that widens the legal calling window.
+There is no configuration change that widens the legal calling window, and
+Saturday is closed there outright — stricter than the Industry Standard, which
+permits it.
+
+**Nothing dials until the day's plan is approved.** Approval covers the named
+people on the named day; it does not carry over to tomorrow and does not extend
+to anyone not on the list. It is enforced in the gate, alongside calling hours.
 
 ## Operating it
 
@@ -105,6 +119,25 @@ npm run holidays:verify -- --sign-off all:2026 --by "Vinay Kumar"
 npm run db:setup                  # apply migrations, generate the client
 npm run seed:demo                 # an example campaign, account and first task
 npm run tick                      # run one Campaign Director tick and print its decisions
+
+npm run plan -- draft             # draw up today's calling and submit it for approval
+npm run plan -- show              # what is planned, and what the gate says about each entry
+npm run plan -- approve "note"    # release today's list. Today only, these people only
+npm run plan -- reject "why"      # send it back; the reason stays on the record
+```
+
+A drafted plan reads like this, and is honest about its own blocks before asking
+to be approved:
+
+```
+Call plan for 2026-09-16 — pending approval
+2 contact(s) planned, 0 clear the compliance gate right now
+
+ 1. Priya Raman — Chief Data Officer, Example Bank
+    +61280005100 · no lawful window today
+    why: likely under pressure on a three-year core banking modernisation
+    blocked: CALLER_ID_NOT_CONFIGURED — no AU caller line identification number is configured
+    blocked: HOLIDAY_CALENDAR_UNVERIFIED — the 2026 calendar is derived-rule and has not been signed off
 ```
 
 `npm run tick` is exactly what the scheduler will call in later phases, so the
@@ -115,7 +148,7 @@ They read `config/fixtures.json` (copy `config/fixtures.example.json`) rather th
 Apollo or the open web. Phase 3 replaces the handlers and the tools; the
 contracts, the task graph and the budgets do not move.
 
-## Three things ship deliberately blocked
+## Four things ship deliberately blocked
 
 1. **No caller ID numbers** in `config/policy.yaml`, so every dial is denied with
    `CALLER_ID_NOT_CONFIGURED`. The Industry Standard requires a real number that
@@ -125,6 +158,9 @@ contracts, the task graph and the budgets do not move.
 3. **`require_verified_calendar: true`**, so no dial happens on a date whose
    holiday year has not been signed off by a human. The official Australian
    dataset stops at 2025; 2026 and 2027 are derived from rules.
+4. **`require_daily_plan: true`**, so no dial happens until the day's plan has
+   been approved. Unlike the other three this one is not waiting on an answer —
+   it is how the system is meant to run.
 
 Each is a one-line change once the corresponding question in §15 of the brief has
 an answer.

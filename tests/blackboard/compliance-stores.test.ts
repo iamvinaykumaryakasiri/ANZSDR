@@ -27,6 +27,7 @@ import { InMemoryAuditLog, killSwitchRecord, type AuditLog } from '../../src/com
 import { suppress } from '../../src/compliance/suppression.js';
 import { ComplianceGate } from '../../src/compliance/service.js';
 import { InMemoryKillSwitchStore, KillSwitch } from '../../src/compliance/kill-switch.js';
+import { InMemoryDayPlanStore } from '../../src/compliance/ports.js';
 import { calendar, policy, request } from '../support/fixtures.js';
 import { DateTime } from 'luxon';
 import { randomUUID } from 'node:crypto';
@@ -191,6 +192,7 @@ describe.each(suites)('$name compliance stores', ({ make }) => {
       dnc: stores.dnc,
       attempts: stores.attempts,
       calls: stores.calls,
+      dayPlans: new InMemoryDayPlanStore(),
       audit: stores.audit
     });
 
