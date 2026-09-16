@@ -1,0 +1,260 @@
+{
+  "version": 1,
+  "note": "The hard boundary (brief section 6). Caller may assert a claim whose status is 'approved' and nothing else. Everything here was drafted by the build from public sources and is 'draft' until a human approves it. See knowledge/README.md.",
+  "claims": [
+    {
+      "id": "company.headquarters",
+      "text": "Hexaware is headquartered in Navi Mumbai, India.",
+      "kind": "fact",
+      "status": "draft",
+      "markets": [
+        "AU",
+        "NZ"
+      ],
+      "sources": [
+        {
+          "kind": "url",
+          "ref": "https://siliconangle.com/2026/08/17/hexaware-bundles-ai-services-zero-friction-enterprise-framework/",
+          "quote": "Headquarters in Navi Mumbai",
+          "retrievedAt": "2026-09-17"
+        }
+      ],
+      "conflictsWith": []
+    },
+    {
+      "id": "company.listed",
+      "text": "Hexaware listed on India's National Stock Exchange in February 2025.",
+      "kind": "fact",
+      "status": "draft",
+      "markets": [
+        "AU",
+        "NZ"
+      ],
+      "sources": [
+        {
+          "kind": "url",
+          "ref": "https://siliconangle.com/2026/08/17/hexaware-bundles-ai-services-zero-friction-enterprise-framework/",
+          "quote": "listed on India's National Stock Exchange in February 2025",
+          "retrievedAt": "2026-09-17"
+        }
+      ],
+      "conflictsWith": []
+    },
+    {
+      "id": "company.ownership",
+      "text": "Carlyle Group has held a majority stake in Hexaware since 2021.",
+      "kind": "fact",
+      "status": "draft",
+      "markets": [
+        "AU",
+        "NZ"
+      ],
+      "sources": [
+        {
+          "kind": "url",
+          "ref": "https://siliconangle.com/2026/08/17/hexaware-bundles-ai-services-zero-friction-enterprise-framework/",
+          "quote": "Carlyle Group has held majority stake since 2021",
+          "retrievedAt": "2026-09-17"
+        }
+      ],
+      "conflictsWith": []
+    },
+    {
+      "id": "company.ceo",
+      "text": "Hexaware's Chief Executive and Executive Director is R. Srikrishna.",
+      "kind": "fact",
+      "status": "draft",
+      "markets": [
+        "AU",
+        "NZ"
+      ],
+      "sources": [
+        {
+          "kind": "url",
+          "ref": "https://siliconangle.com/2026/08/17/hexaware-bundles-ai-services-zero-friction-enterprise-framework/",
+          "quote": "R. Srikrishna: Chief Executive and Executive Director",
+          "retrievedAt": "2026-09-17"
+        }
+      ],
+      "conflictsWith": []
+    },
+    {
+      "id": "company.headcount.q2-2026",
+      "text": "Hexaware had 34,506 employees as at 30 June 2026.",
+      "kind": "figure",
+      "status": "draft",
+      "markets": [
+        "AU",
+        "NZ"
+      ],
+      "sources": [
+        {
+          "kind": "url",
+          "ref": "https://siliconangle.com/2026/08/17/hexaware-bundles-ai-services-zero-friction-enterprise-framework/",
+          "quote": "Headcount (June 30): 34,506 employees",
+          "retrievedAt": "2026-09-17"
+        }
+      ],
+      "conflictsWith": [
+        "company.headcount.aggregator"
+      ]
+    },
+    {
+      "id": "company.headcount.aggregator",
+      "text": "Hexaware has more than 33,000 employees across 68 offices.",
+      "kind": "figure",
+      "status": "draft",
+      "markets": [
+        "AU",
+        "NZ"
+      ],
+      "sources": [
+        {
+          "kind": "url",
+          "ref": "https://craft.co/hexaware",
+          "quote": "68 offices globally with 33,000+ employees",
+          "retrievedAt": "2026-09-17"
+        }
+      ],
+      "conflictsWith": [
+        "company.headcount.q2-2026"
+      ],
+      "notes": "Secondary aggregator figure, undated, and it disagrees with Hexaware's own Q2 results. Recommend rejecting this one in favour of company.headcount.q2-2026."
+    },
+    {
+      "id": "company.revenue.q2-2026",
+      "text": "Hexaware reported Q2 revenue of US$405.4 million, up 6.1% year on year.",
+      "kind": "figure",
+      "status": "draft",
+      "markets": [
+        "AU",
+        "NZ"
+      ],
+      "sources": [
+        {
+          "kind": "url",
+          "ref": "https://siliconangle.com/2026/08/17/hexaware-bundles-ai-services-zero-friction-enterprise-framework/",
+          "quote": "Q2 revenue: $405.4 Mn, up 6.1% yoy",
+          "retrievedAt": "2026-09-17"
+        }
+      ],
+      "conflictsWith": []
+    },
+    {
+      "id": "frameworks.zero-friction",
+      "text": "Zero Friction Enterprise is Hexaware's framework for AI-led transformation, built on six pillars: Zero Vulnerability, Zero Tech Debt, Zero Backlog, Zero Defects, Zero Tickets and Zero License.",
+      "kind": "framework",
+      "status": "draft",
+      "markets": [
+        "AU",
+        "NZ"
+      ],
+      "sources": [
+        {
+          "kind": "url",
+          "ref": "https://siliconangle.com/2026/08/17/hexaware-bundles-ai-services-zero-friction-enterprise-framework/",
+          "quote": "six pillars targeting: Zero Vulnerability, Zero Tech Debt, Zero Backlog, Zero Defects, Zero Tickets, and Zero License",
+          "retrievedAt": "2026-09-17"
+        }
+      ],
+      "conflictsWith": []
+    },
+    {
+      "id": "frameworks.zerovity",
+      "text": "Zerovity is Hexaware's governed AI delivery layer, coordinating migration, modernisation, agentic software development, AIOps, release and cloud operations under one set of controls.",
+      "kind": "framework",
+      "status": "draft",
+      "markets": [
+        "AU",
+        "NZ"
+      ],
+      "sources": [
+        {
+          "kind": "url",
+          "ref": "https://siliconangle.com/2026/08/17/hexaware-bundles-ai-services-zero-friction-enterprise-framework/",
+          "quote": "Hexaware's AI delivery layer that coordinates migration, modernization, agentic software development, AIOps, release, cloud operations and enterprise workflows through unified visibility",
+          "retrievedAt": "2026-09-17"
+        }
+      ],
+      "conflictsWith": []
+    },
+    {
+      "id": "services.data-ai",
+      "text": "Hexaware has a Data & AI practice covering data and AI strategy, data modernisation and migration, and data value creation.",
+      "kind": "capability",
+      "status": "draft",
+      "markets": [
+        "AU",
+        "NZ"
+      ],
+      "sources": [
+        {
+          "kind": "url",
+          "ref": "https://hexaware.com/services/data-ai-solutions/",
+          "quote": "Data & AI Strategy; Data Modernization & Migration; Data Value Creation",
+          "retrievedAt": "2026-09-17"
+        }
+      ],
+      "conflictsWith": []
+    },
+    {
+      "id": "services.ddai-practice",
+      "text": "Hexaware has a Data, Digital & AI practice.",
+      "kind": "capability",
+      "status": "draft",
+      "markets": [
+        "AU",
+        "NZ"
+      ],
+      "sources": [
+        {
+          "kind": "operator",
+          "ref": "CLAUDE.md section 6",
+          "quote": "services.md - service lines, with DD&AI (Data, Digital & AI) called out; practice lead George Mathew",
+          "retrievedAt": "2026-09-17"
+        }
+      ],
+      "conflictsWith": [],
+      "notes": "Comes from the operator, not from a public page. Searches on 2026-09-17 found Hexaware's Data & AI service pages but nothing naming DD&AI. Do not present this as something the prospect could look up."
+    },
+    {
+      "id": "anz.nz-entity",
+      "text": "Hexaware Technologies Limited was registered in New Zealand as an overseas company on 17 February 2025.",
+      "kind": "fact",
+      "status": "draft",
+      "markets": [
+        "NZ"
+      ],
+      "sources": [
+        {
+          "kind": "url",
+          "ref": "https://www.nzwao.com/companies/hexaware-technologies-limited/",
+          "quote": "registered as an Overseas Non-ASIC Company on 17 February 2025",
+          "retrievedAt": "2026-09-17"
+        }
+      ],
+      "conflictsWith": [],
+      "notes": "Directory data, not a first-party Hexaware source. Confirm before approving. It also cuts both ways on a call - see knowledge/anz-story.md."
+    },
+    {
+      "id": "anz.sydney-office",
+      "text": "Hexaware has an office in North Sydney.",
+      "kind": "fact",
+      "status": "draft",
+      "markets": [
+        "AU",
+        "NZ"
+      ],
+      "sources": [
+        {
+          "kind": "url",
+          "ref": "https://www.dnb.com/business-directory/company-profiles.hexaware_technologies_limited.87df8128023ddd2f45d6ab85227df059.html",
+          "quote": "Level 3, 80 Mount Street, North Sydney, NSW 2060",
+          "retrievedAt": "2026-09-17"
+        }
+      ],
+      "conflictsWith": [],
+      "notes": "Business-directory data. Hexaware's own location page is JavaScript-rendered and could not be read automatically. Confirm the address before approving."
+    }
+  ]
+}

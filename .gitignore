@@ -17,3 +17,8 @@ data/*.jsonl
 prisma/dev.db
 config/fixtures.json
 prisma/data/
+
+# The live knowledge drop: decks and notes are local, the claims they
+# produce are committed. See knowledge/drop/README.md.
+knowledge/drop/*
+!knowledge/drop/README.md

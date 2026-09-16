@@ -494,7 +494,7 @@ is in [`docs/SESSION-HANDOFF.md`](./docs/SESSION-HANDOFF.md).
 | 1 — Compliance core | **Complete.** Acceptance met: 10,000 fuzzed dial requests, zero out-of-window and zero suppressed dials, checked against an independently written oracle. 100% branch coverage on `src/compliance`. |
 | 2 — Blackboard and orchestrator | **Complete.** Includes the daily call plan and its approval gate. Acceptance met: a task runs end to end with a full plain-English trace, a deliberately malformed sub-agent output escalates without reaching the blackboard, and a budget breach escalates rather than continuing. |
 | 3 — Prospector and Scout | Not started. Unblocked on the account list: the account desk is built and the Apollo path is documented in `docs/APOLLO-SETUP.md`. Still needs an Apollo key and, for mobile numbers only, a public HTTPS hostname. |
-| 4 — Caller and Guardian | Not started |
+| 4 — Caller and Guardian | **In progress.** The §6 knowledge pack and the claim index are built, tested and loaded; Caller, Guardian and the custom LLM endpoint are next. Blocked only on §15 item 1 (the agent's name) for the immutable opening. |
 | 5 — Voice | Not started |
 | 6 — Scribe and Concierge | Not started |
 | 7 — Coach and Analyst | Not started |
@@ -516,4 +516,7 @@ is in [`docs/SESSION-HANDOFF.md`](./docs/SESSION-HANDOFF.md).
 - `approval.require_daily_plan` ships **true**: nothing dials until that day's plan has been approved, for the people on it, on that day. `npm run plan -- draft | show | approve | reject`.
 - A sub-agent is only reachable through `runAgent`. Input and output are validated against its contract, output twice off-contract escalates, and the budget is metered continuously - so a malformed or over-budget result never reaches the blackboard.
 - The Campaign Director dispatches work and decides what follows from a result. A sub-agent never queues another sub-agent's work, and the Director has no route to a dial: only the compliance gate can grant one.
+- The knowledge pack exists (`knowledge/`) and **nothing in it is approved**. `approved-claims.json` holds 13 claims drafted from public sources, every one sourced and quoted, every one `draft`. Caller may assert an `approved` claim and nothing else, so as it stands the agent can assert nothing at all — which is the correct default, not a gap. `npm run knowledge:status | sync | approve | reject`.
+- `knowledge/drop/` is the live folder. Capability decks (`.pptx`), notes (`.md`, `.txt`) go in; `npm run knowledge:sync` extracts them into **draft** claims tagged with the file and slide they came from. Sync is idempotent, an approval survives a re-sync, and a line that disappears from its source is marked `orphaned` rather than deleted so an approval is never quietly lost. The folder's contents are gitignored; the claims it produces are committed.
+- `proof-points.md` ships **empty on purpose**. §9 bans naming any client not marked nameable there, and the build has no way to know which Hexaware clients have consented. No reference story is drafted, so the agent currently has none to offer.
 - Phase 2 ships **stub** Prospector and Scout handlers behind their real contracts. They reach fixtures, not Apollo or the web. Phase 3 replaces the handlers and the tools; the contracts, the task graph and the budgets stay as they are.

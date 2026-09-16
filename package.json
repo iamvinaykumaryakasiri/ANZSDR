@@ -25,11 +25,16 @@
     "serve": "tsx src/web/start.ts",
     "apollo:check": "tsx scripts/apollo-check.ts",
     "accounts:import": "tsx scripts/accounts.ts import",
-    "accounts:export": "tsx scripts/accounts.ts export"
+    "accounts:export": "tsx scripts/accounts.ts export",
+    "knowledge:status": "tsx scripts/knowledge.ts status",
+    "knowledge:sync": "tsx scripts/knowledge.ts sync",
+    "knowledge:approve": "tsx scripts/knowledge.ts approve",
+    "knowledge:reject": "tsx scripts/knowledge.ts reject"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
     "fastify": "^5.12.4",
+    "jszip": "^3.10.2",
     "luxon": "^3.5.0",
     "prisma": "^6.19.3",
     "yaml": "^2.6.1",
