@@ -62,7 +62,10 @@ await db.campaign.create({
     market: 'AU',
     status: 'active',
     icp: JSON.stringify(ICP),
-    goal: JSON.stringify({ meetingsPerWeek: 5, maxUsdPerWeek: 50 })
+    // Deliberately small to start: three meetings a week, and a ceiling that
+    // covers roughly one Phase 3 acceptance run of twenty contacts. Both are
+    // editable on the account desk, and the Director reads them from there.
+    goal: JSON.stringify({ meetingsPerWeek: 3, maxUsdPerWeek: 25 })
   }
 });
 
