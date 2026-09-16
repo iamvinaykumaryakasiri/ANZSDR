@@ -1,0 +1,525 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Account desk — ANZ Voice SDR</title>
+<style>
+  :root {
+    --ink: #0d1117;
+    --ink-2: #151b24;
+    --ink-3: #1d2530;
+    --line: #2a3441;
+    --steel: #8b9bb0;
+    --slate: #b9c5d3;
+    --sand: #e8e2d6;
+    --text: #e6ebf2;
+    --accent: #7aa2c8;
+    --warn: #d9a441;
+    --danger: #c9736a;
+    --radius: 6px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 0 16px 64px;
+    background: var(--ink);
+    color: var(--text);
+    font: 15px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+  .wrap { max-width: 1040px; margin: 0 auto; }
+  header { padding: 28px 0 20px; border-bottom: 1px solid var(--line); margin-bottom: 24px; }
+  h1 { margin: 0 0 4px; font-size: 20px; font-weight: 600; letter-spacing: -0.01em; }
+  .sub { color: var(--steel); font-size: 13px; margin: 0; }
+  h2 { font-size: 15px; font-weight: 600; margin: 32px 0 10px; }
+  h2 .hint { font-weight: 400; color: var(--steel); font-size: 13px; margin-left: 8px; }
+  section { background: var(--ink-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; }
+  label { display: block; font-size: 12px; color: var(--steel); margin-bottom: 4px; }
+  input, select, textarea, button {
+    font: inherit;
+    font-variant-numeric: inherit;
+    color: var(--text);
+    background: var(--ink-3);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 7px 9px;
+  }
+  textarea { width: 100%; min-height: 110px; resize: vertical; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; }
+  input:focus, select:focus, textarea:focus, button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+  button { cursor: pointer; background: var(--ink-3); }
+  button:hover { border-color: var(--steel); }
+  button.primary { background: var(--accent); color: var(--ink); border-color: var(--accent); font-weight: 600; }
+  button.quiet { background: none; border-color: transparent; color: var(--steel); padding: 4px 6px; }
+  button.quiet:hover { color: var(--text); border-color: var(--line); }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
+  .row > div { flex: 1 1 140px; min-width: 0; }
+  .row > div.wide { flex: 2 1 220px; }
+  .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table { width: 100%; border-collapse: collapse; margin-top: 4px; }
+  th { text-align: left; font-size: 12px; font-weight: 500; color: var(--steel); padding: 8px 8px 8px 0; border-bottom: 1px solid var(--line); }
+  td { padding: 9px 8px 9px 0; border-bottom: 1px solid var(--ink-3); vertical-align: top; }
+  td .domain { color: var(--steel); font-size: 13px; }
+  .tag { display: inline-block; font-size: 11px; padding: 2px 7px; border-radius: 99px; background: var(--ink-3); color: var(--slate); border: 1px solid var(--line); }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; background: var(--ink-3); border: 1px solid var(--line); border-radius: 99px; padding: 3px 4px 3px 10px; font-size: 13px; }
+  .chip button { border: none; background: none; color: var(--steel); padding: 0 6px; line-height: 1; }
+  .chip button:hover { color: var(--danger); }
+  .note { color: var(--steel); font-size: 13px; margin: 6px 0 0; }
+  .narrow-only { display: none; }
+  .narrow-only-inline { display: none; }
+  @media (max-width: 680px) {
+    .narrow-only { display: block; }
+    .narrow-only-inline { display: inline; font-size: 17px; line-height: 1; }
+    .wide-only { display: none; }
+  }
+  .status { margin: 14px 0 0; padding: 9px 11px; border-radius: var(--radius); font-size: 13px; display: none; }
+  .status.show { display: block; }
+  .status.ok { background: #14241c; border: 1px solid #2c4a3a; color: #bfe0cd; }
+  .status.bad { background: #2a1a18; border: 1px solid #4a2c29; color: #e8c0ba; }
+  .gate { max-width: 380px; margin: 80px auto; }
+  .muted { color: var(--steel); }
+  .empty { color: var(--steel); padding: 18px 0; }
+  @media (max-width: 680px) {
+    /* Country, industry and contact count are reference, not decisions. On a
+       phone the decisions - priority, status, remove - get the whole width. */
+    th:nth-child(2), td:nth-child(2),
+    th:nth-child(3), td:nth-child(3),
+    th:nth-child(4), td:nth-child(4) { display: none; }
+    td, th { padding-right: 6px; }
+    td select { padding: 6px 4px; max-width: 92px; }
+    th:last-child, td:last-child { width: 26px; padding-right: 0; }
+    section { padding: 12px; }
+    body { padding: 0 12px 48px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div id="gate" class="gate" hidden>
+  <h1>Account desk</h1>
+  <p class="sub">This page edits the list of people the system will call. It needs the admin token.</p>
+  <form id="gate-form" style="margin-top:16px">
+    <label for="token">Admin token</label>
+    <div class="row">
+      <div class="wide"><input id="token" type="password" autocomplete="current-password" style="width:100%"></div>
+      <div style="flex:0 0 auto"><button class="primary" type="submit">Unlock</button></div>
+    </div>
+  </form>
+  <div id="gate-status" class="status"></div>
+</div>
+
+<div id="app" hidden>
+  <header>
+    <h1>Account desk</h1>
+    <p class="sub">The organisations to work and the titles worth calling at them. Not the console — this is the list the system prospects from.</p>
+  </header>
+
+  <div class="row" style="margin-bottom:20px">
+    <div class="wide">
+      <label for="campaign">Campaign</label>
+      <select id="campaign" style="width:100%"></select>
+    </div>
+    <div style="flex:0 0 auto"><button id="sign-out" class="quiet" type="button">Sign out</button></div>
+  </div>
+
+  <h2>Who we are looking for <span class="hint">titles are matched against a person's job title</span></h2>
+  <section>
+    <label>Titles</label>
+    <div id="titles" class="chips"></div>
+    <form id="title-form" class="row">
+      <div class="wide"><input id="title-input" placeholder="head of data" style="width:100%" aria-label="Add a title"></div>
+      <div style="flex:0 0 auto"><button type="submit">Add title</button></div>
+    </form>
+
+    <label style="margin-top:18px">Seniorities</label>
+    <div id="seniorities" class="chips"></div>
+    <form id="seniority-form" class="row">
+      <div class="wide">
+        <select id="seniority-input" style="width:100%" aria-label="Add a seniority">
+          <option value="c_suite">c_suite</option>
+          <option value="founder">founder</option>
+          <option value="owner">owner</option>
+          <option value="partner">partner</option>
+          <option value="vp">vp</option>
+          <option value="head">head</option>
+          <option value="director">director</option>
+          <option value="manager">manager</option>
+          <option value="senior">senior</option>
+        </select>
+      </div>
+      <div style="flex:0 0 auto"><button type="submit">Add seniority</button></div>
+    </form>
+
+    <label style="margin-top:18px">Never call — a title containing any of these is dropped</label>
+    <div id="disqualifiers" class="chips"></div>
+    <form id="disqualifier-form" class="row">
+      <div class="wide"><input id="disqualifier-input" placeholder="recruiter" style="width:100%" aria-label="Add a disqualifier"></div>
+      <div style="flex:0 0 auto"><button type="submit">Add</button></div>
+    </form>
+
+    <div class="row" style="margin-top:18px">
+      <div>
+        <label for="minimum-score">Minimum score to enrich <span class="muted">(0–100)</span></label>
+        <input id="minimum-score" type="number" min="0" max="100" style="width:100%">
+      </div>
+      <div>
+        <label for="meetings">Meetings wanted per week</label>
+        <input id="meetings" type="number" min="1" max="50" style="width:100%">
+      </div>
+      <div>
+        <label for="ceiling">Weekly spend ceiling (USD)</label>
+        <input id="ceiling" type="number" min="0" step="1" style="width:100%">
+      </div>
+      <div style="flex:0 0 auto"><button id="save-icp" class="primary" type="button">Save</button></div>
+    </div>
+    <p class="note">Below the minimum score nobody is enriched, so a loose title list costs nothing. The weekly ceiling is a hard stop: the Campaign Director will not start work it cannot afford to finish.</p>
+  </section>
+
+  <h2>Accounts <span class="hint" id="account-count"></span></h2>
+  <section>
+    <form id="account-form" class="row" style="margin-bottom:16px">
+      <div class="wide"><label for="a-name">Account name</label><input id="a-name" placeholder="Example Bank" style="width:100%"></div>
+      <div class="wide"><label for="a-domain">Domain</label><input id="a-domain" placeholder="examplebank.com.au" style="width:100%"></div>
+      <div><label for="a-country">Country</label><select id="a-country" style="width:100%"><option>AU</option><option>NZ</option></select></div>
+      <div><label for="a-priority">Priority</label><select id="a-priority" style="width:100%"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select></div>
+      <div style="flex:0 0 auto"><button class="primary" type="submit">Add</button></div>
+    </form>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Account</th><th>Country</th><th>Industry</th><th>Contacts</th><th>Priority</th><th>Status</th><th></th></tr></thead>
+        <tbody id="accounts"></tbody>
+      </table>
+    </div>
+    <div id="accounts-empty" class="empty" hidden>No accounts yet. Add one above, or paste a block from your spreadsheet below.</div>
+  </section>
+
+  <h2>Paste from a spreadsheet <span class="hint">account_name, domain, country, industry, priority, notes</span></h2>
+  <section>
+    <textarea id="import-text" placeholder="Example Bank	examplebank.com.au	AU	financial services	1	met at a conference
+Another Bank	anotherbank.co.nz	NZ	financial services	2"></textarea>
+    <div class="row" style="margin-top:10px">
+      <div style="flex:0 0 auto"><button id="import" class="primary" type="button">Import</button></div>
+      <div style="flex:0 0 auto"><button id="export" type="button">Download CSV</button></div>
+    </div>
+    <p class="note">Copy the cells straight out of Excel or Sheets and paste. A header row is optional; if it is there, the column order is read from it. A domain already on the campaign is updated rather than duplicated.</p>
+  </section>
+
+  <div id="status" class="status"></div>
+</div>
+
+</div>
+<script>
+(() => {
+  'use strict';
+  const $ = (id) => document.getElementById(id);
+  const KEY = 'anzsdr.admin-token';
+  let token = '';
+  let campaigns = [];
+  let current = null;
+
+  function say(message, ok = true, target = 'status') {
+    const el = $(target);
+    el.textContent = message;
+    el.className = 'status show ' + (ok ? 'ok' : 'bad');
+    if (ok) setTimeout(() => { el.className = 'status'; }, 4000);
+  }
+
+  async function api(path, options = {}) {
+    const response = await fetch(path, {
+      ...options,
+      headers: {
+        'content-type': 'application/json',
+        authorization: 'Bearer ' + token,
+        ...(options.headers || {})
+      }
+    });
+    if (response.status === 401) {
+      sessionStorage.removeItem(KEY);
+      location.reload();
+      throw new Error('unauthorised');
+    }
+    if (!response.ok) {
+      const body = await response.json().catch(() => ({}));
+      throw new Error(typeof body.error === 'string' ? body.error : 'request failed (' + response.status + ')');
+    }
+    return response;
+  }
+
+  const json = (path, options) => api(path, options).then((r) => r.json());
+
+  function chips(containerId, values, onRemove) {
+    const container = $(containerId);
+    container.replaceChildren();
+    if (values.length === 0) {
+      const none = document.createElement('span');
+      none.className = 'muted';
+      none.style.fontSize = '13px';
+      none.textContent = 'none yet';
+      container.append(none);
+      return;
+    }
+    for (const value of values) {
+      const chip = document.createElement('span');
+      chip.className = 'chip';
+      chip.append(document.createTextNode(value));
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.textContent = '×';
+      remove.setAttribute('aria-label', 'Remove ' + value);
+      remove.addEventListener('click', () => onRemove(value));
+      chip.append(remove);
+      container.append(chip);
+    }
+  }
+
+  function renderIcp() {
+    if (current === null) return;
+    chips('titles', current.icp.titles, (v) => {
+      current.icp.titles = current.icp.titles.filter((t) => t !== v);
+      renderIcp();
+    });
+    chips('seniorities', current.icp.seniorities, (v) => {
+      current.icp.seniorities = current.icp.seniorities.filter((t) => t !== v);
+      renderIcp();
+    });
+    chips('disqualifiers', current.icp.disqualifiers, (v) => {
+      current.icp.disqualifiers = current.icp.disqualifiers.filter((t) => t !== v);
+      renderIcp();
+    });
+    $('minimum-score').value = current.icp.minimumScore;
+    $('meetings').value = current.goal.meetingsPerWeek;
+    $('ceiling').value = current.goal.maxUsdPerWeek;
+  }
+
+  function renderAccounts(accounts) {
+    const body = $('accounts');
+    body.replaceChildren();
+    $('accounts-empty').hidden = accounts.length > 0;
+    $('account-count').textContent = accounts.length === 0 ? '' : accounts.length + ' on this campaign';
+
+    for (const account of accounts) {
+      const tr = document.createElement('tr');
+
+      const name = document.createElement('td');
+      const strong = document.createElement('div');
+      strong.textContent = account.name;
+      const domain = document.createElement('div');
+      domain.className = 'domain';
+      domain.textContent = account.domain;
+      const small = document.createElement('div');
+      small.className = 'domain narrow-only';
+      small.textContent = account.country + ' · ' + account.industry;
+      name.append(strong, domain, small);
+
+      const country = document.createElement('td');
+      country.append(Object.assign(document.createElement('span'), { className: 'tag', textContent: account.country }));
+
+      const industry = document.createElement('td');
+      industry.textContent = account.industry;
+
+      const contacts = document.createElement('td');
+      contacts.textContent = String(account.contacts);
+
+      const priority = document.createElement('td');
+      const prioritySelect = document.createElement('select');
+      for (const value of [1, 2, 3, 4, 5]) {
+        prioritySelect.append(new Option(String(value), String(value), false, value === account.priority));
+      }
+      prioritySelect.setAttribute('aria-label', 'Priority for ' + account.name);
+      prioritySelect.addEventListener('change', async () => {
+        try {
+          await api('/api/accounts/' + account.id, { method: 'PATCH', body: JSON.stringify({ priority: Number(prioritySelect.value) }) });
+          say(account.name + ' is now priority ' + prioritySelect.value);
+        } catch (error) { say(error.message, false); }
+      });
+      priority.append(prioritySelect);
+
+      const status = document.createElement('td');
+      const statusSelect = document.createElement('select');
+      for (const value of ['new', 'researching', 'calling', 'engaged', 'closed', 'suppressed']) {
+        statusSelect.append(new Option(value, value, false, value === account.status));
+      }
+      statusSelect.setAttribute('aria-label', 'Status for ' + account.name);
+      statusSelect.addEventListener('change', async () => {
+        try {
+          await api('/api/accounts/' + account.id, { method: 'PATCH', body: JSON.stringify({ status: statusSelect.value }) });
+          say(account.name + ' is now ' + statusSelect.value);
+        } catch (error) { say(error.message, false); }
+      });
+      status.append(statusSelect);
+
+      const actions = document.createElement('td');
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.className = 'quiet';
+      // "Remove" on a desktop, a compact cross on a phone, same button.
+      remove.append(
+        Object.assign(document.createElement('span'), { className: 'wide-only', textContent: 'Remove' }),
+        Object.assign(document.createElement('span'), { className: 'narrow-only-inline', textContent: '\u00d7' })
+      );
+      remove.setAttribute('aria-label', 'Remove ' + account.name);
+      remove.addEventListener('click', async () => {
+        const warning = account.contacts > 0
+          ? 'Remove ' + account.name + '? It has ' + account.contacts + ' contact(s) on the record, so it will be closed rather than deleted.'
+          : 'Remove ' + account.name + '?';
+        if (!confirm(warning)) return;
+        try {
+          const result = await json('/api/accounts/' + account.id, { method: 'DELETE' });
+          say(result.message || (account.name + ' removed'));
+          await loadAccounts();
+        } catch (error) { say(error.message, false); }
+      });
+      actions.append(remove);
+
+      tr.append(name, country, industry, contacts, priority, status, actions);
+      body.append(tr);
+    }
+  }
+
+  async function loadAccounts() {
+    if (current === null) return;
+    renderAccounts(await json('/api/campaigns/' + current.id + '/accounts'));
+  }
+
+  async function load() {
+    campaigns = await json('/api/campaigns');
+    const select = $('campaign');
+    select.replaceChildren();
+    if (campaigns.length === 0) {
+      select.append(new Option('no campaigns yet — run npm run seed:demo', ''));
+      return;
+    }
+    for (const campaign of campaigns) {
+      select.append(new Option(campaign.name + ' (' + campaign.market + ')', campaign.id));
+    }
+    current = campaigns[0];
+    renderIcp();
+    await loadAccounts();
+  }
+
+  $('campaign').addEventListener('change', async (event) => {
+    current = campaigns.find((c) => c.id === event.target.value) || null;
+    renderIcp();
+    await loadAccounts();
+  });
+
+  function addTo(list, value) {
+    const trimmed = value.trim().toLowerCase();
+    if (trimmed === '' || list.includes(trimmed)) return false;
+    list.push(trimmed);
+    return true;
+  }
+
+  $('title-form').addEventListener('submit', (event) => {
+    event.preventDefault();
+    if (current && addTo(current.icp.titles, $('title-input').value)) { $('title-input').value = ''; renderIcp(); }
+  });
+  $('seniority-form').addEventListener('submit', (event) => {
+    event.preventDefault();
+    if (current && addTo(current.icp.seniorities, $('seniority-input').value)) renderIcp();
+  });
+  $('disqualifier-form').addEventListener('submit', (event) => {
+    event.preventDefault();
+    if (current && addTo(current.icp.disqualifiers, $('disqualifier-input').value)) { $('disqualifier-input').value = ''; renderIcp(); }
+  });
+
+  $('save-icp').addEventListener('click', async () => {
+    if (current === null) return;
+    current.icp.minimumScore = Number($('minimum-score').value);
+    current.goal.meetingsPerWeek = Number($('meetings').value);
+    current.goal.maxUsdPerWeek = Number($('ceiling').value);
+    try {
+      await api('/api/campaigns/' + current.id + '/icp', { method: 'PUT', body: JSON.stringify(current.icp) });
+      await api('/api/campaigns/' + current.id + '/goal', { method: 'PUT', body: JSON.stringify(current.goal) });
+      say('Saved. The next tick will use this.');
+    } catch (error) { say(error.message, false); }
+  });
+
+  $('account-form').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (current === null) return;
+    try {
+      await api('/api/campaigns/' + current.id + '/accounts', {
+        method: 'POST',
+        body: JSON.stringify({
+          name: $('a-name').value,
+          domain: $('a-domain').value,
+          country: $('a-country').value,
+          priority: Number($('a-priority').value)
+        })
+      });
+      $('a-name').value = '';
+      $('a-domain').value = '';
+      say('Added.');
+      await loadAccounts();
+    } catch (error) { say(error.message, false); }
+  });
+
+  $('import').addEventListener('click', async () => {
+    if (current === null) return;
+    try {
+      const result = await json('/api/campaigns/' + current.id + '/accounts/import', {
+        method: 'POST',
+        body: JSON.stringify({ text: $('import-text').value })
+      });
+      const skipped = result.skipped.length === 0 ? '' : ', ' + result.skipped.length + ' skipped: ' + result.skipped.map((s) => 'row ' + s.row + ' (' + s.reason + ')').join('; ');
+      say(result.added + ' added, ' + result.updated + ' updated' + skipped, result.skipped.length === 0);
+      if (result.skipped.length === 0) $('import-text').value = '';
+      await loadAccounts();
+    } catch (error) { say(error.message, false); }
+  });
+
+  $('export').addEventListener('click', async () => {
+    if (current === null) return;
+    try {
+      const response = await api('/api/campaigns/' + current.id + '/accounts.csv');
+      const url = URL.createObjectURL(await response.blob());
+      const link = Object.assign(document.createElement('a'), { href: url, download: 'accounts.csv' });
+      document.body.append(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    } catch (error) { say(error.message, false); }
+  });
+
+  $('sign-out').addEventListener('click', () => {
+    sessionStorage.removeItem(KEY);
+    location.reload();
+  });
+
+  $('gate-form').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    token = $('token').value.trim();
+    try {
+      await json('/api/campaigns');
+      sessionStorage.setItem(KEY, token);
+      $('gate').hidden = true;
+      $('app').hidden = false;
+      await load();
+    } catch (error) {
+      if (error.message !== 'unauthorised') say(error.message, false, 'gate-status');
+    }
+  });
+
+  (async () => {
+    let stored = null;
+    try { stored = sessionStorage.getItem(KEY); } catch { stored = null; }
+    if (stored === null) { $('gate').hidden = false; return; }
+    token = stored;
+    try {
+      await json('/api/campaigns');
+      $('app').hidden = false;
+      await load();
+    } catch { $('gate').hidden = false; }
+  })();
+})();
+</script>
+</body>
+</html>

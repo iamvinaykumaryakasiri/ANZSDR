@@ -154,7 +154,7 @@ export async function harness(options: HarnessOptions = {}): Promise<Harness> {
       market: 'AU',
       status: 'active',
       icp: JSON.stringify(ANZ_ICP),
-      goal: JSON.stringify({ meetingsPerWeek: 5, maxUsdPerWeek: 50 })
+      goal: JSON.stringify({ meetingsPerWeek: 5, maxUsdPerWeek: options.weeklyUsdCeiling ?? 50 })
     }
   });
   await db.account.create({

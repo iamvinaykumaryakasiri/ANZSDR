@@ -132,7 +132,9 @@ web/                 # the console (§14) — React + Vite, its own build
 ## 5. The pipeline
 
 ### 5.1 Account list in
-An `Accounts` tab in the Excel workbook: `account_name`, `domain`, `country`, `industry`, `priority`, `campaign`, `status`, `notes`. New rows get picked up on the next tick.
+Maintained on the **account desk** (`npm run serve`), a small authenticated web page holding the organisations to work and the titles worth calling at them. It takes a block pasted straight out of Excel or Sheets using the same columns — `account_name`, `domain`, `country`, `industry`, `priority`, `notes` — and exports the same CSV back. New rows get picked up on the next tick.
+
+The account desk is not the console in §14. That is Phase 8 and starts with a design review. The desk also carries the campaign's **minimum score to enrich**, its **meetings-per-week goal** and its **weekly spend ceiling**, which the Campaign Director reads directly.
 
 ### 5.2 Prospector: people, emails, phones
 **Search.** `POST /api/v1/mixed_people/search` filtered by organisation domain, seniority and title keywords from the campaign ICP. Known Apollo behaviour to build around:
@@ -489,7 +491,7 @@ is in [`docs/SESSION-HANDOFF.md`](./docs/SESSION-HANDOFF.md).
 |---|---|
 | 1 — Compliance core | **Complete.** Acceptance met: 10,000 fuzzed dial requests, zero out-of-window and zero suppressed dials, checked against an independently written oracle. 100% branch coverage on `src/compliance`. |
 | 2 — Blackboard and orchestrator | **Complete.** Includes the daily call plan and its approval gate. Acceptance met: a task runs end to end with a full plain-English trace, a deliberately malformed sub-agent output escalates without reaching the blackboard, and a budget breach escalates rather than continuing. |
-| 3 — Prospector and Scout | Not started |
+| 3 — Prospector and Scout | Not started. Unblocked on the account list: the account desk is built and the Apollo path is documented in `docs/APOLLO-SETUP.md`. Still needs an Apollo key and, for mobile numbers only, a public HTTPS hostname. |
 | 4 — Caller and Guardian | Not started |
 | 5 — Voice | Not started |
 | 6 — Scribe and Concierge | Not started |
@@ -501,6 +503,7 @@ is in [`docs/SESSION-HANDOFF.md`](./docs/SESSION-HANDOFF.md).
 
 - `config/policy.yaml` ships with **no caller ID numbers set**, so the gate denies every dial with `CALLER_ID_NOT_CONFIGURED` until §15 item 3 is answered.
 - `dnc.allow_mobile_dialling` ships **false**, so only office direct dials are possible until §15 item 4 is answered.
+- The account desk (`npm run serve`) refuses to start without `ADMIN_TOKEN`. It edits the list of people the system will call and is never served unauthenticated.
 - `holidays.require_verified_calendar` ships **true**. The official `data.gov.au` holiday dataset stops at 2025, so 2026 and 2027 are derived from rules and every dial on those dates is denied until a human signs the calendar off with `npm run holidays:verify`.
 - Statutory calling windows live in code (`src/compliance/policy.ts`), not in config. `config/policy.yaml` can only narrow them. **Saturday is closed there and cannot be re-opened by configuration.**
 - The operator window runs on one clock per market — Sydney for AU, Auckland for NZ — and is checked *in addition to* the statutory window in the recipient's own timezone. Anchoring the plan to Sydney can delay a call but never permit an unlawful one.

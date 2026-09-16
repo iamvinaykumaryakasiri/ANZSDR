@@ -21,6 +21,7 @@ import type {
   TaskRepository
 } from '../blackboard/repositories.js';
 import type { CallPlanRepository } from '../blackboard/call-plans.js';
+import { campaignGoalSchema, decode } from '../blackboard/schemas.js';
 import { evaluateAutoTrip, type KillSwitch, type SafetySignals } from '../compliance/kill-switch.js';
 import type { CompliancePolicy } from '../compliance/policy.js';
 import type { TaskRegistry } from './registry.js';
@@ -39,7 +40,10 @@ export interface CampaignDirectorDeps {
   now?: () => Date;
   /** How much work one tick will take on. Keeps a tick bounded and interruptible. */
   maxTasksPerTick?: number;
-  /** Hard weekly ceiling in USD. The director stops rather than exceed it. */
+  /**
+   * Fallback weekly ceiling in USD, used only when no active campaign states one.
+   * The real number comes from the campaign's goal, which the account desk edits.
+   */
   weeklyUsdCeiling?: number;
 }
 
@@ -66,6 +70,22 @@ export class CampaignDirector {
     this.now = deps.now ?? (() => new Date());
     this.maxTasksPerTick = deps.maxTasksPerTick ?? 10;
     this.weeklyUsdCeiling = deps.weeklyUsdCeiling ?? 50;
+  }
+
+  /**
+   * What we are allowed to spend this week.
+   *
+   * The number lives on the campaign, where the operator sets it, rather than in
+   * a constructor argument. With several active campaigns the ceilings add up,
+   * because the spend ledger is global. The constructor value is only a fallback
+   * for when nothing is active.
+   */
+  private async resolveWeeklyCeiling(): Promise<number> {
+    const campaigns = await this.deps.db.campaign.findMany({ where: { status: 'active' } });
+    const stated = campaigns
+      .map((c) => decode(campaignGoalSchema, 'Campaign.goal', c.goal).maxUsdPerWeek)
+      .filter((n) => n > 0);
+    return stated.length === 0 ? this.weeklyUsdCeiling : stated.reduce((a, b) => a + b, 0);
   }
 
   private startOfOperationalDay(at: Date): Date {
@@ -122,16 +142,17 @@ export class CampaignDirector {
       return report;
     }
 
+    const ceiling = await this.resolveWeeklyCeiling();
     const spentThisWeek = await this.deps.spend.totalThisWeek(startedAt);
-    if (spentThisWeek >= this.weeklyUsdCeiling) {
-      report.stopped = `holding: $${spentThisWeek.toFixed(2)} spent this week against a $${this.weeklyUsdCeiling.toFixed(2)} ceiling`;
+    if (spentThisWeek >= ceiling) {
+      report.stopped = `holding: $${spentThisWeek.toFixed(2)} spent this week against a $${ceiling.toFixed(2)} ceiling`;
       await decide(report.stopped);
       return report;
     }
 
     await this.reportPlans(report, decide);
 
-    let budgetRemaining = this.weeklyUsdCeiling - spentThisWeek;
+    let budgetRemaining = ceiling - spentThisWeek;
 
     for (let dispatched = 0; dispatched < this.maxTasksPerTick; dispatched++) {
       const now = this.now();

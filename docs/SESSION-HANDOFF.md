@@ -19,7 +19,7 @@ any of it is dialled. See CLAUDE.md sections 7.1 and 7.6.
 ```bash
 npm install           # postinstall runs `prisma generate`
 npm run db:setup      # apply migrations
-npm test              # 265 tests, ~10s, includes the 10,000-request fuzz acceptance
+npm test              # 288 tests, ~10s, includes the 10,000-request fuzz acceptance
 npm run test:coverage # fails below 100% branch coverage on src/compliance
 npm run typecheck
 ```
@@ -299,10 +299,10 @@ Asked at the end of the Phase 1 session; none answered yet.
 | 2 | Hexaware brand/legal sign-off on an AI identifying itself for them | Phase 9 |
 | 3 | Twilio numbers, and the callback number answerable for 30 days | Phase 5, and unblocks caller ID |
 | 4 | DNCR washing arranged, or office direct dials only to start? | Phase 3 onward |
-| 5 | First campaign ICP — which accounts, which titles, AU or NZ first | **Phase 3, blocking** |
+| 5 | First campaign ICP — which accounts, which titles, AU or NZ first | Answered by building the account desk; the operator enters them there |
 | 6 | Which email address meeting requests go to; do `.ics` attachments survive his mail client | Phase 6 |
 | 7 | Recording retention (currently 90 days) and whether recordings may leave Australia | Phase 5 |
-| 8 | Budget ceilings — Apollo credits, voice minutes, LLM spend per month | Phase 3. Currently a $50/week default in the Campaign Director |
+| 8 | Budget ceilings — Apollo credits, voice minutes, LLM spend per month | Now set on the account desk per campaign. Seeded small: 3 meetings/week, US$25/week |
 
 ---
 

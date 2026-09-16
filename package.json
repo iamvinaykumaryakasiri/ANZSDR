@@ -21,10 +21,13 @@
     "tick": "tsx src/orchestrator/cli.ts",
     "postinstall": "prisma generate",
     "seed:demo": "tsx scripts/seed-demo.ts",
-    "plan": "tsx src/orchestrator/plan-cli.ts"
+    "plan": "tsx src/orchestrator/plan-cli.ts",
+    "serve": "tsx src/web/start.ts",
+    "apollo:check": "tsx scripts/apollo-check.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
+    "fastify": "^5.12.4",
     "luxon": "^3.5.0",
     "prisma": "^6.19.3",
     "yaml": "^2.6.1",

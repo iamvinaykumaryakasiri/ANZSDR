@@ -187,6 +187,20 @@ describe('a budget breach escalates rather than continuing', () => {
     expect(report.stopped).toContain('$0.20 remains');
   });
 
+  it('takes the ceiling from the campaign goal, which the account desk edits', async () => {
+    const h = await fresh({ weeklyUsdCeiling: 999 });
+    // Lower it the way the account desk would, and the next tick obeys the new number.
+    await h.db.campaign.update({
+      where: { id: h.campaignId },
+      data: { goal: JSON.stringify({ meetingsPerWeek: 3, maxUsdPerWeek: 0.2 }) }
+    });
+    await h.tasks.create(prospectTaskSpec(h));
+
+    const report = await h.director.tick();
+    expect(report.ranTasks).toBe(0);
+    expect(report.stopped).toContain('only $0.20 remains');
+  });
+
   it('stops once the week\'s ceiling is already spent', async () => {
     const h = await fresh({ weeklyUsdCeiling: 1 });
     await h.spend.record('llm', 1.25, new Date());
