@@ -32,6 +32,7 @@
     "knowledge:reject": "tsx scripts/knowledge.ts reject"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.126.0",
     "@prisma/client": "^6.19.3",
     "fastify": "^5.12.4",
     "jszip": "^3.10.2",
