@@ -29,7 +29,8 @@
     "knowledge:status": "tsx scripts/knowledge.ts status",
     "knowledge:sync": "tsx scripts/knowledge.ts sync",
     "knowledge:approve": "tsx scripts/knowledge.ts approve",
-    "knowledge:reject": "tsx scripts/knowledge.ts reject"
+    "knowledge:reject": "tsx scripts/knowledge.ts reject",
+    "caller:smoke": "tsx scripts/caller-smoke.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.126.0",

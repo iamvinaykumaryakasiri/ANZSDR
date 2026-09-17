@@ -1,0 +1,24 @@
+# Which model runs where.
+#
+# Kept out of the source so a change is one line and a reviewable diff, rather
+# than a hunt through src/.
+
+# The in-call brain. Latency matters more here than anywhere else in the system:
+# section 13 phase 5 wants sub-800ms perceived response.
+#
+# The brief's section 4 names claude-sonnet-4-6. That is a previous-generation
+# id - claude-sonnet-5 is current, cheaper ($2/$10 per Mtok against $3/$15) and
+# faster. Left as briefed; change this one line to move.
+caller: claude-sonnet-4-6
+
+# Guardian's fast check on risky turns. Runs inside the call, so it must be
+# quick; it is answering one narrow question, not reasoning about the world.
+guardian_check: claude-haiku-4-5
+
+# Guardian's post-call audit. Section 4 asks for "a stronger model" here, and it
+# has no latency budget at all - the call is already over.
+guardian_audit: claude-opus-5
+
+# A turn is one or two sentences. Section 8: one question at a time, then stop
+# talking. A larger ceiling would only buy longer wrong answers.
+max_turn_tokens: 400

@@ -494,7 +494,7 @@ is in [`docs/SESSION-HANDOFF.md`](./docs/SESSION-HANDOFF.md).
 | 1 — Compliance core | **Complete.** Acceptance met: 10,000 fuzzed dial requests, zero out-of-window and zero suppressed dials, checked against an independently written oracle. 100% branch coverage on `src/compliance`. |
 | 2 — Blackboard and orchestrator | **Complete.** Includes the daily call plan and its approval gate. Acceptance met: a task runs end to end with a full plain-English trace, a deliberately malformed sub-agent output escalates without reaching the blackboard, and a budget breach escalates rather than continuing. |
 | 3 — Prospector and Scout | Not started. Unblocked on the account list: the account desk is built and the Apollo path is documented in `docs/APOLLO-SETUP.md`. Still needs an Apollo key and, for mobile numbers only, a public HTTPS hostname. |
-| 4 — Caller and Guardian | **In progress.** The agent is **Lexi** (female, AU-neutral): §15 item 1 answered. The opening is frozen in `src/agents/caller/opening.ts` — six required segments, AI disclosure second, and no code path that builds an opening without it. The §6 knowledge pack and claim index are built and loaded. Caller's in-call brain, Guardian and the custom LLM endpoint are next. |
+| 4 — Caller and Guardian | **Complete.** Acceptance met: 30 scripted scenarios including hostility and injection, zero breaches. The agent is **Lexi**. All three Guardian layers, the briefing pack, the six capture tools and the OpenAI-shaped endpoint are built and tested. One thing is untested rather than unbuilt: no turn has yet been through a real model, because that needs an API key. `npm run caller:smoke` is the text-mode harness for the moment one exists. |
 | 5 — Voice | Not started |
 | 6 — Scribe and Concierge | Not started |
 | 7 — Coach and Analyst | Not started |
@@ -502,6 +502,11 @@ is in [`docs/SESSION-HANDOFF.md`](./docs/SESSION-HANDOFF.md).
 | 9 — Pilot | Not started |
 
 ## Standing constraints the build has already put in place
+
+- Guardian runs in three layers and only the first is preventive. Layer one is deterministic patterns on the outbound token stream, releasing sentence by sentence and cutting mid-turn. Layer two is a fast model check, and it is honest about physics: a turn whose subject cannot be walked back — the agent's own nature, a legal trigger, a possible opt-out — is **held** until the check returns; everything else is spoken while the check runs alongside, producing a defect and a correction next turn rather than prevention. A held turn whose check errors or times out is **deflected, not spoken**: an unavailable Guardian is not permission. Layer three is the post-call audit, deterministic half plus model half, and it reports itself **partial** rather than clean when the model half could not run.
+- Caller reaches nothing outside its briefing pack, and that is a property of `src/agents/caller/briefing.ts` rather than a line in a prompt. Only **approved** claims go in. A dossier of `low` confidence contributes **no hooks at all** — a hook in the pack is a hook Lexi will use, and §5.3 says a wrong specific beats no right generic.
+- Model choice is `config/models.yaml`, not source. The in-call model is the brief's `claude-sonnet-4-6`; `claude-sonnet-5` is current, cheaper and faster, and moving is one line.
+- The whole test suite, including the 30-scenario acceptance, runs against scripted models with **no API key and no network**. `npm run caller:smoke` is the only thing in the build that spends money.
 
 - The agent is **Lexi**. The opening (§8) is frozen in code, not config: `config/agent.yaml` supplies names and nothing else — it cannot reshape the opening, reorder it, or drop a segment. `buildOpening` throws rather than improvise when the name is unset, and every segment it returns is frozen, so the AI disclosure cannot be edited out in place. §11's "Coach may never touch" list is exported as `COACH_MAY_NOT_EDIT` for the Phase 7 promotion gate to assert against.
 
