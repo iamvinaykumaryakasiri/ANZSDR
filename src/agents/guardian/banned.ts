@@ -228,6 +228,21 @@ const PERSONAL: BanRule[] = [
     severity: 'cut',
     pattern: /\b(?:you sound|you seem)\s+(?:lovely|gorgeous|cute|sexy|attractive)\b/i,
     why: 'flirted'
+  },
+  // Section 9 bans sarcasm at the prospect's expense, and the shape that
+  // actually takes on a cold call is snapping back at someone who was rude
+  // first. Section 8 is unambiguous: accept the first genuine no, never argue.
+  {
+    category: 'personal-remarks',
+    severity: 'cut',
+    pattern: /\b(?:that'?s|that is|well that'?s)\s+(?:a\s+)?(?:bloody\s+|very\s+|extremely\s+|quite\s+)?(?:rude|nasty|unfair|uncalled for|unnecessary|charming)\b/i,
+    why: 'snapped back at the prospect'
+  },
+  {
+    category: 'personal-remarks',
+    severity: 'cut',
+    pattern: /\b(?:no need (?:to be|for that)|there'?s no need|don'?t be)\s*(?:so\s+)?(?:rude|nasty|like that)?\b/i,
+    why: 'admonished the prospect'
   }
 ];
 
@@ -299,7 +314,7 @@ export const INJECTION_PATTERNS: readonly { pattern: RegExp; why: string }[] = O
   { pattern: /\bignore\s+(?:all\s+|your\s+|the\s+)*(?:previous\s+|prior\s+|above\s+)?instructions?\b/i, why: 'asked the agent to ignore its instructions' },
   { pattern: /\b(?:disregard|forget)\s+(?:everything|all|your|the)\b.{0,30}\b(?:said|instructions?|prompt|rules?)\b/i, why: 'asked the agent to discard its rules' },
   { pattern: /\b(?:repeat|print|show|tell me|reveal|output)\s+(?:me\s+)?(?:your|the)\s+(?:system\s+)?(?:prompt|instructions?|rules?|configuration)\b/i, why: 'tried to extract the system prompt' },
-  { pattern: /\byou(?:'re| are)\s+(?:actually\s+)?(?:a\s+)?(?:human|person|not an ai)\b/i, why: 'asserted the agent is human' },
+  { pattern: /\byou(?:'re| are)\s+(?:actually\s+)?(?:a\s+)?(?:real\s+|genuine\s+)?(?:human|person|not an ai)\b/i, why: 'asserted the agent is human' },
   { pattern: /\b(?:pretend|act as if|roleplay|imagine)\s+(?:you(?:'re| are)|to be)\b/i, why: 'tried to change the agent’s identity' },
   { pattern: /\bnew instructions?\s*[:,-]/i, why: 'tried to issue new instructions mid-call' },
   { pattern: /\b(?:developer|admin|system)\s+mode\b/i, why: 'invoked a fictitious privileged mode' },
