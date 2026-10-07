@@ -60,8 +60,23 @@ export const capturePreferredTimesSchema = z
       ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['timezone'], message: `unknown timezone "${value.timezone}"` });
     }
     value.slots.forEach((slot, i) => {
-      if (DateTime.fromISO(slot.endsAt) <= DateTime.fromISO(slot.startsAt)) {
+      const starts = DateTime.fromISO(slot.startsAt, { setZone: true });
+      const ends = DateTime.fromISO(slot.endsAt, { setZone: true });
+      if (ends <= starts) {
         ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['slots', i], message: 'a window must end after it starts' });
+        return;
+      }
+      // One window is one stretch of one day. "Tuesday or Wednesday morning" is
+      // two windows; a single range from Tuesday 09:00 to Wednesday 12:00 would
+      // read as though they were free for the whole of the day and night in
+      // between, and it is the shape a model produces when it is rushing.
+      const zone = DateTime.local().setZone(value.timezone);
+      if (zone.isValid && !starts.setZone(value.timezone).hasSame(ends.setZone(value.timezone), 'day')) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['slots', i],
+          message: 'a window must fall within one day; give "Tuesday or Wednesday morning" as two windows'
+        });
       }
     });
   });

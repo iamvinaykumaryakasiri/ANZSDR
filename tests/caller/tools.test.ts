@@ -74,6 +74,26 @@ describe('capture_preferred_times', () => {
     if (!result.ok) expect(result.error).toContain('unknown timezone');
   });
 
+  it('refuses one window that runs from one day into the next', () => {
+    // "Tuesday or Wednesday morning" crammed into a single Tue 09:00 to Wed 12:00
+    // range reads as free for the whole of the night in between. It is two
+    // windows, and the message tells the model so.
+    const twoDays = { ...slot, startsAt: '2026-09-22T09:00:00+12:00', endsAt: '2026-09-23T12:00:00+12:00' };
+    const result = validateToolCall('capture_preferred_times', { slots: [twoDays], timezone: 'Pacific/Auckland' });
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error).toContain('two windows');
+  });
+
+  it('judges "one day" on the prospect’s clock, not on UTC', () => {
+    // 09:00 to 17:00 in Auckland crosses UTC midnight but is one working day.
+    const sameLocalDay = {
+      saidAs: 'a normal working day',
+      startsAt: '2026-09-22T09:00:00+12:00',
+      endsAt: '2026-09-22T17:00:00+12:00'
+    };
+    expect(validateToolCall('capture_preferred_times', { slots: [sameLocalDay], timezone: 'Pacific/Auckland' }).ok).toBe(true);
+  });
+
   it('refuses a window that ends before it starts', () => {
     const backwards = { ...slot, startsAt: slot.endsAt, endsAt: slot.startsAt };
     const result = validateToolCall('capture_preferred_times', { slots: [backwards], timezone: 'Pacific/Auckland' });

@@ -236,6 +236,78 @@ describe('what each reply word does, in the email’s own words', () => {
   });
 });
 
+describe('a window is a range, not a start time', () => {
+  const morning = { saidAs: 'Tuesday morning', startsAt: '2026-09-22T09:00:00+12:00', endsAt: '2026-09-22T12:00:00+12:00' };
+
+  it('shows when they are free, so "Tuesday morning" does not read as 09:00 sharp', () => {
+    // Showing only the start made a three-hour window look like a request for
+    // 09:00, which Vinay would then confirm.
+    const line = renderWindow(morning, 'Pacific/Auckland');
+    expect(line).toContain('09:00-12:00');
+    expect(line).toContain('07:00-10:00 Sydney');
+  });
+
+  it('collapses to one clock when they are already on Sydney time', () => {
+    const line = renderWindow(
+      { saidAs: 'Tuesday morning', startsAt: '2026-09-22T09:00:00+10:00', endsAt: '2026-09-22T12:00:00+10:00' },
+      'Australia/Sydney'
+    );
+    expect(line.match(/09:00-12:00/g)).toHaveLength(1);
+    expect(line).not.toContain('Sydney');
+  });
+});
+
+describe('the invite is the length of the ask', () => {
+  const wide = request({
+    windows: [{ saidAs: 'Tuesday morning', startsAt: '2026-09-22T09:00:00+12:00', endsAt: '2026-09-22T12:00:00+12:00' }]
+  });
+  const ics = buildMeetingEmail(wide).attachments[0]?.content ?? '';
+
+  it('is twenty minutes from the start of the window, not three hours', () => {
+    // A three-hour "meeting" would sit in Vinay's calendar looking like a
+    // booked half-day, from a window that only said when they were free.
+    expect(ics).toContain('DTSTART:20260921T210000Z');
+    expect(ics).toContain('DTEND:20260921T212000Z');
+  });
+});
+
+describe('an address that was only heard once', () => {
+  it('mentions the one on file, in case this one was misheard', () => {
+    const email = buildMeetingEmail(
+      request({
+        prospect: { ...request().prospect, emailSource: 'heard_once', alsoOnFile: 'p.raman@kiwibank.co.nz' }
+      })
+    );
+    expect(email.body).toContain('also on file: p.raman@kiwibank.co.nz');
+  });
+
+  it('says nothing about an alternative when the address was confirmed', () => {
+    const email = buildMeetingEmail(
+      request({ prospect: { ...request().prospect, emailSource: 'confirmed_on_call', alsoOnFile: 'p.raman@kiwibank.co.nz' } })
+    );
+    expect(email.body).not.toContain('also on file');
+  });
+});
+
+describe('who wrote the summary', () => {
+  it('says a model wrote it, so he checks the transcript if it surprises him', () => {
+    expect(buildMeetingEmail(request()).body).toContain('written by an AI from the transcript');
+  });
+
+  it('says plainly when there is no summary, rather than writing one', () => {
+    // The summary is the section he reads as "what was actually said", so an
+    // invented one would be worse than none.
+    const email = buildMeetingEmail(request({ summary: [], summarySource: 'unavailable' }));
+    expect(email.body).toContain('No summary was written');
+    expect(email.body).toContain('Read the transcript below before you reply');
+    expect(email.body).not.toContain('written by an AI');
+  });
+
+  it('treats an empty summary as none even if it claims to be from a model', () => {
+    expect(buildMeetingEmail(request({ summary: [] })).body).toContain('No summary was written');
+  });
+});
+
 describe('the draft reply to the prospect', () => {
   const draft = draftReply(request());
 

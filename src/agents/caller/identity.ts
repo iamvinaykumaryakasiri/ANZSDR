@@ -26,7 +26,13 @@ export const agentIdentitySchema = z.object({
     name: z.string().min(1),
     title: z.string().min(1),
     company: z.string().min(1),
-    team: z.string().min(1)
+    team: z.string().min(1),
+    /**
+     * Where meeting requests go (brief section 15 item 6). Empty until answered,
+     * and the concierge sends nothing while it is - a request with nowhere to go
+     * is recorded and left unsent, not mailed somewhere hopeful.
+     */
+    email: z.string().default('')
   }),
   callback: z.object({
     number: z.string()
@@ -41,6 +47,13 @@ export function loadIdentityFromObject(raw: unknown): AgentIdentity {
 
 export function loadIdentity(path: string): AgentIdentity {
   return loadIdentityFromObject(parseYaml(readFileSync(path, 'utf8')) as unknown);
+}
+
+/** Whether meeting requests have anywhere to go. Separate from call readiness. */
+export function operatorEmailGap(identity: AgentIdentity): string | null {
+  return identity.operator.email.trim() === ''
+    ? 'no operator email is configured, so meeting requests cannot be sent (brief section 15 item 6)'
+    : null;
 }
 
 /** Everything that stops this identity being usable on a live call. */

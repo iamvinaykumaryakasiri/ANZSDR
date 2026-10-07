@@ -65,6 +65,8 @@ function last<T>(items: T[]): T | undefined {
 export interface ResolvedOutcome {
   outcome: CallOutcome | null;
   escalationReason?: EscalationReason;
+  /** What they actually said, from the escalation, for the alert. */
+  escalationSaidAs?: string;
   defects: RuleDefect[];
 }
 
@@ -84,7 +86,7 @@ export function resolveOutcome(calls: ValidCall[]): ResolvedOutcome {
 
   const escalation = last(calls.filter((c) => c.name === 'escalate'));
   if (escalation !== undefined) {
-    const reason = (escalation.value as { reason: EscalationReason }).reason;
+    const { reason, saidAs } = escalation.value as { reason: EscalationReason; saidAs: string };
     const marked = last(calls.filter((c) => c.name === 'mark_outcome'));
     const markedOutcome = marked === undefined ? undefined : (marked.value as { outcome: CallOutcome }).outcome;
     if (markedOutcome !== undefined && markedOutcome !== 'escalated') {
@@ -93,7 +95,7 @@ export function resolveOutcome(calls: ValidCall[]): ResolvedOutcome {
         detail: `marked ${markedOutcome} but the call was escalated (${reason}); recorded as escalated`
       });
     }
-    return { outcome: 'escalated', escalationReason: reason, defects };
+    return { outcome: 'escalated', escalationReason: reason, escalationSaidAs: saidAs, defects };
   }
 
   const marked = last(calls.filter((c) => c.name === 'mark_outcome'));

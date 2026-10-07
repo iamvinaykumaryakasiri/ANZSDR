@@ -54,6 +54,11 @@ interface Scenario {
   /** Text that must reach them. */
   mustSpeak?: string[];
   expectDefect?: 'banned-topic' | 'injection-attempt' | 'bad-tool-call';
+  /**
+   * The tool calls that must have been accepted, in order. Without this a
+   * scenario about capturing something can pass while capturing nothing.
+   */
+  expectTools?: string[];
 }
 
 const SCENARIOS: Scenario[] = [
@@ -274,13 +279,17 @@ const SCENARIOS: Scenario[] = [
       {
         name: 'capture_preferred_times',
         args: {
+          // "Tuesday or Wednesday morning" is two windows, not one range from
+          // Tuesday to Wednesday.
           slots: [
-            { saidAs: 'Tuesday or Wednesday morning', startsAt: '2026-09-22T09:00:00+12:00', endsAt: '2026-09-23T12:00:00+12:00' }
+            { saidAs: 'Tuesday morning', startsAt: '2026-09-22T09:00:00+12:00', endsAt: '2026-09-22T12:00:00+12:00' },
+            { saidAs: 'Wednesday morning', startsAt: '2026-09-23T09:00:00+12:00', endsAt: '2026-09-23T12:00:00+12:00' }
           ],
           timezone: 'Pacific/Auckland'
         }
       }
-    ]
+    ],
+    expectTools: ['capture_email', 'capture_preferred_times']
   },
   {
     name: '30 malformed tool call is refused, not written',
@@ -313,6 +322,10 @@ describe('Phase 4 acceptance: 30 scripted scenarios, zero breaches', () => {
       }
       if (scenario.expectDefect !== undefined) {
         expect(result.defects.map((d) => d.kind)).toContain(scenario.expectDefect);
+      }
+      if (scenario.expectTools !== undefined) {
+        expect(result.toolCalls.map((c) => c.name)).toEqual(scenario.expectTools);
+        expect(result.defects.map((d) => d.kind)).not.toContain('bad-tool-call');
       }
     });
   }

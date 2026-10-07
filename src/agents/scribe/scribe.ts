@@ -116,6 +116,13 @@ export interface ScribeResult {
   accountId: string;
   outcome: CallOutcome | null;
   escalationReason?: EscalationReason;
+  escalationSaidAs?: string;
+  /**
+   * How many times the prospect actually spoke. "Just spoken to us" is judged on
+   * this and not only on the outcome Lexi marked: a model can mark a meeting
+   * request on a call where nobody said anything, and a text must not follow.
+   */
+  prospectTurns: number;
   email: ChosenEmail | null;
   windows: PreferredWindow[];
   timezone: string | null;
@@ -283,6 +290,8 @@ export async function scribeCall(deps: ScribeDeps, input: ScribeInput): Promise<
     accountId: call.accountId,
     outcome: resolved.outcome,
     ...(resolved.escalationReason !== undefined ? { escalationReason: resolved.escalationReason } : {}),
+    ...(resolved.escalationSaidAs !== undefined ? { escalationSaidAs: resolved.escalationSaidAs } : {}),
+    prospectTurns: input.transcript.filter((t) => t.speaker === 'prospect').length,
     email,
     windows,
     timezone,

@@ -64,6 +64,8 @@ export interface MeetingRequest {
      * equally safe to write to, and the email must not blur them.
      */
     emailSource: EmailSource;
+    /** A second address on file, shown only when the first was heard once. */
+    alsoOnFile?: string;
     linkedinUrl?: string;
   };
   windows: PreferredWindow[];
@@ -74,6 +76,8 @@ export interface MeetingRequest {
   hookUsed: string;
   /** Five lines of what was actually said. */
   summary: string[];
+  /** `unavailable` when no model could write one. Defaults to `model`. */
+  summarySource?: 'model' | 'unavailable';
   objections: Array<{ saidAs: string; handledAs: string }>;
   transcriptUrl?: string;
   recordingUrl?: string;
@@ -89,6 +93,9 @@ export interface BuiltEmail {
 }
 
 const SYDNEY = 'Australia/Sydney';
+
+/** Section 8: the ask is twenty minutes with Vinay. */
+export const MEETING_MINUTES = 20;
 
 function inZone(iso: string, zone: string): string {
   return DateTime.fromISO(iso, { setZone: true }).setZone(zone).toFormat('cccc d LLLL, HH:mm');
@@ -119,14 +126,23 @@ export function shortZone(zone: string, at: string): string {
   return DateTime.fromISO(at, { setZone: true }).setZone(zone).toFormat('ZZZZ');
 }
 
-/** Both clocks on one line, so nobody converts anything in their head. */
+function clock(iso: string, zone: string): string {
+  return DateTime.fromISO(iso, { setZone: true }).setZone(zone).toFormat('HH:mm');
+}
+
+/**
+ * Both clocks on one line, as a range.
+ *
+ * A range, because "Tuesday morning" is 09:00 to 12:00 and showing only the
+ * start makes it read as though they asked for 09:00 sharp - which Vinay would
+ * then confirm. The window is when they are free, not when the meeting is.
+ */
 export function renderWindow(window: PreferredWindow, timezone: string): string {
-  const theirs = inZone(window.startsAt, timezone);
-  const sydney = inZone(window.startsAt, SYDNEY);
-  const sameClock = theirs === sydney;
-  const line = sameClock
-    ? `${theirs} ${shortZone(timezone, window.startsAt)}`
-    : `${theirs} ${shortZone(timezone, window.startsAt)}  ·  ${sydney} Sydney`;
+  const day = (zone: string): string =>
+    DateTime.fromISO(window.startsAt, { setZone: true }).setZone(zone).toFormat('cccc d LLLL');
+  const theirs = `${day(timezone)}, ${clock(window.startsAt, timezone)}-${clock(window.endsAt, timezone)} ${shortZone(timezone, window.startsAt)}`;
+  const sydney = `${day(SYDNEY)}, ${clock(window.startsAt, SYDNEY)}-${clock(window.endsAt, SYDNEY)} Sydney`;
+  const line = theirs.replace(/ [A-Z]{3,5}$/, '') === sydney.replace(/ Sydney$/, '') ? theirs : `${theirs}  ·  ${sydney}`;
   return `${line}\n      they said: "${window.saidAs}"`;
 }
 
@@ -193,6 +209,9 @@ export function buildMeetingEmail(request: MeetingRequest): BuiltEmail {
     lines.push('  No email address held. Ring them, or try LinkedIn.');
   } else {
     lines.push(`  ${p.email}   ${describeEmailSource(p.emailSource)}`);
+    if (p.alsoOnFile !== undefined && p.emailSource === 'heard_once') {
+      lines.push(`  also on file: ${p.alsoOnFile}   (from the data provider, if that one bounces)`);
+    }
   }
   if (p.linkedinUrl !== undefined) lines.push(`  ${p.linkedinUrl}`);
 
@@ -205,7 +224,14 @@ export function buildMeetingEmail(request: MeetingRequest): BuiltEmail {
 
   lines.push('');
   lines.push('WHAT WAS ACTUALLY SAID');
-  for (const line of request.summary.slice(0, 5)) lines.push(`  ${line}`);
+  if ((request.summarySource ?? 'model') === 'unavailable' || request.summary.length === 0) {
+    // No summary beats an invented one: this is the section he reads as fact.
+    lines.push('  No summary was written, because the summariser was not available.');
+    lines.push('  Read the transcript below before you reply.');
+  } else {
+    lines.push('  (written by an AI from the transcript: check the transcript if anything surprises you)');
+    for (const line of request.summary.slice(0, 5)) lines.push(`  ${line}`);
+  }
 
   if (request.objections.length > 0) {
     lines.push('');
@@ -254,7 +280,9 @@ export function buildMeetingEmail(request: MeetingRequest): BuiltEmail {
       content: buildIcs({
         uid: `${request.requestId}@hexaware-anz-sdr`,
         startsAt: first.startsAt,
-        endsAt: first.endsAt,
+        // The ask is twenty minutes (section 8), not the whole of the window
+        // they are free in. A "Tuesday morning" window made a three-hour event.
+        endsAt: DateTime.fromISO(first.startsAt, { setZone: true }).plus({ minutes: MEETING_MINUTES }).toISO() as string,
         summary: `${request.operator.firstName} & ${p.firstName} — Hexaware`,
         description: `Twenty minutes, requested on a call with Lexi.\n\n${request.hypothesis}`,
         organiserName: request.operator.name,
