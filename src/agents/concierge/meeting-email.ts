@@ -178,7 +178,12 @@ ${request.operator.firstName}`;
 
 export function subjectFor(request: MeetingRequest): string {
   const first = request.windows[0];
-  const when = first === undefined ? 'time TBC' : inZone(first.startsAt, request.timezone);
+  // With the zone, as in the draft reply: on a lock screen a bare "09:00" reads
+  // as Sydney time, and the window is the prospect's.
+  const when =
+    first === undefined
+      ? 'time TBC'
+      : `${inZone(first.startsAt, request.timezone)} ${shortZone(request.timezone, first.startsAt)}`;
   return `[MEETING REQUEST] ${request.prospect.name} — ${request.prospect.company} — ${when}`;
 }
 

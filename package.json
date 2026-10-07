@@ -30,11 +30,16 @@
     "knowledge:sync": "tsx scripts/knowledge.ts sync",
     "knowledge:approve": "tsx scripts/knowledge.ts approve",
     "knowledge:reject": "tsx scripts/knowledge.ts reject",
-    "caller:smoke": "tsx scripts/caller-smoke.ts"
+    "caller:smoke": "tsx scripts/caller-smoke.ts",
+    "concierge:preview": "tsx scripts/concierge.ts preview",
+    "concierge:nudge": "tsx scripts/concierge.ts nudge",
+    "concierge:reply": "tsx scripts/concierge.ts reply",
+    "crm:sync": "tsx scripts/concierge.ts crm"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.126.0",
     "@prisma/client": "^6.19.3",
+    "exceljs": "^4.4.0",
     "fastify": "^5.12.4",
     "jszip": "^3.10.2",
     "luxon": "^3.5.0",

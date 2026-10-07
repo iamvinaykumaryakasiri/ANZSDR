@@ -22,3 +22,7 @@ prisma/data/
 # produce are committed. See knowledge/drop/README.md.
 knowledge/drop/*
 !knowledge/drop/README.md
+
+# Personal information: the CRM view and the mail the system writes.
+data/crm.xlsx
+data/outbox/

@@ -5,9 +5,10 @@ the brief and it governs. This document is the state of play and the reasoning
 behind it, so a fresh session does not re-derive or re-litigate any of it.
 
 **Branch:** `claude/anz-voice-sdr-build-8o6q1m`
-**State:** Phases 1 and 2 complete and accepted. Phase 3 not started.
-**Last verified:** 333 tests green, 100% branch coverage on `src/compliance`,
-working tree clean, everything pushed.
+**State:** Phases 1, 2 and 4 complete and accepted. Phase 6 built, acceptance met
+in simulation (see below). Phases 3, 5, 7, 8 and 9 not started.
+**Last verified:** 939 tests green, typecheck clean, 100% branch coverage on
+`src/compliance`.
 
 **First campaign is loaded.** `NZ banking pilot`, market NZ: Kiwibank and TSB at
 priority 1, four tier 2 banks at 2, two tier 3 at 3. Twenty-nine technology
@@ -29,7 +30,7 @@ means `max_dials_per_number_per_day: 1` permits only one of the two per day.
 ```bash
 npm install           # postinstall runs `prisma generate`
 npm run db:setup      # apply migrations
-npm test              # 333 tests, ~25s, includes the 15,000-request fuzz acceptance
+npm test              # 939 tests, ~40s, includes the 15,000-request fuzz acceptance
 npm run test:coverage # fails below 100% branch coverage on src/compliance
 npm run typecheck
 ```
@@ -57,11 +58,15 @@ npm run serve                    # the account desk on http://localhost:8080/
 |---|---|
 | 1 — Compliance core | Complete and accepted |
 | 2 — Blackboard and orchestrator | Complete and accepted, including the daily call plan and its approval gate |
-| 3 — Prospector and Scout | **Next.** Needs an Apollo key; see below |
-| 4–9 | Not started |
+| 3 — Prospector and Scout | **Not started.** Needs a contact data source; see "Next" |
+| 4 — Caller and Guardian | Complete and accepted against scripted models. **No turn has been through a real model** — that needs `ANTHROPIC_API_KEY` and `npm run caller:smoke` |
+| 5 — Voice | Not started. Needs Twilio numbers and a voice provider account |
+| 6 — Scribe and Concierge | Built; acceptance met in simulation. Not yet receiving email replies or sending through a provider |
+| 7–9 | Not started |
 
 Nothing in the repository can place a call. There is no telephony, no voice
-provider, and no model call anywhere on the dial path.
+provider, and no model call anywhere on the dial path. The only thing in the
+build that spends money is `npm run caller:smoke`.
 
 ---
 
@@ -103,6 +108,26 @@ src/orchestrator/          the Campaign Director
   director.ts              the tick
   planner.ts               drafts the day's calling and asks the gate about each entry
   cli.ts, plan-cli.ts      npm run tick, npm run plan
+
+src/knowledge/             the knowledge pack: claim index, drop-folder ingest, .pptx reader
+  claims.ts                only `approved` claims are assertable; orphaned, never deleted
+
+src/agents/caller/         Lexi: frozen opening, briefing pack, six capture tools, the brain
+src/agents/guardian/       three layers: stream filter, triage + model check, post-call audit
+src/voice/                 the OpenAI-shaped endpoint, Claude adapters, Twilio inbound-SMS webhook
+
+src/agents/scribe/         rules.ts (what happened) + scribe.ts (summary, may fail honestly)
+src/agents/concierge/      the follow-up matrix, executor, mail layer, drafts, .ics, replies, SMS, nudge
+  ports.ts                 Mailer / SmsSender, `operatorOnly`, in-memory doubles
+  followup.ts              planFollowUp(): a pure function with withheld-reasons
+  run.ts                   runFollowUp(): safety-first, per-action results, idempotent
+  meeting-email.ts         the email Vinay reads; ics.ts; mime.ts; file-mailer.ts (.eml)
+  reply.ts, ref.ts,        reading CONFIRMED / RESCHEDULE / REJECT; the MR- reference
+    apply-reply.ts
+  sms.ts, inbound-sms.ts   who may be texted, what it says, STOP handling
+  nudge.ts                 the one 24-hour reminder
+src/crm/workbook.ts        the Excel view of the blackboard (one-way)
+src/orchestrator/post-call.ts   Scribe -> Concierge -> workbook, the order and the failure rules
 
 src/web/                   the account desk (NOT the section 14 console)
   server.ts                Fastify, token-gated. Will also host the Apollo webhook
@@ -147,6 +172,20 @@ plain-English trace lines attached to their tasks. A Prospector returning
 off-contract data is tried exactly twice, escalated, and writes nothing. A handler
 taking one turn too many is stopped at the ceiling with no output and its spend
 still on the ledger.
+
+**Phase 4** — *a text-mode harness runs 30 scripted scenarios including hostility
+and injection with zero breaches.* `tests/caller/scenarios.test.ts`. Scripted
+models, no key, no network. This proves the guardrail machinery, not the model:
+the first real turn is `npm run caller:smoke`.
+
+**Phase 6** — *a simulated interested call produces a meeting-request email I'd
+actually act on without opening anything else, and replying CONFIRMED updates
+state correctly.* `tests/concierge/acceptance.test.ts` runs one call through the
+real pipeline against a real database, asserts everything Vinay needs is in the
+one email (who, both clocks, who else, the hypothesis, what was said, the
+objection, the three replies, a flush-left draft, a tentative `.ics`), then
+answers it the way a phone does. Whether it is an email he would *actually* act
+on is his judgement: `npm run concierge:preview` writes a sample `.eml`.
 
 ---
 
@@ -313,6 +352,31 @@ New Zealand publishes no machine-readable dataset at all, so its whole calendar
 is derived from the Holidays Act 2003 and is unverified. `npm run holidays:verify`
 lists everything outstanding.
 
+**Phase 4**
+
+- No turn has run against a real model. Everything is tested against scripted
+  models. Expect the first `caller:smoke` to find phrasing the patterns miss.
+- `approved-claims.json` holds 13 drafts and **0 approved**. As it stands Lexi can
+  assert nothing, which is the correct default. `proof-points.md` is empty on
+  purpose: the build cannot know which clients consented to being named.
+
+**Phase 6**
+
+- **Nothing receives Vinay's reply yet.** `applyOperatorReply` is complete and
+  tested; what is missing is an inbound mail source (IMAP poll or a provider
+  webhook), which depends on the transactional-provider choice (§15 item 6).
+  Until then `npm run concierge:reply -- file.txt` applies one by hand.
+- **Mail is written to `data/outbox` as `.eml`**, not sent. No transactional
+  provider is wired.
+- **Nothing calls `processEndedCall` yet.** It is the seam Phase 5's end-of-call
+  webhook will use. The Twilio inbound-SMS route exists but is not mounted on a
+  server; Phase 5 mounts it.
+- **The 5-day minimum interval will refuse a prospect-requested callback sooner
+  than that.** The gate is right to; whether a callback the prospect asked for
+  should be exempt is Vinay's call, not the build's.
+- **`exceljs` brings transitive dependency advisories.** It is used only to
+  *write* a workbook the system builds itself, never to parse an untrusted one.
+
 **Apollo's Free plan does not include the search API.** Verified directly against
 the live account, which returned: *"The api/v1/mixed_people/api_search API is not
 included in your Free plan and is not accessible. All paid plans include full API
@@ -323,50 +387,45 @@ claim. `npm run apollo:check` re-tests this on any key.
 
 ---
 
-## Next: Phase 3 — Prospector and Scout
+## Next
 
-> *Accept: 20 real contacts across 5 ANZ accounts with verified emails,
-> source-attributed dossiers, and zero duplicate Apollo spend.*
+Two real choices, and either is unblocked by something only Vinay can supply.
 
-**The account list is no longer a blocker.** Rather than a list in a message, the
-operator maintains it on the account desk (`npm run serve`): accounts, ICP titles,
-seniorities, never-call words, the minimum score to enrich, the meetings-per-week
-goal and the weekly spend ceiling. Paste a block from Excel; export CSV back.
+**Phase 5 — Voice** needs: a voice provider account (Vapi by default), Twilio AU
+and NZ numbers, the callback number that stays answerable for 30 days, a public
+HTTPS hostname, and `ANTHROPIC_API_KEY` (so `caller:smoke` can run first). Calls
+go only to numbers Vinay controls: `test_contacts_only` and
+`exempt_test_contacts` are what make that a property of the gate. Mount
+`registerVoiceEndpoint`, `registerInboundSms` and call `processEndedCall` from
+the end-of-call webhook.
 
-**What is still needed before starting:**
+**Phase 3 — Prospector and Scout** (the acceptance: 20 real contacts across 5
+ANZ accounts with verified emails, source-attributed dossiers, zero duplicate
+spend). The contact data source is an open decision; see below. Whatever it is,
+it sits behind the Prospector's existing tool and contract, and the ICP scoring,
+task graph and budgets do not change. It must supply: search by organisation and
+title, a work email (verified), a phone with line type, and provenance and a
+lawful basis for every contact held (§7.4). Apollo specifics, if it stays: the
+free plan blocks search (see above), phones arrive asynchronously on a webhook
+that must be idempotent, and `Contact.apolloId` already has a unique index.
 
-- **An Apollo Basic plan and an API key.** The connected account is on Free,
-  which blocks both search endpoints — verified, not assumed. See
-  `docs/APOLLO-SETUP.md`. The account holds 180 email credits and 160 direct-dial
-  credits, which is ample for the twenty-contact acceptance run once search works.
-- ~~Real accounts and titles~~ **Done.** `config/campaign.yaml` and
-  `config/accounts.csv` now hold the first campaign: eight New Zealand tier 2/3
-  banks and twenty-nine technology titles. See below.
-- A **public HTTPS hostname**, but only for mobile numbers. Apollo delivers phone
-  enrichment asynchronously to a webhook and refuses the request without one.
-  Office direct dials need none of it, and mobile dialling is off anyway until
-  §15 item 4 is answered.
+Either way, **Phase 8's console starts with a design review** before any component
+is written, and the console and Jarvis reach the same `knowledge/drop/` folder the
+account desk does.
 
-**Sketch:**
+### Contact data: replacing Apollo
 
-- Apollo client: `POST /api/v1/mixed_people/search` for discovery, then
-  `/people/bulk_match` for enrichment, ten at a time.
-- Replace the `people-search` fixture tool with the real one. The Prospector
-  contract, the ICP scoring and the task graph do not change.
-- Two-stage enrichment: email for everyone who clears the ICP score, phone only
-  for those who also clear the research gate — a phone costs roughly eight times
-  what an email does.
-- An enrichment queue built around the asynchronous phone webhook from day one,
-  with an idempotent handler, because Apollo retries. Mount it on the existing
-  Fastify server at `/webhooks/apollo`.
-- Convert enriched people to Apollo contacts so a later re-enrichment does not
-  bill again, and deduplicate against `Contact.apolloId`, which already has a
-  unique index.
-- Geo-tag each number to a jurisdiction and timezone at enrichment time and write
-  it to `Contact.jurisdiction` / `Contact.timezone`. Without it every mobile is
-  gated on the most restrictive window in the market.
-- Replace the Scout `web-search` fixture tool with real retrieval. The sourcing
-  discipline is already enforced by the schema.
+Asked for: replacing Apollo with something called "treg", as a skill. That name
+matches nothing in the repository, the installed skills, the claude.ai skill
+catalogue or any connected tool, so it could not be evaluated as named. The
+evaluation that does not depend on the name: a *skill* is instructions, not a
+data source, so it can improve Scout (research with sources) but cannot replace
+the one thing Apollo is bought for — a licensed database of people with emails
+and phones. A replacement has to pass: licensed data (no scraping of sites that
+prohibit it, §16); email and phone with line type; provenance and lawful basis
+per contact (§7.4); an AU/NZ coverage check on the actual first-campaign
+accounts; and a cost per verified contact below Apollo's. Test it on the eight
+accounts in `config/accounts.csv` before anything is built around it.
 
 ---
 
@@ -374,12 +433,12 @@ goal and the weekly spend ceiling. Paste a block from Excel; export CSV back.
 
 | # | Question | Gates |
 |---|---|---|
-| 1 | Agent name, voice, gender, accent (AU-neutral assumed) | Phase 4–5 |
+| 1 | Agent name, voice, gender, accent | **Answered:** Lexi, female, AU-neutral. Voice is chosen at the provider in Phase 5 |
 | 2 | Hexaware brand/legal sign-off on an AI identifying itself for them | Phase 9 |
 | 3 | Twilio numbers, and the callback number answerable for 30 days | Phase 5, and unblocks caller ID |
 | 4 | DNCR washing arranged, or office direct dials only to start? | **Phase 3 onward.** Currently office direct dials only |
 | 5 | First campaign ICP — which accounts, which titles, AU or NZ first | Answered by building the account desk; the operator enters them there |
-| 6 | Which email address meeting requests go to; do `.ics` attachments survive his mail client | Phase 6 |
+| 6 | Which email address meeting requests go to; do `.ics` attachments survive his mail client | **Open.** Set `operator.email` in `config/agent.yaml`, then `npm run concierge:preview` and open the `.eml` in your own client |
 | 7 | Recording retention (currently 90 days) and whether recordings may leave Australia | Phase 5 |
 | 8 | Budget ceilings | Set on the account desk per campaign. Seeded small: 3 meetings/week, US$25/week |
 
@@ -406,6 +465,14 @@ npm run serve                             # the account desk (needs ADMIN_TOKEN)
 
 npm run accounts:import                   # config files -> blackboard
 npm run accounts:export                   # blackboard -> config files, to commit
+
+npm run knowledge:status | sync | approve | reject   # the claim index; one claim at a time
+npm run caller:smoke                      # one real model turn. The only command that spends money
+
+npm run concierge:preview                 # a sample meeting-request .eml in data/outbox
+npm run concierge:nudge                   # the one 24-hour reminder, for anything unanswered
+npm run concierge:reply -- reply.txt      # apply CONFIRMED / RESCHEDULE / REJECT from a file
+npm run crm:sync                          # rebuild data/crm.xlsx from the blackboard
 
 npm run apollo:check                      # what an Apollo key can actually reach, free
 npm run apollo:check -- --spend-a-credit  # also tests enrichment

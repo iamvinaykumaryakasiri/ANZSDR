@@ -57,8 +57,8 @@ function request(over: Partial<MeetingRequest> = {}): MeetingRequest {
 }
 
 describe('the subject line', () => {
-  it('follows section 12.1 exactly', () => {
-    expect(subjectFor(request())).toBe('[MEETING REQUEST] Priya Raman — Kiwibank — Tuesday 22 September, 09:00');
+  it('follows section 12.1 - name, company, first window - and says whose clock the window is on', () => {
+    expect(subjectFor(request())).toBe('[MEETING REQUEST] Priya Raman — Kiwibank — Tuesday 22 September, 09:00 NZST');
   });
 
   it('says so rather than inventing a time when no window was captured', () => {
