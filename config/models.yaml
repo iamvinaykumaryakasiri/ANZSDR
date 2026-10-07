@@ -11,6 +11,10 @@
 # faster. Left as briefed; change this one line to move.
 caller: claude-sonnet-4-6
 
+# Scribe's post-call summary. Section 4 puts "routine sub-agents" on the same
+# model as the in-call brain. No latency budget, but it is not hard work either.
+scribe: claude-sonnet-4-6
+
 # Guardian's fast check on risky turns. Runs inside the call, so it must be
 # quick; it is answering one narrow question, not reasoning about the world.
 guardian_check: claude-haiku-4-5

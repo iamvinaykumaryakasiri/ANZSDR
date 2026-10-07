@@ -186,6 +186,16 @@ model CallRecord {
   attendees          String   @default("[]")
   createdAt          DateTime @default(now())
 
+  /// What the follow-up planner decided and what it declined to do, with the
+  /// reasons: the answer to "why didn't we text her?".
+  followUp           String    @default("[]")
+  /// Set when follow-up has been carried out, so a retry never does it twice.
+  followedUpAt       DateTime?
+  /// One confirmation text per call, however many times the pipeline re-runs.
+  smsSentAt          DateTime?
+  /// One drafted voicemail email per person, ever, however many attempts.
+  voicemailDraftedAt DateTime?
+
   call Call @relation(fields: [callId], references: [id])
 }
 

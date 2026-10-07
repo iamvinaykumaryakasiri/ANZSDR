@@ -155,7 +155,19 @@ export const sectionMarkSchema = z.object({
 });
 
 export const defectSchema = z.object({
-  kind: z.enum(['unsupported-claim', 'banned-topic', 'injection-attempt', 'disclosure-missing']),
+  kind: z.enum([
+    'unsupported-claim',
+    'banned-topic',
+    'injection-attempt',
+    'disclosure-missing',
+    'over-commitment',
+    'bad-tool-call',
+    'outcome-missing',
+    'outcome-contradicted',
+    'summary-unavailable',
+    'window-in-the-past',
+    'window-missing'
+  ]),
   detail: z.string(),
   atSecond: z.number().nonnegative().optional()
 });

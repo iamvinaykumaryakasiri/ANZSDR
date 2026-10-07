@@ -19,11 +19,14 @@ import { z } from 'zod';
 import type { CallerModel, ModelToolCall, TurnRequest } from '../agents/caller/brain.js';
 import type { CheckModel } from '../agents/guardian/check.js';
 import type { AuditModel } from '../agents/guardian/audit.js';
+import type { ScribeModel } from '../agents/scribe/scribe.js';
 import { CALLER_TOOL_SCHEMAS, type CallerToolName } from '../agents/caller/tools.js';
 
 export const modelConfigSchema = z.object({
   /** The in-call brain. Latency matters more here than anywhere else. */
   caller: z.string().min(1),
+  /** Scribe's post-call summary. No latency budget; routine work. */
+  scribe: z.string().min(1),
   /** Guardian's fast check. Runs inside the call, so it must be quick. */
   guardian_check: z.string().min(1),
   /** Guardian's post-call audit. No latency budget, so it gets the good one. */
@@ -139,6 +142,13 @@ async function askForJson(
 export function claudeCheckModel(options: ClaudeOptions): CheckModel {
   return {
     judge: (prompt, signal) => askForJson(options.client, options.config.guardian_check, prompt, 512, signal)
+  };
+}
+
+/** Scribe's summary. Five short lines and a few fields, so a modest ceiling. */
+export function claudeScribeModel(options: ClaudeOptions): ScribeModel {
+  return {
+    summarise: (prompt) => askForJson(options.client, options.config.scribe, prompt, 1024)
   };
 }
 
