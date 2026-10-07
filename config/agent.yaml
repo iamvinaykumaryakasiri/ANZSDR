@@ -21,7 +21,7 @@ operator:
   team: the ANZ sales team
   # Where meeting requests are sent (brief section 15 item 6). Empty until you
   # say. Nothing is sent while it is empty; requests are recorded and wait.
-  email: ""
+  email: "vinayk8@hexaware.com"
 
 # Section 7.3: a real, contactable number, never withheld, never spoofed, and
 # answerable for at least 30 days after the call. Empty until section 15 item 3

@@ -438,7 +438,7 @@ accounts in `config/accounts.csv` before anything is built around it.
 | 3 | Twilio numbers, and the callback number answerable for 30 days | Phase 5, and unblocks caller ID |
 | 4 | DNCR washing arranged, or office direct dials only to start? | **Phase 3 onward.** Currently office direct dials only |
 | 5 | First campaign ICP — which accounts, which titles, AU or NZ first | Answered by building the account desk; the operator enters them there |
-| 6 | Which email address meeting requests go to; do `.ics` attachments survive his mail client | **Open.** Set `operator.email` in `config/agent.yaml`, then `npm run concierge:preview` and open the `.eml` in your own client |
+| 6 | Which email address meeting requests go to; do `.ics` attachments survive his mail client | **Half answered.** `operator.email` is set in `config/agent.yaml`. Still open: run `npm run concierge:preview`, open the `.eml` in your own client, and check the `.ics` arrives as a calendar entry rather than an accept/decline prompt |
 | 7 | Recording retention (currently 90 days) and whether recordings may leave Australia | Phase 5 |
 | 8 | Budget ceilings | Set on the account desk per campaign. Seeded small: 3 meetings/week, US$25/week |
 
