@@ -155,13 +155,40 @@ model Call {
   sectionMarks    String    @default("[]")
   defects         String    @default("[]")
 
+  /// The voice provider's id for this call, set once the provider has accepted
+  /// it. Webhooks arrive carrying this id, not ours.
+  providerCallId  String?   @unique
+  /// Why the provider says the call ended, kept verbatim.
+  endedReason     String?
+  /// The provider's own timing figures (turn latency and so on), as JSON.
+  providerMetrics String    @default("{}")
+
   contact        Contact         @relation(fields: [contactId], references: [id])
   account        Account         @relation(fields: [accountId], references: [id])
   record         CallRecord?
   meetingRequest MeetingRequest?
+  events         CallEvent[]
 
   @@index([contactId])
   @@index([campaignId, startedAt])
+}
+
+/// What happened during a call, in order. Append-only and written as the call
+/// goes, so a crash mid-call loses nothing that had already been said or done.
+/// The autoincrement id is the order.
+model CallEvent {
+  id        Int      @id @default(autoincrement())
+  callId    String
+  kind      String // turn | tool | defect
+  speaker   String? // lexi | prospect, for turns
+  text      String   @default("")
+  atSecond  Int?
+  data      String   @default("{}") // JSON: tool arguments, defect kind, timings
+  createdAt DateTime @default(now())
+
+  call Call @relation(fields: [callId], references: [id])
+
+  @@index([callId, id])
 }
 
 /// What Scribe wrote down about a call, kept apart from the call's mechanics.
