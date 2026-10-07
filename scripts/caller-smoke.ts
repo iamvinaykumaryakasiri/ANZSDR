@@ -12,6 +12,7 @@
  */
 
 import '../src/config/env-autoload.js';
+import { readFileSync } from 'node:fs';
 import { createInterface } from 'node:readline/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -88,11 +89,25 @@ async function main(): Promise<void> {
   transcript.push({ speaker: 'lexi', text: briefing.openingText, atSecond: 0 });
   history.push({ role: 'assistant', content: briefing.openingText });
 
-  const rl = createInterface({ input: process.stdin, output: process.stdout });
+  // At a keyboard it is a conversation. Piped (or run by an agent with no
+  // keyboard) it reads the prospect's lines from stdin up to the first blank
+  // line, so the same check can be scripted:
+  //   printf 'Okay\nAre you a real person?\n' | npm run caller:smoke
+  const interactive = process.stdin.isTTY === true;
+  const queued = interactive ? null : readFileSync(0, 'utf8').split(/\r?\n/);
+  const rl = interactive ? createInterface({ input: process.stdin, output: process.stdout }) : null;
+  const ask = async (): Promise<string> => {
+    if (queued !== null) {
+      const line = queued.shift() ?? '';
+      if (line.trim() !== '') console.log(`you: ${line}`);
+      return line;
+    }
+    return (rl as NonNullable<typeof rl>).question('you: ');
+  };
   const system = renderBriefing(briefing);
 
   for (;;) {
-    const said = (await rl.question('you: ')).trim();
+    const said = (await ask()).trim();
     if (said === '' || said === '/quit') break;
 
     const at = Math.round((Date.now() - startedAt) / 1000);
@@ -119,7 +134,7 @@ async function main(): Promise<void> {
     transcript.push({ speaker: 'lexi', text: checked.reply, atSecond: Math.round((Date.now() - startedAt) / 1000) });
     history.push({ role: 'assistant', content: checked.reply });
   }
-  rl.close();
+  rl?.close();
 
   console.log('\n─── post-call audit ─────────────────────────');
   const audit = await auditCall({
@@ -139,4 +154,17 @@ async function main(): Promise<void> {
   console.log('');
 }
 
-await main();
+main().catch((error: unknown) => {
+  const status = (error as { status?: number }).status;
+  const message = error instanceof Error ? error.message : String(error);
+  if (status === 401) {
+    console.error('\nAnthropic rejected the key (401). Check ANTHROPIC_API_KEY is the whole key and has not been revoked.');
+  } else if (status === 404) {
+    console.error('\nAnthropic does not know that model (404). Check the names in config/models.yaml against your account.');
+  } else if (status === 429) {
+    console.error('\nRate or spend limit reached (429). Check the limits set in the Anthropic Console.');
+  } else {
+    console.error(`\n${message}`);
+  }
+  process.exit(1);
+});
