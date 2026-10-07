@@ -1,7 +1,8 @@
 /**
  * Concierge and the CRM from the terminal.
  *
- *   npm run concierge:preview              a sample meeting request, as an .eml in data/outbox
+ *   npm run concierge:preview [-- you@x.com]  a sample meeting request, as an .eml in data/outbox
+ *                                          (address defaults to operator.email; pass one to preview without editing config)
  *   npm run concierge:nudge                send the one 24-hour reminder to any request still waiting
  *   npm run concierge:reply -- reply.txt   apply a CONFIRMED / RESCHEDULE / REJECT reply from a file
  *   npm run crm:sync [-- path.xlsx]        rebuild the CRM workbook (default data/crm.xlsx)
@@ -37,7 +38,7 @@ const identity = () => loadIdentity(resolve(ROOT, 'config/agent.yaml'));
 function operatorEmail(): string {
   const email = identity().operator.email.trim();
   if (email === '') {
-    console.error('No operator email is set. Put it in config/agent.yaml under operator.email (brief section 15 item 6).');
+    console.error('No operator email is set. Put it in config/agent.yaml under operator.email (brief section 15 item 6),\nor preview without it:  npm run concierge:preview -- you@example.com');
     process.exit(1);
   }
   return email;
@@ -87,7 +88,12 @@ async function main(): Promise<void> {
 
   switch (command) {
     case 'preview': {
-      const to = operatorEmail();
+      const given = process.argv[3];
+      if (given !== undefined && !/^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(given)) {
+        console.error(`"${given}" does not look like an email address.`);
+        process.exit(1);
+      }
+      const to = given ?? operatorEmail();
       const built = buildMeetingEmail(sample(to));
       const sent = await mailer(to).send(built);
       console.log(`Written to ${sent.where ?? OUTBOX}`);
