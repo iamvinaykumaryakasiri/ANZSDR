@@ -7,6 +7,7 @@
  * A development aid. It writes example data, never real prospects.
  */
 
+import '../src/config/env-autoload.js';
 import { randomUUID } from 'node:crypto';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';

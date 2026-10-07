@@ -10,6 +10,7 @@
  * genuinely free; the enrichment check is opt-in because it spends a credit.
  */
 
+import '../src/config/env-autoload.js';
 const BASE = 'https://api.apollo.io/api/v1';
 const KEY = process.env.APOLLO_API_KEY ?? '';
 const SPEND = process.argv.includes('--spend-a-credit');

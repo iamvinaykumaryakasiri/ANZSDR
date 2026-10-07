@@ -15,6 +15,7 @@
  * your own mail client and see whether the .ics attachment survives it.
  */
 
+import '../src/config/env-autoload.js';
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';

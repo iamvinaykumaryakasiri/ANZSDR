@@ -10,6 +10,7 @@
  * people on that list on that day and does not carry over.
  */
 
+import '../config/env-autoload.js';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createBlackboard } from '../blackboard/client.js';

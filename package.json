@@ -5,7 +5,7 @@
   "description": "Autonomous multi-agent cold-calling SDR for Hexaware ANZ",
   "type": "module",
   "engines": {
-    "node": ">=20"
+    "node": ">=20.12"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",

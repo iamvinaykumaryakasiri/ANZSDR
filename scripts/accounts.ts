@@ -13,6 +13,7 @@
  * on it is updated rather than duplicated.
  */
 
+import '../src/config/env-autoload.js';
 import { randomUUID } from 'node:crypto';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';

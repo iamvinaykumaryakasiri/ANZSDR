@@ -11,6 +11,7 @@
  * terminal attached, which is what phase 4 is accepted on.
  */
 
+import '../src/config/env-autoload.js';
 import { createInterface } from 'node:readline/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -29,7 +30,8 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 async function main(): Promise<void> {
   if ((process.env.ANTHROPIC_API_KEY ?? '').trim() === '') {
     console.error('\nANTHROPIC_API_KEY is not set.\n');
-    console.error('Put it in .env (which is gitignored) or export it, then run this again.');
+    console.error('Put ANTHROPIC_API_KEY=... in .env at the repo root (gitignored) or export it.');
+    console.error('In a cloud session, add it as an environment variable in the environment settings instead.');
     console.error('Everything else in the build runs without it — see npm test.\n');
     process.exit(1);
   }
