@@ -21,12 +21,31 @@
 
 import { DateTime } from 'luxon';
 import { buildIcs } from './ics.js';
+import { refFor } from './ref.js';
 
 export interface PreferredWindow {
   /** The prospect's own words. Kept because the normalisation may be wrong. */
   saidAs: string;
   startsAt: string;
   endsAt: string;
+}
+
+export type EmailSource = 'confirmed_on_call' | 'heard_once' | 'apollo_work' | 'apollo_personal' | 'none';
+
+/** What the email says about an address's provenance. Plain, and never flattering. */
+export function describeEmailSource(source: EmailSource): string {
+  switch (source) {
+    case 'confirmed_on_call':
+      return '(confirmed on the call)';
+    case 'heard_once':
+      return '(heard once on the call and NOT read back: check it before you send)';
+    case 'apollo_work':
+      return '(from the data provider, not confirmed with them)';
+    case 'apollo_personal':
+      return '(a personal address from the data provider, not confirmed with them)';
+    case 'none':
+      return '';
+  }
 }
 
 export interface MeetingRequest {
@@ -37,7 +56,14 @@ export interface MeetingRequest {
     title: string;
     company: string;
     phone: string;
-    email: string;
+    /** Absent when no address is held at all. */
+    email?: string;
+    /**
+     * Where the address came from, because it is not all the same thing. One
+     * Vinay heard confirmed on the call and one a data provider sold us are not
+     * equally safe to write to, and the email must not blur them.
+     */
+    emailSource: EmailSource;
     linkedinUrl?: string;
   };
   windows: PreferredWindow[];
@@ -163,7 +189,11 @@ export function buildMeetingEmail(request: MeetingRequest): BuiltEmail {
   lines.push('WHO THEY ARE');
   lines.push(`  ${p.name}, ${p.title}, ${p.company}`);
   lines.push(`  ${p.phone}`);
-  lines.push(`  ${p.email}   (confirmed on the call)`);
+  if (p.email === undefined || p.emailSource === 'none') {
+    lines.push('  No email address held. Ring them, or try LinkedIn.');
+  } else {
+    lines.push(`  ${p.email}   ${describeEmailSource(p.emailSource)}`);
+  }
   if (p.linkedinUrl !== undefined) lines.push(`  ${p.linkedinUrl}`);
 
   lines.push('');
@@ -188,9 +218,11 @@ export function buildMeetingEmail(request: MeetingRequest): BuiltEmail {
 
   lines.push('');
   lines.push('REPLY TO ME WITH ONE WORD');
-  lines.push('  CONFIRMED   — I will stop the follow-up and mark it booked');
-  lines.push('  RESCHEDULE  — tell me when and I will go back to them');
-  lines.push('  REJECT      — I will drop it and suppress them');
+  lines.push('  CONFIRMED   — I will mark it arranged and stop calling them');
+  lines.push('  RESCHEDULE  — I will keep it open and stop the reminder; you arrange the new time');
+  lines.push('  REJECT      — I will drop it and suppress them permanently');
+  lines.push('');
+  lines.push(`  Leave this line in your reply so I know which request it is:  ${refFor(request.requestId)}`);
 
   lines.push('');
   lines.push('──── DRAFT REPLY TO THEM — copy from the next line ────');
@@ -213,7 +245,9 @@ export function buildMeetingEmail(request: MeetingRequest): BuiltEmail {
 
   const attachments: BuiltEmail['attachments'] = [];
   const first = request.windows[0];
-  if (first !== undefined) {
+  // An invite needs an address to invite. Without one there is nothing for the
+  // attendee line to point at, so no file is attached rather than a broken one.
+  if (first !== undefined && p.email !== undefined && p.emailSource !== 'none') {
     attachments.push({
       filename: `${p.company.replace(/[^A-Za-z0-9]+/g, '-').toLowerCase()}-${p.firstName.toLowerCase()}.ics`,
       contentType: 'text/calendar; charset=utf-8; method=REQUEST',

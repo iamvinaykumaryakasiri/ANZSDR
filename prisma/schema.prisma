@@ -83,7 +83,7 @@ model Contact {
   /// it ships - a prospect cannot be dialled at all. That is what makes Phase 5's
   /// "calls only to numbers I control" a property of the system rather than a
   /// promise to be careful.
-  kind         String  @default("prospect")
+  kind String @default("prospect")
 
   // Lawful basis and provenance, held per Privacy Act 1988 (AU) / 2020 (NZ).
   source      String   @default("apollo")
@@ -91,12 +91,13 @@ model Contact {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  account  Account        @relation(fields: [accountId], references: [id])
-  campaign Campaign       @relation(fields: [campaignId], references: [id])
-  emails   ContactEmail[]
-  dossiers Dossier[]
-  calls    Call[]
-  attempts DialAttempt[]
+  account         Account          @relation(fields: [accountId], references: [id])
+  campaign        Campaign         @relation(fields: [campaignId], references: [id])
+  emails          ContactEmail[]
+  dossiers        Dossier[]
+  calls           Call[]
+  attempts        DialAttempt[]
+  meetingRequests MeetingRequest[]
 
   @@index([accountId])
   @@index([campaignId, status])
@@ -154,11 +155,60 @@ model Call {
   sectionMarks    String    @default("[]")
   defects         String    @default("[]")
 
-  contact Contact @relation(fields: [contactId], references: [id])
-  account Account @relation(fields: [accountId], references: [id])
+  contact        Contact         @relation(fields: [contactId], references: [id])
+  account        Account         @relation(fields: [accountId], references: [id])
+  record         CallRecord?
+  meetingRequest MeetingRequest?
 
   @@index([contactId])
   @@index([campaignId, startedAt])
+}
+
+/// What Scribe wrote down about a call, kept apart from the call's mechanics.
+/// One row per call; Scribe re-running updates it rather than adding another.
+model CallRecord {
+  id                 String   @id
+  callId             String   @unique
+  /// A JSON array of at most five lines of what was actually said.
+  summary            String   @default("[]")
+  /// `model` when a model wrote it. `unavailable` when none could, in which case
+  /// the summary is empty and the email says so rather than inventing one.
+  summarySource      String   @default("model")
+  /// The hook that landed, if one did. Empty is a legitimate answer.
+  hook               String   @default("")
+  objections         String   @default("[]")
+  sentiment          String   @default("unknown") // positive | neutral | negative | unknown
+  sentimentTrace     String   @default("[]")
+  /// Seconds into the call at which attention was lost, for the drop-off curve.
+  attentionLostAtSec Int?
+  windows            String   @default("[]")
+  timezone           String?
+  attendees          String   @default("[]")
+  createdAt          DateTime @default(now())
+
+  call Call @relation(fields: [callId], references: [id])
+}
+
+/// The workflow state of a meeting request: sent, then confirmed, rescheduled or
+/// rejected by the operator. `confirmed` and `rejected` are terminal - a stray
+/// later reply cannot flip them, because rejecting suppresses a person for good.
+model MeetingRequest {
+  id           String    @id
+  callId       String    @unique
+  contactId    String
+  status       String // requested | confirmed | reschedule | rejected
+  createdAt    DateTime  @default(now())
+  emailSentAt  DateTime?
+  nudgedAt     DateTime?
+  decidedAt    DateTime?
+  decisionNote String    @default("")
+  decidedVia   String? // email-reply | console
+
+  call    Call    @relation(fields: [callId], references: [id])
+  contact Contact @relation(fields: [contactId], references: [id])
+
+  @@index([status])
+  @@index([contactId])
 }
 
 // ---------------------------------------------------------------------------
@@ -261,12 +311,12 @@ model AgentRun {
   error  String?
 
   // Everything the run spent, against its contract's budget.
-  turns             Int   @default(0)
-  tokensIn          Int   @default(0)
-  tokensOut         Int   @default(0)
-  usd               Float @default(0)
-  wallClockMs       Int   @default(0)
-  validationFailures Int  @default(0)
+  turns              Int   @default(0)
+  tokensIn           Int   @default(0)
+  tokensOut          Int   @default(0)
+  usd                Float @default(0)
+  wallClockMs        Int   @default(0)
+  validationFailures Int   @default(0)
 
   startedAt  DateTime  @default(now())
   finishedAt DateTime?
@@ -299,14 +349,14 @@ model TraceEvent {
 }
 
 model Escalation {
-  id        String    @id
-  level     String // orchestrator | human
-  reason    String
-  detail    String    @default("{}")
-  status    String // open | acknowledged | resolved
-  taskId    String?
-  contactId String?
-  createdAt DateTime  @default(now())
+  id         String    @id
+  level      String // orchestrator | human
+  reason     String
+  detail     String    @default("{}")
+  status     String // open | acknowledged | resolved
+  taskId     String?
+  contactId  String?
+  createdAt  DateTime  @default(now())
   resolvedAt DateTime?
 
   @@index([status, createdAt])
@@ -364,16 +414,16 @@ model Playbook {
 // ---------------------------------------------------------------------------
 
 model CallPlan {
-  id         String    @id
-  campaignId String
+  id          String    @id
+  campaignId  String
   /// Calendar date in the operational timezone, yyyy-MM-dd.
-  planDate   String
-  status     String // draft | pending_approval | approved | rejected | superseded
-  createdAt  DateTime  @default(now())
+  planDate    String
+  status      String // draft | pending_approval | approved | rejected | superseded
+  createdAt   DateTime  @default(now())
   submittedAt DateTime?
-  decidedAt  DateTime?
-  decidedBy  String?
-  note       String    @default("")
+  decidedAt   DateTime?
+  decidedBy   String?
+  note        String    @default("")
 
   entries CallPlanEntry[]
 
@@ -382,7 +432,7 @@ model CallPlan {
 }
 
 model CallPlanEntry {
-  id          String @id
+  id          String    @id
   planId      String
   contactId   String
   accountId   String
@@ -391,11 +441,11 @@ model CallPlanEntry {
   displayName String
   title       String
   accountName String
-  hypothesis  String @default("")
+  hypothesis  String    @default("")
   /// What the compliance gate said when the plan was drawn up, so the operator
   /// approves a list they can actually see the state of.
   gateAllowed Boolean
-  gateReasons String @default("[]")
+  gateReasons String    @default("[]")
   /// Earliest instant this contact could lawfully be called on the plan date.
   earliestAt  DateTime?
 

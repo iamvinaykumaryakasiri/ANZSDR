@@ -114,9 +114,13 @@ export function escalationSuppression(reason: EscalationReason): {
  * `test` would be suppressed less thoroughly, which the gate's own handling of
  * `test` already treats as the dangerous mistake to make.
  */
-function personTargets(ctx: FollowUpContext, wanted: SuppressionTarget[]): SuppressionTarget[] {
-  if (ctx.contactKind === 'test') return wanted.filter((t) => t === 'contact');
+export function narrowForTestContact(kind: 'test' | 'prospect', wanted: SuppressionTarget[]): SuppressionTarget[] {
+  if (kind === 'test') return wanted.filter((t) => t === 'contact');
   return wanted;
+}
+
+function personTargets(ctx: FollowUpContext, wanted: SuppressionTarget[]): SuppressionTarget[] {
+  return narrowForTestContact(ctx.contactKind, wanted);
 }
 
 export function planFollowUp(ctx: FollowUpContext): FollowUpPlan {

@@ -4,7 +4,16 @@
  */
 
 import { describe, expect, it } from 'vitest';
-import { buildMeetingEmail, draftReply, renderWindow, subjectFor, type MeetingRequest } from '../../src/agents/concierge/meeting-email.js';
+import {
+  buildMeetingEmail,
+  describeEmailSource,
+  draftReply,
+  renderWindow,
+  subjectFor,
+  type EmailSource,
+  type MeetingRequest
+} from '../../src/agents/concierge/meeting-email.js';
+import { findRef, refFor } from '../../src/agents/concierge/ref.js';
 import { buildIcs, escapeText, foldLine } from '../../src/agents/concierge/ics.js';
 import { parseReply, stripQuoted } from '../../src/agents/concierge/reply.js';
 
@@ -20,6 +29,7 @@ function request(over: Partial<MeetingRequest> = {}): MeetingRequest {
       company: 'Kiwibank',
       phone: '+6444960000',
       email: 'priya.raman@kiwibank.co.nz',
+      emailSource: 'confirmed_on_call',
       linkedinUrl: 'https://linkedin.com/in/example'
     },
     windows: [
@@ -143,6 +153,86 @@ describe('the email body', () => {
     expect(email.body).toContain('copy from the next line');
     expect(email.body).toContain('Best,');
     expect(email.body).toContain('Vinay');
+  });
+});
+
+describe('where the email address came from', () => {
+  const fromSource = (emailSource: EmailSource, email: string | undefined = 'priya@kiwibank.co.nz') =>
+    buildMeetingEmail(request({ prospect: { ...request().prospect, emailSource, ...(email === undefined ? { email: undefined } : { email }) } as never }));
+
+  it('says "confirmed" only when it was confirmed on the call', () => {
+    expect(fromSource('confirmed_on_call').body).toContain('(confirmed on the call)');
+  });
+
+  it('does not call a data-provider address confirmed', () => {
+    // The first version hardcoded "confirmed on the call" beside every address,
+    // which would have been a false statement about data quality in front of
+    // the person deciding whether to write to them.
+    for (const source of ['apollo_work', 'apollo_personal'] as const) {
+      const body = fromSource(source).body;
+      expect(body).not.toContain('confirmed on the call');
+      expect(body).toContain('not confirmed with them');
+    }
+  });
+
+  it('warns plainly about an address that was heard once and never read back', () => {
+    expect(fromSource('heard_once').body).toContain('NOT read back: check it before you send');
+  });
+
+  it('says so when there is no address at all, and attaches no invite', () => {
+    const email = fromSource('none', undefined);
+    expect(email.body).toContain('No email address held');
+    expect(email.attachments).toEqual([]);
+  });
+
+  it('describes every source, including the one that has nothing to say', () => {
+    for (const source of ['confirmed_on_call', 'heard_once', 'apollo_work', 'apollo_personal'] as const) {
+      expect(describeEmailSource(source).length).toBeGreaterThan(0);
+    }
+    expect(describeEmailSource('none')).toBe('');
+  });
+});
+
+describe('the reference that ties a reply to its request', () => {
+  const email = buildMeetingEmail(request());
+
+  it('is in the body, and not in the subject, which section 12.1 fixes exactly', () => {
+    expect(email.body).toContain(refFor('mr-1'));
+    expect(email.subject).not.toContain('MR-');
+  });
+
+  it('asks him to leave it in his reply', () => {
+    expect(email.body).toContain('Leave this line in your reply');
+  });
+
+  it('is eight hex digits of the id, upper case', () => {
+    expect(refFor('8f21a3c4-1234-5678-9abc-def012345678')).toBe('MR-8F21A3C4');
+  });
+
+  it('is found anywhere in a reply, in any case', () => {
+    expect(findRef('CONFIRMED\n\n> Leave this line: MR-8F21A3C4')).toBe('MR-8F21A3C4');
+    expect(findRef('mr-8f21a3c4')).toBe('MR-8F21A3C4');
+  });
+
+  it('is not found where it is not', () => {
+    expect(findRef('CONFIRMED')).toBeNull();
+    expect(findRef('MR-123')).toBeNull();
+    expect(findRef('MR-ZZZZZZZZ')).toBeNull();
+  });
+});
+
+describe('what each reply word does, in the email’s own words', () => {
+  const body = buildMeetingEmail(request()).body;
+
+  it('promises only what the system will actually do', () => {
+    // RESCHEDULE used to say "I will go back to them". It does not: the system
+    // never writes to a prospect, so the new time is Vinay's to arrange.
+    expect(body).toContain('you arrange the new time');
+    expect(body).not.toContain('go back to them');
+  });
+
+  it('says REJECT is permanent, because it is', () => {
+    expect(body).toContain('suppress them permanently');
   });
 });
 
@@ -288,6 +378,14 @@ REPLY TO ME WITH ONE WORD
     const parsed = parseReply('RESCHEDULE — try the following week, he is away');
     expect(parsed.decision).toBe('reschedule');
     expect(parsed.note).toBe('try the following week, he is away');
+  });
+
+  it('keeps the reference out of his note when his client does not quote it', () => {
+    // A reply that leaves the reference line unquoted would otherwise put
+    // "MR-7741D3A5" at the end of what he typed.
+    const parsed = parseReply('RESCHEDULE — try the following week\n\nMR-7741D3A5');
+    expect(parsed.note).toBe('try the following week');
+    expect(parsed.consideredText).not.toContain('MR-');
   });
 
   it('refuses to guess when he types two of them', () => {

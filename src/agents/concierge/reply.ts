@@ -57,8 +57,16 @@ const WORDS: Array<{ decision: Exclude<ReplyDecision, 'unclear'>; pattern: RegEx
   { decision: 'rejected', pattern: /\breject(?:ed)?\b|\bdecline(?:d)?\b/i }
 ];
 
+/**
+ * The reference is machinery, not something he typed. It is in the email so a
+ * reply can be matched to its request, and a client that does not quote the
+ * original leaves it sitting in his own text - where it would otherwise end up
+ * in a reschedule note as "try the following week MR-7741D3A5".
+ */
+const REFERENCE = /\bMR-[0-9A-F]{8}\b/gi;
+
 export function parseReply(body: string): ParsedReply {
-  const considered = stripQuoted(body);
+  const considered = stripQuoted(body).replace(REFERENCE, '').replace(/[ \t]+\n/g, '\n').trim();
 
   const found = WORDS.filter(({ pattern }) => pattern.test(considered));
 
