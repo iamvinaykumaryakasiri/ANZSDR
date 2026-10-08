@@ -157,7 +157,7 @@ export function htmlToText(html: string): { title: string; text: string } {
   const text = decodeEntities(
     html
       .replace(/<!--[\s\S]*?-->/g, ' ')
-      .replace(/<(script|style|noscript|svg|template|iframe|head)\b[\s\S]*?<\/\1>/gi, ' ')
+      .replace(/<(script|style|noscript|svg|template|iframe|head|title)\b[\s\S]*?<\/\1>/gi, ' ')
       .replace(/<(br|\/p|\/div|\/li|\/h[1-6]|\/tr|\/section|\/article)\b[^>]*>/gi, '\n')
       .replace(/<[^>]+>/g, ' ')
   )
