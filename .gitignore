@@ -26,3 +26,6 @@ knowledge/drop/*
 # Personal information: the CRM view and the mail the system writes.
 data/crm.xlsx
 data/outbox/
+
+# Generated demo databases (synthetic data, rebuilt by npm run console:demo).
+data/demo/
