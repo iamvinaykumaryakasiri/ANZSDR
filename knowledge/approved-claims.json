@@ -6,7 +6,7 @@
       "id": "company.headquarters",
       "text": "Hexaware is headquartered in Navi Mumbai, India.",
       "kind": "fact",
-      "status": "draft",
+      "status": "approved",
       "markets": [
         "AU",
         "NZ"
@@ -19,7 +19,9 @@
           "retrievedAt": "2026-09-17"
         }
       ],
-      "conflictsWith": []
+      "conflictsWith": [],
+      "approvedBy": "operator",
+      "approvedAt": "2026-10-07T23:18:24.873Z"
     },
     {
       "id": "company.listed",
@@ -82,7 +84,7 @@
       "id": "company.headcount.q2-2026",
       "text": "Hexaware had 34,506 employees as at 30 June 2026.",
       "kind": "figure",
-      "status": "draft",
+      "status": "approved",
       "markets": [
         "AU",
         "NZ"
@@ -97,7 +99,9 @@
       ],
       "conflictsWith": [
         "company.headcount.aggregator"
-      ]
+      ],
+      "approvedBy": "operator",
+      "approvedAt": "2026-10-07T23:18:25.411Z"
     },
     {
       "id": "company.headcount.aggregator",
@@ -144,7 +148,7 @@
       "id": "frameworks.zero-friction",
       "text": "Zero Friction Enterprise is Hexaware's framework for AI-led transformation, built on six pillars: Zero Vulnerability, Zero Tech Debt, Zero Backlog, Zero Defects, Zero Tickets and Zero License.",
       "kind": "framework",
-      "status": "draft",
+      "status": "approved",
       "markets": [
         "AU",
         "NZ"
@@ -157,13 +161,15 @@
           "retrievedAt": "2026-09-17"
         }
       ],
-      "conflictsWith": []
+      "conflictsWith": [],
+      "approvedBy": "operator",
+      "approvedAt": "2026-10-07T23:18:23.182Z"
     },
     {
       "id": "frameworks.zerovity",
       "text": "Zerovity is Hexaware's governed AI delivery layer, coordinating migration, modernisation, agentic software development, AIOps, release and cloud operations under one set of controls.",
       "kind": "framework",
-      "status": "draft",
+      "status": "approved",
       "markets": [
         "AU",
         "NZ"
@@ -176,13 +182,15 @@
           "retrievedAt": "2026-09-17"
         }
       ],
-      "conflictsWith": []
+      "conflictsWith": [],
+      "approvedBy": "operator",
+      "approvedAt": "2026-10-07T23:18:23.750Z"
     },
     {
       "id": "services.data-ai",
       "text": "Hexaware has a Data & AI practice covering data and AI strategy, data modernisation and migration, and data value creation.",
       "kind": "capability",
-      "status": "draft",
+      "status": "approved",
       "markets": [
         "AU",
         "NZ"
@@ -195,7 +203,9 @@
           "retrievedAt": "2026-09-17"
         }
       ],
-      "conflictsWith": []
+      "conflictsWith": [],
+      "approvedBy": "operator",
+      "approvedAt": "2026-10-07T23:18:24.283Z"
     },
     {
       "id": "services.ddai-practice",
