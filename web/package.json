@@ -1,0 +1,32 @@
+{
+  "name": "anz-voice-sdr-console",
+  "version": "0.1.0",
+  "private": true,
+  "description": "The Phase 8 console for ANZ Voice SDR. Holds no business logic; everything it shows arrives over /api/console.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "dev:fixture": "vite --mode fixture",
+    "fixture": "node dev/fixture-server.mjs",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "build": "tsc -p tsconfig.json --noEmit && vite build",
+    "preview": "vite preview",
+    "screenshots": "node scripts/screenshots.mjs"
+  },
+  "dependencies": {
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "@fontsource-variable/newsreader": "5.3.0",
+    "@fontsource-variable/schibsted-grotesk": "5.3.0",
+    "@tailwindcss/vite": "4.3.3",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.1.2",
+    "playwright-core": "1.56.1",
+    "tailwindcss": "4.3.3",
+    "typescript": "5.9.3",
+    "vite": "8.3.3"
+  }
+}

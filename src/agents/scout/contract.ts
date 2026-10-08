@@ -37,13 +37,21 @@ export const scoutOutputSchema = z.object({
   confidence: confidenceSchema,
   person: dossierPersonSchema,
   account: dossierAccountSchema,
-  /** Two or three specific, verifiable openers, each tied to something real. */
-  hooks: z.array(hookSchema).min(1).max(3),
+  /**
+   * Up to three specific, verifiable openers, each tied to something real.
+   *
+   * Phase 3 relaxed the floor from one to none. A dossier with nothing
+   * verifiable behind it has no hooks, and says so; the Phase 2 stub padded it
+   * with a placeholder sourced to the company homepage, which is the one thing
+   * section 5.3 forbids - a specific nobody has checked.
+   */
+  hooks: z.array(hookSchema).max(3),
   /** Layoffs, a breach, litigation, M&A: anything to keep away from. */
   landmines: z.array(sourcedFactSchema).default([]),
   /** Said plainly rather than left implied, so Caller knows what not to assert. */
   unverified: z.array(z.string()).default([]),
-  sources: z.array(z.string().url()).min(1)
+  /** The pages whose content supports something kept in this dossier. Empty if nothing was. */
+  sources: z.array(z.string().url())
 });
 export type ScoutOutput = z.infer<typeof scoutOutputSchema>;
 

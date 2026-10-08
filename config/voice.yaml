@@ -1,0 +1,74 @@
+# The voice layer: how the provider's assistant is configured and how long a call
+# may run. Read by `npm run voice:assistant` (which pushes it to the provider) and
+# by the voice server's watchdog.
+#
+# What is NOT here, on purpose:
+#   - the opening. It is frozen in src/agents/caller/opening.ts and served by our
+#     own endpoint, not set as a "first message" on the provider's assistant.
+#   - the recording announcement, the AI disclosure, the banned topics. Same.
+#   - any number we dial. A number comes from the compliance gate, per call.
+#
+# Everything below is a starting point to be tuned on the first test calls
+# (docs/VOICE-SETUP.md). The values the provider's API validates, voice ids and
+# transcriber models in particular, are the first things to check if
+# `npm run voice:assistant` is refused: its error says which field.
+
+provider: vapi
+
+assistant:
+  name: "Lexi (ANZ Voice SDR)"
+
+# The voice. Section 15 item 1 gave "female, AU-neutral"; the actual voice is
+# chosen here, by ear. This one is a Microsoft Azure neural voice, which Vapi
+# provides without a separate account. Audition alternatives in the Vapi
+# dashboard (Voice Library) and put the provider and id here.
+voice:
+  provider: azure
+  voice_id: en-AU-NatashaNeural
+
+transcriber:
+  provider: deepgram
+  model: nova-3
+  language: en-AU
+
+limits:
+  # A permission-to-continue call is 45-120 seconds (section 8). Four minutes is
+  # a hard ceiling that only a call gone wrong reaches.
+  max_call_seconds: 240
+  # Seconds of silence before the provider ends the call.
+  silence_timeout_seconds: 20
+  # The watchdog's patience, in seconds. A call still dialling or ringing after
+  # this is closed on our side so it cannot hold the single live-call slot.
+  ring_timeout_seconds: 90
+  # How long after the longest possible call to wait for the provider's report
+  # before closing the call on our side.
+  report_grace_seconds: 180
+  # After a turn closes the call (an escalation, a suppression, a recording
+  # objection) the call is hung up from our side if the provider has not already
+  # done so by now. The goodbye is one sentence; this is its length plus margin.
+  close_grace_ms: 10000
+
+# Barge-in. Section 8: never talk over the prospect, yield instantly. A word or
+# 0.2 seconds of the prospect's voice stops the assistant mid-sentence; the
+# provider then drops its connection to our endpoint, which stops generating.
+barge_in:
+  num_words: 0
+  voice_seconds: 0.2
+  backoff_seconds: 1
+  # How long the provider waits after the prospect stops before answering. Lower
+  # is faster and talks over people more. Tune against the latency report.
+  wait_seconds: 0.5
+
+recording:
+  # wav;l16 or mp3. The format of the provider's copy.
+  format: mp3
+
+latency:
+  # Section 13 phase 5: sub-800ms perceived response.
+  target_ms: 800
+
+# An escape hatch for provider fields this file does not know about, merged into
+# the assistant last. It cannot reach `model`, `server`, `firstMessage`,
+# `firstMessageMode` or recording on/off: those are what make the opening ours
+# and the announcement true, and the adapter refuses to send them changed.
+assistant_extra: {}

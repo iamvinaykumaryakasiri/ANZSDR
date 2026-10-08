@@ -15,7 +15,7 @@
  */
 
 import type { Blackboard } from '../../blackboard/client.js';
-import type { MeetingRequestRepository, Decision } from '../../blackboard/meetings.js';
+import type { MeetingRequestRepository, Decision, DecidedVia } from '../../blackboard/meetings.js';
 import type { SuppressionStore } from '../../compliance/ports.js';
 import { narrowForTestContact, type SuppressionTarget } from './followup.js';
 import { findRef } from './ref.js';
@@ -26,6 +26,12 @@ export interface ApplyDeps {
   meetings: MeetingRequestRepository;
   suppressions: SuppressionStore;
   now: () => Date;
+  /**
+   * Where the decision came from. An emailed reply is the default; the console
+   * passes `console` so the record says which door Vinay used. Every other rule
+   * in this file applies identically to both.
+   */
+  via?: DecidedVia;
 }
 
 export type ApplyResult =
@@ -117,7 +123,7 @@ export async function applyOperatorReply(deps: ApplyDeps, body: string): Promise
     effects.push(...(await suppress(deps, contact, `operator rejected meeting request for call ${request.callId}`)));
   }
 
-  const result = await deps.meetings.decide(request.id, decision, parsed.note, 'email-reply', deps.now());
+  const result = await deps.meetings.decide(request.id, decision, parsed.note, deps.via ?? 'email-reply', deps.now());
   if (!result.applied) {
     return { kind: 'not-applied', requestId: request.id, reason: result.reason, noop: result.noop };
   }

@@ -1,0 +1,90 @@
+# Coach and the promotion gate (brief section 11).
+#
+# This file can only make promotion HARDER. The floors that matter - at least 30
+# completed conversations per arm, a false-promotion ceiling on alpha, a hard stop
+# on a missing disclosure - are enforced in src/playbook/config.ts and refuse to
+# load if this file goes below them. Editing a number here cannot weaken the gate
+# below what the brief says; it can only raise the bar.
+#
+# What is NOT here, on purpose: the opening, the AI disclosure, the recording
+# announcement, termination on request, the banned-topic list and the
+# approved-claims boundary. Those live in frozen code that Coach has no write
+# access to, and the playbook schema has no field that could hold them.
+
+# Coach runs on a stronger model than the call itself (section 4): it has no
+# latency budget and its output goes to live calls. The reviewer is a SEPARATE
+# instance - it never sees Coach's reasoning, only the variant text.
+models:
+  proposer: claude-opus-5
+  reviewer: claude-opus-5
+  max_tokens: 2048
+
+promotion:
+  # Completed conversations PER ARM before any promotion decision. Section 11 says
+  # "minimum 30 completed conversations before any promotion decision"; this reads
+  # that as 30 for the challenger and 30 for the champion it is compared with. A
+  # completed conversation is one where a person answered, the call survived the
+  # 15 second opener, and Lexi marked an outcome.
+  min_conversations_per_arm: 30
+
+  # Past this many per arm with no promotion, the challenger is retired as
+  # inconclusive rather than left running forever.
+  max_conversations_per_arm: 150
+
+  # One-sided Fisher exact test that the challenger's meeting-request rate is
+  # higher than the champion's. Exact, because with 30 per arm the normal
+  # approximation is not trustworthy.
+  alpha: 0.05
+
+  # A significant lift smaller than this is not worth the churn. Percentage points,
+  # as a fraction: 0.05 is five points.
+  min_absolute_lift: 0.05
+
+  # Sentiment is read from Scribe's summary, which can be unavailable. If fewer
+  # than this share of an arm's conversations have a sentiment, "no degradation in
+  # sentiment" cannot be shown, and promotion waits.
+  min_sentiment_coverage: 0.8
+
+  # "No degradation in completion, sentiment or defect rate." A guardrail is
+  # breached if the challenger is worse by more than the tolerance, OR is worse at
+  # all and a one-sided Fisher test says so at the lenient alpha below. The lenient
+  # alpha is deliberate: this test exists to catch harm early, not to prove safety.
+  degradation:
+    alpha: 0.20
+    max_completion_drop: 0.05
+    max_negative_sentiment_rise: 0.05
+    max_defect_rate_rise: 0.02
+
+  # Which defect kinds count against a variant. Infrastructure noise
+  # (summary-unavailable), the prospect's own behaviour (injection-attempt) and
+  # tool-capture slips are not the script's fault and are left out.
+  defect_kinds_counted:
+    - unsupported-claim
+    - banned-topic
+    - over-commitment
+    - disclosure-missing
+
+  # A single one of these in the challenger's arm withdraws it immediately,
+  # whatever the sample size. disclosure-missing must always be here.
+  hard_fail_kinds:
+    - disclosure-missing
+
+assignment:
+  # Share of calls given the challenger while a test is live. Assignment is a hash
+  # of the call id, so the same call always gets the same arm.
+  challenger_share: 0.5
+
+monitoring:
+  # After a promotion, the new champion is watched against the old one for this
+  # many completed conversations. A regression rolls it back automatically.
+  post_promotion_min_conversations: 30
+
+proposals:
+  max_per_run: 3
+  # Coach proposes nothing until it has this many conversations to learn from.
+  min_eligible_conversations: 10
+  lookback_days: 28
+  # A slot whose variant was just withdrawn or rejected is left alone this long.
+  cooldown_days: 14
+  # A challenger that has not reached the sample floor by now is retired.
+  max_challenger_age_days: 56

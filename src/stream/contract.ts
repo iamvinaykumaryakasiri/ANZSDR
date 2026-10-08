@@ -208,7 +208,10 @@ export const callLogEntrySchema = z.object({
   market: z.enum(['AU', 'NZ']),
   outcome: z.string(),
   variant: z.string(),
-  defects: z.number()
+  defects: z.number(),
+  /** Optional segment keys (section 14.2: segment by industry and seniority). */
+  industry: z.string().optional(),
+  seniority: z.string().optional()
 });
 export type CallLogEntry = z.infer<typeof callLogEntrySchema>;
 
