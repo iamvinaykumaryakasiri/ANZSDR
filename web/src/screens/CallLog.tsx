@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { CallDetail, CallLogEntry } from '../contract';
 import { RecordingPlayer } from '../components/Recording';
-import { Empty, Failure, Market, Tag } from '../components/ui';
+import { Empty, Failure, Fig, Market, Tag } from '../components/ui';
 import { api, ApiError } from '../lib/api';
 import { isLandedOutcome, outcomeText, plural } from '../lib/format';
 import { routeHref, useRoute } from '../lib/hooks';
@@ -263,7 +263,9 @@ export function CallLog() {
                           <span className="text-label text-steel-300">{r.company}</span>
                         </td>
                         <td className="hidden py-3 pr-3 text-steel-200 tablet:table-cell">{dayTimeIn(r.startedAt, SYDNEY)}</td>
-                        <td className="py-3 pr-3 text-right text-steel-200">{clock(r.durationSeconds)}</td>
+                        <td className="py-3 pr-3 text-right text-steel-200">
+                          <Fig>{clock(r.durationSeconds)}</Fig>
+                        </td>
                         <td className="py-3 pr-3">
                           <OutcomeTag outcome={r.outcome} />
                         </td>

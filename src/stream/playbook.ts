@@ -1,10 +1,10 @@
 /**
  * The playbook as the console shows it: champion, challenger, and how it got here.
  *
- * Coach owns the playbook table (section 11). This reads it and never writes;
- * the one write path in the console, rolling back, is a confirmed Jarvis action
- * (jarvis.ts) and goes through `rollBackPlaybook` below so that the flip is one
- * transaction and its shape is in one place.
+ * Coach owns the playbook table (section 11). This reads it and never writes.
+ * The one write the console can cause, rolling back, is a confirmed Jarvis action
+ * and is carried out by Coach's own `PlaybookStore.rollback` (src/playbook/store.ts),
+ * so there is one rollback in the system, with one set of rules.
  *
  * Two conventions this relies on, stated so Coach can match them:
  *
@@ -50,9 +50,31 @@ export function versionLabel(row: { slot: string; version: number }): string {
   return `${row.slot} v${row.version}`;
 }
 
+/**
+ * The words of a version, for a one-line summary. Coach stores content as JSON
+ * (`{slot, template}` or `{slot, responses}`); this reads either tolerantly and
+ * falls back to the raw text, because a summary that fails to render must not
+ * take the playbook panel with it.
+ */
+function wordsOf(content: string): string {
+  try {
+    const parsed = JSON.parse(content) as unknown;
+    if (typeof parsed === 'object' && parsed !== null) {
+      const body = parsed as { template?: unknown; responses?: unknown };
+      if (typeof body.template === 'string') return body.template;
+      if (typeof body.responses === 'object' && body.responses !== null) {
+        return Object.values(body.responses as Record<string, unknown>).filter((v): v is string => typeof v === 'string').join(' / ');
+      }
+    }
+  } catch {
+    // Plain text, as in a hand-seeded row.
+  }
+  return content;
+}
+
 function summaryOf(row: Row): string {
   const label = SLOT_LABELS[row.slot] ?? row.slot;
-  return `${label}: ${truncate(row.content, 220)}`;
+  return `${label}: ${truncate(wordsOf(row.content), 220)}`;
 }
 
 function statsOf(row: Row, facts: CallFact[]): { requestRate: number; conversations: number; minConversations: number } {
@@ -185,26 +207,4 @@ export async function planRollback(db: Blackboard): Promise<{ ok: true; plan: Ro
     };
   }
   return { ok: false, why: 'No slot has an earlier version that was ever the champion, so there is no previous script to return to.' };
-}
-
-/** Flip the two rows in one transaction, or change nothing. */
-export async function rollBackPlaybook(db: Blackboard, plan: RollbackPlan, at: Date): Promise<void> {
-  const current = await db.playbook.findUnique({ where: { id: plan.current.id } });
-  const previous = await db.playbook.findUnique({ where: { id: plan.previous.id } });
-  if (current === null || previous === null || current.status !== 'champion' || previous.status !== 'retired') {
-    throw new Error('the playbook changed since this was proposed, so nothing was rolled back');
-  }
-  const merge = (raw: string, extra: Record<string, unknown>): string =>
-    JSON.stringify({ ...readJson(raw, z.record(z.unknown()), {}), ...extra });
-
-  await db.$transaction([
-    db.playbook.update({
-      where: { id: current.id },
-      data: { status: 'retired', evidence: merge(current.evidence, { outcome: 'rolled_back', rolledBackAt: at.toISOString(), rolledBackBy: 'console' }) }
-    }),
-    db.playbook.update({
-      where: { id: previous.id },
-      data: { status: 'champion', evidence: merge(previous.evidence, { outcome: undefined, restoredAt: at.toISOString(), restoredBy: 'console' }) }
-    })
-  ]);
 }

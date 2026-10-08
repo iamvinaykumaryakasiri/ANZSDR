@@ -26,3 +26,24 @@ guardian_audit: claude-opus-5
 # A turn is one or two sentences. Section 8: one question at a time, then stop
 # talking. A larger ceiling would only buy longer wrong answers.
 max_turn_tokens: 400
+
+# Scout's synthesis of a dossier (section 4: "a stronger model for Scout").
+# Research is where a stronger model earns its cost: the difference between a
+# hook that lands and one that is subtly wrong. Every claim it makes is checked
+# against the retrieved page by deterministic code, but a better model gives that
+# check less to throw away.
+scout: claude-opus-5
+
+# Scout's web search. It runs one search and returns URLs; the pages are fetched
+# by our own policy-respecting fetcher, so a small fast model is enough.
+scout_search: claude-haiku-4-5
+
+# Dollars per million tokens, [input, output]. Used only to meter a Scout run
+# against its budget; a model missing from this table is metered at the dearest
+# rate here, so the budget fails safe.
+prices_usd_per_mtok:
+  claude-opus-5: [5, 25]
+  claude-opus-4-8: [5, 25]
+  claude-sonnet-4-6: [3, 15]
+  claude-sonnet-5: [2, 10]
+  claude-haiku-4-5: [1, 5]

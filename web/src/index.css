@@ -53,7 +53,7 @@
   --breakpoint-tablet: 48rem;
   --breakpoint-wide: 68.75rem;
   --breakpoint-broad: 80rem;
-  --breakpoint-nav: 87.5rem;
+  --breakpoint-nav: 96rem;
 }
 
 @layer base {
@@ -70,8 +70,10 @@
     font-family: var(--font-data);
     font-size: var(--text-body);
     line-height: 1.5;
-    font-variant-numeric: tabular-nums lining-nums;
-    font-feature-settings: 'tnum' 1, 'lnum' 1;
+    /* Lining figures everywhere. Tabular figures are applied to digit runs only (see Fig),
+       because this face's tnum feature also widens punctuation: "4 . 62" instead of "4.62". */
+    font-variant-numeric: lining-nums;
+    font-feature-settings: 'lnum' 1;
     -webkit-font-smoothing: antialiased;
     overflow-wrap: anywhere;
   }
@@ -136,6 +138,11 @@
 }
 
 @layer components {
+  .tnum {
+    font-variant-numeric: tabular-nums lining-nums;
+    font-feature-settings: 'tnum' 1, 'lnum' 1;
+  }
+
   /* Words a person said: the warm face, larger and looser than telemetry. */
   .speech {
     font-family: var(--font-speech);

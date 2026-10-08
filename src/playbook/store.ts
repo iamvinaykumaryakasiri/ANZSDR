@@ -387,26 +387,7 @@ export class PlaybookStore {
     meta: { note: string; toVersion?: number; evidence?: Evidence }
   ): Promise<{ from: VersionRecord; to: VersionRecord }> {
     return this.db.$transaction(async (tx) => {
-      const currentRow = await tx.playbook.findFirst({ where: { slot, status: 'champion' } });
-      if (currentRow === null) throw new PlaybookError(`${slot} has no champion to roll back from`);
-      const current = toRecord(currentRow);
-
-      const earlier = (await tx.playbook.findMany({ where: { slot, status: 'retired' }, orderBy: { version: 'desc' } })).map(toRecord);
-      const target =
-        meta.toVersion !== undefined
-          ? earlier.find((r) => r.version === meta.toVersion)
-          : earlier.find((r) => r.version < current.version && wasEverChampion(r));
-
-      if (target === undefined) {
-        throw new PlaybookError(
-          meta.toVersion !== undefined
-            ? `${versionName(slot, meta.toVersion)} is not a retired version of ${slot}`
-            : `${slot} has no earlier version that was ever the champion, so there is nothing to return to`
-        );
-      }
-      if (!wasEverChampion(target)) {
-        throw new PlaybookError(`${versionName(slot, target.version)} never became the champion (${String(target.evidence.outcome)}), so it is not a script to return to`);
-      }
+      const { current, target } = await this.rollbackPlan(tx, slot, meta.toVersion);
 
       const at = this.now();
       const challenger = await tx.playbook.findFirst({ where: { slot, status: 'challenger' } });
@@ -448,6 +429,41 @@ export class PlaybookStore {
 
       return { from: { ...current, status: 'retired' }, to: toRecord(restored) };
     });
+  }
+
+  /** What a rollback of `slot` would do, or why it cannot. Reads only. */
+  async planRollback(slot: PlaybookSlot, toVersion?: number): Promise<{ current: VersionRecord; target: VersionRecord }> {
+    return this.rollbackPlan(this.db, slot, toVersion);
+  }
+
+  private async rollbackPlan(
+    db: Db,
+    slot: PlaybookSlot,
+    toVersion: number | undefined
+  ): Promise<{ current: VersionRecord; target: VersionRecord }> {
+    const currentRow = await db.playbook.findFirst({ where: { slot, status: 'champion' } });
+    if (currentRow === null) throw new PlaybookError(`${slot} has no champion to roll back from`);
+    const current = toRecord(currentRow);
+
+    const earlier = (await db.playbook.findMany({ where: { slot, status: 'retired' }, orderBy: { version: 'desc' } })).map(toRecord);
+    const target =
+      toVersion !== undefined
+        ? earlier.find((r) => r.version === toVersion)
+        : earlier.find((r) => r.version < current.version && wasEverChampion(r));
+
+    if (target === undefined) {
+      throw new PlaybookError(
+        toVersion !== undefined
+          ? `${versionName(slot, toVersion)} is not a retired version of ${slot}`
+          : `${slot} has no earlier version that was ever the champion, so there is nothing to return to`
+      );
+    }
+    if (!wasEverChampion(target)) {
+      throw new PlaybookError(
+        `${versionName(slot, target.version)} never became the champion (${String(target.evidence.outcome)}), so it is not a script to return to`
+      );
+    }
+    return { current, target };
   }
 
   /** A variant the gate refused, kept on the record with its reasons. Creates no version. */
@@ -569,10 +585,8 @@ export class PlaybookStore {
   }
 }
 
-/** The assignment recorded against a call, or null if it has none. */
-export async function readAssignment(db: Pick<Blackboard, 'memory'>, callId: string): Promise<Assignment | null> {
-  const row = await db.memory.findUnique({ where: { id: `pb-assign-${callId}` } });
-  if (row === null) return null;
+/** An assignment from its stored memory row. Throws on a corrupt one rather than guessing. */
+export function assignmentFromRow(row: { content: string }): Assignment {
   const body = decode(assignmentBodySchema, 'Memory.content', row.content);
   const versions: SlotVersions = {};
   for (const [slot, version] of Object.entries(body.versions)) {
@@ -584,6 +598,12 @@ export async function readAssignment(db: Pick<Blackboard, 'memory'>, callId: str
     versions,
     variant: body.variant
   };
+}
+
+/** The assignment recorded against a call, or null if it has none. */
+export async function readAssignment(db: Pick<Blackboard, 'memory'>, callId: string): Promise<Assignment | null> {
+  const row = await db.memory.findUnique({ where: { id: `pb-assign-${callId}` } });
+  return row === null ? null : assignmentFromRow(row);
 }
 
 export { parseVersionName };

@@ -1,5 +1,6 @@
 import type { FunnelStageId, FunnelStageView } from '../contract';
 import { int, pct } from '../lib/format';
+import { Fig } from './ui';
 
 const SETTLED: ReadonlySet<FunnelStageId> = new Set(['meeting_requested', 'confirmed']);
 
@@ -64,9 +65,11 @@ export function Funnel({
               >
                 <span className="grid grid-cols-[minmax(0,1fr)_3.25rem_2.75rem_2.75rem] items-baseline gap-x-2">
                   <span className={`${isSel || under ? 'font-bold' : 'font-semibold'} text-body text-steel-100`}>{stage.label}</span>
-                  <span className="text-right text-body font-semibold text-steel-100">{int(stage.count)}</span>
-                  <span className={`text-right text-body ${under ? 'font-bold text-steel-100' : 'text-steel-200'}`}>{first ? '-' : pct(stage.rate)}</span>
-                  <span className="text-right text-body text-steel-300">{first ? '-' : int(stage.loss)}</span>
+                  <span className="text-right text-body font-semibold text-steel-100">
+                    <Fig>{int(stage.count)}</Fig>
+                  </span>
+                  <span className={`text-right text-body ${under ? 'font-bold text-steel-100' : 'text-steel-200'}`}>{first ? '-' : <Fig>{pct(stage.rate)}</Fig>}</span>
+                  <span className="text-right text-body text-steel-300">{first ? '-' : <Fig>{int(stage.loss)}</Fig>}</span>
                 </span>
                 <span className="mt-1.5 flex items-center gap-3">
                   <span aria-hidden="true" className="relative block h-3 min-w-0 flex-1 bg-slate-500/50">
@@ -78,8 +81,8 @@ export function Funnel({
                       <span className="absolute -inset-y-1 w-0.5 bg-steel-100" style={{ left: `calc(${base * 100}% - 1px)` }} />
                     ) : null}
                   </span>
-                  <span className={`w-[8.5rem] shrink-0 text-label ${under ? 'font-bold text-steel-100' : 'text-steel-300'}`}>
-                    {first ? 'Everything queued' : delta === 0 ? `Level with 7-day ${pct(stage.baselineRate)}` : `${Math.abs(delta)} pts ${delta < 0 ? 'under' : 'over'} 7-day ${pct(stage.baselineRate)}`}
+                  <span className={`w-[5.75rem] shrink-0 text-right text-label ${under ? 'font-bold text-steel-100' : 'text-steel-300'}`}>
+                    {first ? 'All queued' : delta === 0 ? 'On 7-day rate' : <Fig>{`${Math.abs(delta)} pts ${delta < 0 ? 'under' : 'over'}`}</Fig>}
                   </span>
                 </span>
               </button>
@@ -88,7 +91,7 @@ export function Funnel({
         })}
       </ol>
       <p className="mt-3 text-label text-steel-300">
-        The tick on each bar is where it would end at the seven-day rate. Select a stage to filter the curve and the lists beside it.
+        Each bar is drawn against the stage above it. The tick is where it would end at the seven-day rate, and the note beside it says how far off today is. Select a stage to filter the curve and the lists beside it.
       </p>
     </div>
   );

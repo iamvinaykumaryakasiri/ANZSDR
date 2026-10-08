@@ -18,6 +18,12 @@ models:
   proposer: claude-opus-5
   reviewer: claude-opus-5
   max_tokens: 2048
+  # Used only to meter Coach's budget (maxUsd) from the token counts the API
+  # returns. Set these to your model's real price; they are deliberately
+  # generous so a wrong guess errs towards stopping early rather than late.
+  price_usd_per_mtok:
+    input: 15
+    output: 75
 
 promotion:
   # Completed conversations PER ARM before any promotion decision. Section 11 says

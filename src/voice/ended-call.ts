@@ -145,6 +145,18 @@ export async function acceptReport(deps: EndedCallDeps, event: ReportEvent | nul
 
   if (!(await deps.calls.claimReport(callId))) return { status: 'duplicate', callId };
 
+  try {
+    await acceptClaimed(deps, callId, report);
+  } catch (error) {
+    // Part way through, nothing downstream has run. Give the claim back so the
+    // provider's retry (or the watchdog) can do it properly.
+    await deps.calls.releaseReport(callId).catch(() => {});
+    throw error;
+  }
+  return { status: 'accepted', callId };
+}
+
+async function acceptClaimed(deps: EndedCallDeps, callId: string, report: StoredReport): Promise<void> {
   const endedAt = report.endedAt !== null ? new Date(report.endedAt) : deps.now();
   await deps.calls.markEnded(callId, { at: endedAt, endedReason: report.endedReason, durationSec: report.durationSec });
   if (report.recordingUrl !== null) {
@@ -176,7 +188,6 @@ export async function acceptReport(deps: EndedCallDeps, event: ReportEvent | nul
       data: { id: randomUUID(), category: 'voice', usd: report.costUsd, note: `call ${callId} (${report.endedReason})` }
     });
   }
-  return { status: 'accepted', callId };
 }
 
 /* ------------------------------------------------------------------ */

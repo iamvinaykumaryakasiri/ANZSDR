@@ -223,6 +223,9 @@ export interface CallLogEntry {
   outcome: string;
   variant: string;
   defects: number;
+  /** Optional segment keys (section 14.2: segment by industry and seniority). */
+  industry?: string;
+  seniority?: string;
 }
 
 export interface CallDetail extends CallLogEntry {
@@ -251,12 +254,5 @@ export interface JarvisAnswer {
   action?: { actionId: string; description: string };
 }
 
-/**
- * Optional fields the call log may carry that the contract does not yet
- * promise. The curve segmenter offers industry and seniority only when they are
- * present, and never invents them.
- */
-export interface CallLogSegments {
-  industry?: string;
-  seniority?: string;
-}
+/** Kept for the segmenter's signature; both fields now live on CallLogEntry. */
+export type CallLogSegments = Pick<CallLogEntry, 'industry' | 'seniority'>;

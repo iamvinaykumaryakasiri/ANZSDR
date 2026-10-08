@@ -38,10 +38,17 @@ export interface PeopleDirectory {
   searchPeople(query: PeopleSearchQuery): Promise<PeopleSearchResult>;
 }
 
+/**
+ * What Prospector needs from enrichment: a plan, and a way to buy within a
+ * ceiling. Narrow on purpose, so `npm run prospect` can hand it a version that
+ * plans and never buys, and run the very same handler for its dry run.
+ */
+export type EmailEnrichment = Pick<EnrichmentService, 'planEmailStage' | 'enrichEmailsWithinBudget'>;
+
 export interface ProspectorDeps {
   db: Blackboard;
   directory: PeopleDirectory;
-  enrichment: EnrichmentService;
+  enrichment: EmailEnrichment;
   config: Phase3Config;
 }
 
@@ -131,7 +138,7 @@ function heldContactsTool(db: Blackboard): AgentTool {
   };
 }
 
-function enrichEmailsTool(enrichment: EnrichmentService): AgentTool {
+function enrichEmailsTool(enrichment: EmailEnrichment): AgentTool {
   return {
     name: 'enrich-emails',
     description:

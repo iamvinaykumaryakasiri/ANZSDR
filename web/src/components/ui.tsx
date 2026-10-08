@@ -92,6 +92,29 @@ export function Market({ market }: { market: 'AU' | 'NZ' }) {
   return <span className="rounded-control border border-slate-400 px-1.5 text-label font-semibold text-steel-200">{market}</span>;
 }
 
+/**
+ * Figures that change while someone is looking at them. Each run of digits is set
+ * in tabular figures so it cannot jitter; the punctuation around it stays
+ * proportional so "4.62" and "0:47" keep their natural rhythm.
+ */
+export function Fig({ children }: { children: string | number | null | undefined }) {
+  const text = children === null || children === undefined ? '' : String(children);
+  const parts = text.split(/(\d+)/);
+  return (
+    <>
+      {parts.map((part, i) =>
+        /^\d+$/.test(part) ? (
+          <span key={i} className="tnum">
+            {part}
+          </span>
+        ) : (
+          part
+        )
+      )}
+    </>
+  );
+}
+
 export function VisuallyHidden({ children }: { children: ReactNode }) {
   return <span className="sr-only">{children}</span>;
 }

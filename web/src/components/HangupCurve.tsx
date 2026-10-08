@@ -253,7 +253,7 @@ export function HangupCurve({
 
           {/* x axis */}
           {xTicks.map((t) => (
-            <text key={t} x={x(t)} y={HEIGHT - 8} textAnchor={t === 0 ? 'start' : 'middle'} className="fill-steel-300 text-label">
+            <text key={t} x={x(t)} y={HEIGHT - 8} textAnchor={t === 0 ? 'start' : x(t) > width - 24 ? 'end' : 'middle'} className="fill-steel-300 text-label">
               {t === 0 ? '0s' : `${t}s`}
             </text>
           ))}

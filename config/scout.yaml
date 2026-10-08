@@ -1,0 +1,19 @@
+# Operator data for Scout's research.
+#
+# Which accounts are listed, and under what code. Scout does not guess a ticker
+# from a company name: a wrong guess would read another company's announcements
+# and attribute them to this one. Keyed by the account's domain, as in
+# accounts.csv.
+#
+#   listings:
+#     heartland.co.nz:
+#       exchange: NZX
+#       code: HGH
+#
+# Left empty until someone who knows has filled it in.
+listings: {}
+
+# Where each exchange publishes announcements. `{code}` is replaced. Only needed
+# if an exchange moves its pages; the defaults are in src/agents/scout/announcements.ts.
+# Whatever the page, it is fetched through the policy fetcher, so an exchange
+# whose robots.txt does not permit it is simply not read.

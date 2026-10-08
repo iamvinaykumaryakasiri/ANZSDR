@@ -1,6 +1,6 @@
 import type { TodayView } from '../contract';
 import { int, usd } from '../lib/format';
-import { SectionHead } from './ui';
+import { Fig, SectionHead } from './ui';
 
 /** A flat strip of figures, not a row of cards. */
 export function Today({ today, compact = false }: { today: TodayView; compact?: boolean }) {
@@ -23,7 +23,9 @@ export function Today({ today, compact = false }: { today: TodayView; compact?: 
         {items.map((it) => (
           <div key={it.label} className="bg-ink-900 px-3 py-3">
             <dt className="text-label text-steel-300">{it.label}</dt>
-            <dd className={`mt-1 ${compact ? 'text-statement' : 'text-statement'} font-semibold ${it.sand ? 'text-sand-300' : 'text-steel-100'}`}>{it.value}</dd>
+            <dd className={`mt-1 ${compact ? 'text-statement' : 'text-statement'} font-semibold ${it.sand ? 'text-sand-300' : 'text-steel-100'}`}>
+              <Fig>{it.value}</Fig>
+            </dd>
             {it.note ? <dd className="text-label text-steel-300">{it.note}</dd> : null}
           </div>
         ))}

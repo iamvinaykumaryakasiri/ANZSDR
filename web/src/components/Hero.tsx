@@ -4,7 +4,7 @@ import { gateReasonText, outcomeText, STAGE_LABELS } from '../lib/format';
 import { useNow } from '../lib/hooks';
 import { clock, dayTimeIn, parseTime, SYDNEY } from '../lib/time';
 import { useConsole } from '../state/console';
-import { ConfidenceMeter, Lamp, Market } from './ui';
+import { ConfidenceMeter, Fig, Lamp, Market } from './ui';
 
 /* ---------------------------------------------------------------- the rundown */
 
@@ -98,7 +98,7 @@ export function Transcript({
           const them = turn.speaker === 'prospect';
           return (
             <div key={`${turn.atSecond}-${i}`} className="grid grid-cols-[2.75rem_1fr] gap-x-3">
-              <span className="pt-1 text-label text-slate-300">{clock(turn.atSecond)}</span>
+              <span className="pt-1 text-label text-slate-300"><Fig>{clock(turn.atSecond)}</Fig></span>
               <div className={them ? 'border-l-2 border-sand-300 pl-4' : ''}>
                 <p className="text-label font-semibold text-steel-300">{them ? firstName(prospectName) : 'Lexi'}</p>
                 <p className={`speech text-speech ${them ? 'text-steel-100' : 'text-steel-300'}`}>{turn.text}</p>
@@ -154,7 +154,7 @@ function OnAir({ live, receivedAt, entering, compact }: { live: LiveCallView; re
           aria-label={`Call length ${clock(elapsed)}`}
           className={`hero-rise ${compact ? 'text-state' : 'text-clock'} font-semibold leading-none text-steel-100`}
         >
-          {clock(elapsed)}
+          <Fig>{clock(elapsed)}</Fig>
         </p>
       </div>
 
@@ -230,7 +230,7 @@ function StandingBy({ compact }: { compact: boolean }) {
         {remaining !== null ? (
           <div className={compact ? 'text-left' : 'text-right'}>
             <p className={`${compact ? 'text-state' : 'text-clock'} font-semibold leading-none text-steel-200`}>
-              {remaining > 0 ? clock(remaining) : '0:00'}
+              <Fig>{remaining > 0 ? clock(remaining) : '0:00'}</Fig>
             </p>
             <p className="mt-2 text-label text-steel-300">
               {remaining > 0 ? `until the next dial, ${dayTimeIn(nextDialAt, SYDNEY)} Sydney` : 'The next dial is due now'}

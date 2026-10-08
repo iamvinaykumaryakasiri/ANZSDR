@@ -17,9 +17,16 @@ import { readFileSync } from 'node:fs';
 import { timingSafeEqual } from 'node:crypto';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import Anthropic from '@anthropic-ai/sdk';
 import Fastify, { type FastifyInstance } from 'fastify';
 import type { Blackboard } from '../blackboard/client.js';
 import { createBlackboard } from '../blackboard/client.js';
+import { loadModelConfig } from '../voice/claude-model.js';
+import { createLiveConsoleDeps, type ConsoleDeps } from '../stream/deps.js';
+import type { JarvisModel } from '../stream/jarvis.js';
+import { claudeJarvisModel } from '../stream/jarvis-model.js';
+import { registerConsole, type ConsoleHandle } from '../stream/routes.js';
+import { registerConsoleStatic } from '../stream/static.js';
 import { registerAccountsApi } from './accounts-api.js';
 import { registerKnowledgeApi } from './knowledge-api.js';
 
@@ -35,6 +42,20 @@ export interface ServerOptions {
   /** The knowledge pack directory. Overridden in tests so they never touch the real one. */
   knowledgeDir?: string;
   logger?: boolean;
+  /**
+   * The Phase 8 console (section 14): its API under /api/console and, when the web
+   * app has been built, the app itself at /console/. Left out, the account desk is
+   * served alone, which is what the desk's own tests want.
+   */
+  console?: ConsoleMount | undefined;
+}
+
+export interface ConsoleMount {
+  deps: ConsoleDeps;
+  /** Milliseconds between snapshots pushed to a watched console. Defaults to 5000. */
+  refreshMs?: number;
+  /** Where the built web app is. Defaults to web/dist; false serves no app. */
+  webDir?: string | false;
 }
 
 function tokensMatch(supplied: string, expected: string): boolean {
@@ -44,7 +65,7 @@ function tokensMatch(supplied: string, expected: string): boolean {
   return a.length === b.length && timingSafeEqual(a, b);
 }
 
-export function buildServer(options: ServerOptions): FastifyInstance {
+export function buildServer(options: ServerOptions): FastifyInstance & { consoleHandle?: ConsoleHandle } {
   if (options.adminToken.trim() === '') {
     throw new Error('ADMIN_TOKEN is required: this surface edits the prospect list and is not served unauthenticated');
   }
@@ -91,7 +112,31 @@ export function buildServer(options: ServerOptions): FastifyInstance {
   registerAccountsApi(app, options.db);
   registerKnowledgeApi(app, { dir: options.knowledgeDir ?? resolve(HERE, '../..', 'knowledge') });
 
-  return app;
+  const server: FastifyInstance & { consoleHandle?: ConsoleHandle } = app;
+  if (options.console !== undefined) {
+    server.consoleHandle = registerConsole(app, {
+      deps: options.console.deps,
+      adminToken: options.adminToken,
+      ...(options.console.refreshMs !== undefined ? { refreshMs: options.console.refreshMs } : {})
+    });
+    const webDir = options.console.webDir;
+    if (webDir !== false) registerConsoleStatic(app, webDir ?? resolve(HERE, '../..', 'web/dist'));
+  }
+
+  return server;
+}
+
+/** Jarvis's free-text path, when there is a key to pay for it. Read-only either way. */
+function jarvisModelFromEnv(): JarvisModel | undefined {
+  const key = (process.env.ANTHROPIC_API_KEY ?? '').trim();
+  if (key === '') return undefined;
+  try {
+    const config = loadModelConfig(resolve(HERE, '../..', 'config/models.yaml'));
+    return claudeJarvisModel({ client: new Anthropic(), model: process.env.JARVIS_MODEL ?? config.scribe });
+  } catch (error) {
+    console.warn(`Jarvis will answer only from its built-in questions: ${(error as Error).message}`);
+    return undefined;
+  }
 }
 
 export async function startServer(): Promise<void> {
@@ -104,12 +149,26 @@ export async function startServer(): Promise<void> {
   }
 
   const db = createBlackboard();
-  const app = buildServer({ db, adminToken, logger: true });
+
+  // The console reads the same policy, calendar and kill-switch file as the
+  // command line. If those cannot be loaded the desk still starts, and says why.
+  let consoleDeps: ConsoleDeps | undefined;
+  try {
+    consoleDeps = createLiveConsoleDeps({ db, jarvisModel: jarvisModelFromEnv() });
+  } catch (error) {
+    console.error(`The console is unavailable: ${(error as Error).message}`);
+  }
+
+  const app = buildServer({ db, adminToken, logger: true, ...(consoleDeps !== undefined ? { console: { deps: consoleDeps } } : {}) });
   const port = Number(process.env.PORT ?? 8080);
   const host = process.env.HOST ?? '0.0.0.0';
 
   await app.listen({ port, host });
   console.log(`\naccount desk:  http://localhost:${port}/`);
+  if (consoleDeps !== undefined) {
+    console.log(`console API:   http://localhost:${port}/api/console/snapshot  (Bearer ADMIN_TOKEN)`);
+    console.log(`console:       http://localhost:${port}/console/  (needs the web app built: npm --prefix web run build)`);
+  }
   if (process.env.PUBLIC_BASE_URL !== undefined) {
     console.log(`public:        ${process.env.PUBLIC_BASE_URL}/`);
     console.log(`apollo webhook (Phase 3): ${process.env.PUBLIC_BASE_URL}/webhooks/apollo`);

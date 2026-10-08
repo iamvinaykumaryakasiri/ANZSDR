@@ -1,6 +1,6 @@
 import type { PlaybookView } from '../contract';
 import { int, pct } from '../lib/format';
-import { Empty, SectionHead } from './ui';
+import { Empty, Fig, SectionHead } from './ui';
 
 function Bar({ value, max, settled = false }: { value: number; max: number; settled?: boolean }) {
   const w = max > 0 ? Math.max(0, Math.min(1, value / max)) : 0;
@@ -23,7 +23,9 @@ export function Objections({ items }: { items: Array<{ label: string; count: num
           <li key={o.label}>
             <div className="flex items-baseline justify-between gap-3">
               <span className="speech text-strong text-steel-100">“{o.label}”</span>
-              <span className="text-body font-semibold text-steel-100">{int(o.count)}</span>
+              <span className="text-body font-semibold text-steel-100">
+                <Fig>{int(o.count)}</Fig>
+              </span>
             </div>
             <Bar value={o.count} max={max} />
           </li>
@@ -62,7 +64,9 @@ export function WrongNumbers({ rate }: { rate: number }) {
   return (
     <section aria-labelledby="wrong-title">
       <SectionHead title="Wrong numbers" id="wrong-title" />
-      <p className="text-state font-semibold leading-none text-steel-100">{pct(rate, 1)}</p>
+      <p className="text-state font-semibold leading-none text-steel-100">
+        <Fig>{pct(rate, 1)}</Fig>
+      </p>
       <p className="mt-2 max-w-[34ch] text-body text-steel-300">of dials reached the wrong person. This is a data-quality signal about the contact list, not about the script.</p>
     </section>
   );
@@ -80,7 +84,9 @@ export function ChampionChallenger({ playbook }: { playbook: PlaybookView }) {
         <div>
           <div className="flex items-baseline justify-between gap-3">
             <span className="text-body font-semibold text-steel-100">Champion {champion.version}</span>
-            <span className="text-body font-semibold text-steel-100">{pct(champion.requestRate, 1)}</span>
+            <span className="text-body font-semibold text-steel-100">
+              <Fig>{pct(champion.requestRate, 1)}</Fig>
+            </span>
           </div>
           <Bar value={champion.requestRate} max={max} settled />
           <p className="mt-1 text-label text-steel-300">
@@ -91,7 +97,9 @@ export function ChampionChallenger({ playbook }: { playbook: PlaybookView }) {
           <div>
             <div className="flex items-baseline justify-between gap-3">
               <span className="text-body font-semibold text-steel-100">Challenger {challenger.version}</span>
-              <span className="text-body font-semibold text-steel-100">{pct(challenger.requestRate, 1)}</span>
+              <span className="text-body font-semibold text-steel-100">
+                <Fig>{pct(challenger.requestRate, 1)}</Fig>
+              </span>
             </div>
             <Bar value={challenger.requestRate} max={max} />
             <p className="mt-1 text-label text-steel-300">{challenger.summary}</p>

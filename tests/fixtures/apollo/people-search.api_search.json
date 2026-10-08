@@ -1,0 +1,40 @@
+{
+  "total_entries": 3,
+  "people": [
+    {
+      "id": "64a7ff0cc4dfae00013df1a5",
+      "first_name": "Priya",
+      "last_name_obfuscated": "Ra***n",
+      "title": "Chief Data Officer",
+      "last_refreshed_at": "2026-08-14T02:11:09.000+00:00",
+      "has_email": true,
+      "has_city": true,
+      "has_state": true,
+      "has_country": true,
+      "has_direct_phone": "Yes",
+      "organization": { "name": "Example Bank", "has_industry": true, "has_phone": true, "has_city": true }
+    },
+    {
+      "id": "64a7ff0cc4dfae00013df1a6",
+      "first_name": "Tom",
+      "last_name_obfuscated": "Wh***be",
+      "title": "Head of Data Platforms",
+      "last_refreshed_at": "2026-07-30T22:41:40.000+00:00",
+      "has_email": true,
+      "has_city": true,
+      "has_state": true,
+      "has_country": true,
+      "has_direct_phone": "Maybe: please request direct dial via people/bulk_match",
+      "organization": { "name": "Example Bank", "has_industry": true }
+    },
+    {
+      "id": "64a7ff0cc4dfae00013df1a7",
+      "first_name": "Sam",
+      "last_name_obfuscated": "Ke***r",
+      "title": "Technical Recruiter",
+      "has_email": false,
+      "has_direct_phone": "No",
+      "organization": { "name": "Example Bank" }
+    }
+  ]
+}

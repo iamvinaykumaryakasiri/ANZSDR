@@ -3,7 +3,7 @@ import { ago, parseTime, secondsIn, SYDNEY, AUCKLAND, timeIn, clock } from '../l
 import { routeHref, useNow, useRoute, type RouteName } from '../lib/hooks';
 import { useConsole } from '../state/console';
 import { StopAll } from './StopAll';
-import { Lamp } from './ui';
+import { Fig, Lamp } from './ui';
 
 /* --------------------------------------------------------- the status strips */
 
@@ -51,9 +51,9 @@ export function Clocks() {
   return (
     <dl className="grid grid-cols-[auto_auto] gap-x-2 text-label leading-snug">
       <dt className="text-steel-300">Sydney</dt>
-      <dd className="text-right font-semibold text-steel-100">{timeIn(now, SYDNEY)}</dd>
+      <dd className="text-right font-semibold text-steel-100"><Fig>{timeIn(now, SYDNEY)}</Fig></dd>
       <dt className="text-steel-300">Auckland</dt>
-      <dd className="text-right font-semibold text-steel-100">{timeIn(now, AUCKLAND)}</dd>
+      <dd className="text-right font-semibold text-steel-100"><Fig>{timeIn(now, AUCKLAND)}</Fig></dd>
     </dl>
   );
 }
@@ -129,7 +129,9 @@ export function TopBar({ onJarvis }: { onJarvis: () => void }) {
               <Lamp on size="sm" />
               <span>On air</span>
               <span className="hidden wide:inline text-steel-200">{live.prospect.name}</span>
-              <span>{clock(elapsed)}</span>
+              <span>
+                <Fig>{clock(elapsed)}</Fig>
+              </span>
             </a>
           ) : null}
           <div className="hidden wide:block">

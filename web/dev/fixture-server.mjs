@@ -59,8 +59,8 @@ function nextAt(weekday, hour, tz, minute = 0, skip = 0) {
     }
     const parts = new Intl.DateTimeFormat('en-CA', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' }).format(probe);
     // Walk by hour until the wall clock reads the requested time.
-    let guess = Date.parse(`${parts}T00:00:00Z`);
-    for (let i = 0; i < 48; i++) {
+    let guess = Date.parse(`${parts}T00:00:00Z`) - 14 * HOUR;
+    for (let i = 0; i < 90; i++) {
       const h = Number(new Intl.DateTimeFormat('en-AU', { timeZone: tz, hour: '2-digit', hour12: false }).format(guess));
       const mm = Number(new Intl.DateTimeFormat('en-AU', { timeZone: tz, minute: '2-digit' }).format(guess));
       const sameDay = new Intl.DateTimeFormat('en-CA', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' }).format(guess) === parts;
@@ -422,19 +422,19 @@ const BRIEFING = () => ({
 
 const LIVE_PROSPECT = { name: 'Meera Chandran', title: 'Chief Data Officer', company: 'Tasman Mutual', market: 'NZ' };
 const LIVE_SCRIPT = [
-  { at: 0, speaker: 'lexi', text: "Hi Meera, it's Lexi. I'm an AI assistant on the ANZ sales team at Hexaware, working with Vinay Kumar." },
-  { at: 7, speaker: 'lexi', text: "I'm calling because Tasman Mutual's platform renewal came up in your August announcement, and I wanted to ask you about it. This call is being recorded. Do you have thirty seconds?" },
-  { at: 15, speaker: 'prospect', text: "Sure. Go on, but I've only got a few minutes." },
-  { at: 19, speaker: 'lexi', text: "Thanks, I'll keep it brief. When a data leader inherits a platform renewal, the risk usually sits in how the data moves, not in the platform itself." },
-  { at: 28, speaker: 'lexi', text: 'Is that something you are thinking about at the moment?' },
-  { at: 33, speaker: 'prospect', text: "It is, actually. We've got about three years of reporting debt sitting on top of that core." },
-  { at: 44, speaker: 'lexi', text: 'That is useful to know. Hexaware works with financial services teams across ANZ on data modernisation, and Vinay would value twenty minutes to hear how you are approaching it.' },
-  { at: 58, speaker: 'prospect', text: 'Maybe. Is this going to be a pitch?' },
-  { at: 64, speaker: 'lexi', text: 'No deck. Twenty minutes, and Vinay listens first. What days suit you over the next fortnight?' },
-  { at: 77, speaker: 'prospect', text: 'Tuesday or Wednesday morning, after half past nine.' },
-  { at: 83, speaker: 'lexi', text: 'Tuesday or Wednesday morning, after nine thirty. And what is the best email for you?' },
-  { at: 91, speaker: 'prospect', text: 'meera dot chandran at tasman mutual dot co dot nz.' },
-  { at: 97, speaker: 'lexi', text: 'Thank you, Meera. Vinay will send you a confirmation and an invite today. Have a good afternoon.' }
+  { atSecond: 0, speaker: 'lexi', text: "Hi Meera, it's Lexi. I'm an AI assistant on the ANZ sales team at Hexaware, working with Vinay Kumar." },
+  { atSecond: 7, speaker: 'lexi', text: "I'm calling because Tasman Mutual's platform renewal came up in your August announcement, and I wanted to ask you about it. This call is being recorded. Do you have thirty seconds?" },
+  { atSecond: 15, speaker: 'prospect', text: "Sure. Go on, but I've only got a few minutes." },
+  { atSecond: 19, speaker: 'lexi', text: "Thanks, I'll keep it brief. When a data leader inherits a platform renewal, the risk usually sits in how the data moves, not in the platform itself." },
+  { atSecond: 28, speaker: 'lexi', text: 'Is that something you are thinking about at the moment?' },
+  { atSecond: 33, speaker: 'prospect', text: "It is, actually. We've got about three years of reporting debt sitting on top of that core." },
+  { atSecond: 44, speaker: 'lexi', text: 'That is useful to know. Hexaware works with financial services teams across ANZ on data modernisation, and Vinay would value twenty minutes to hear how you are approaching it.' },
+  { atSecond: 58, speaker: 'prospect', text: 'Maybe. Is this going to be a pitch?' },
+  { atSecond: 64, speaker: 'lexi', text: 'No deck. Twenty minutes, and Vinay listens first. What days suit you over the next fortnight?' },
+  { atSecond: 77, speaker: 'prospect', text: 'Tuesday or Wednesday morning, after half past nine.' },
+  { atSecond: 83, speaker: 'lexi', text: 'Tuesday or Wednesday morning, after nine thirty. And what is the best email for you?' },
+  { atSecond: 91, speaker: 'prospect', text: 'meera dot chandran at tasman mutual dot co dot nz.' },
+  { atSecond: 97, speaker: 'lexi', text: 'Thank you, Meera. Vinay will send you a confirmation and an invite today. Have a good afternoon.' }
 ];
 const STAGES = [
   [0, 'disclosure'],
@@ -468,7 +468,7 @@ function startLive(offset) {
     stage: stageAt(offset),
     confidence: 'medium',
     variant: 'v13 (challenger)',
-    transcript: LIVE_SCRIPT.filter((t) => t.at <= offset)
+    transcript: LIVE_SCRIPT.filter((t) => t.atSecond <= offset)
   };
   state.emitted = state.live.transcript.length;
   state.lastStage = state.live.stage;
@@ -530,7 +530,7 @@ if (LOOP) {
     if (state.killSwitch.engaged) return;
     if (state.live) {
       const elapsed = Math.floor((NOW() - Date.parse(state.live.startedAt)) / 1000);
-      while (state.emitted < LIVE_SCRIPT.length && (LIVE_SCRIPT[state.emitted]?.at ?? Infinity) <= elapsed) {
+      while (state.emitted < LIVE_SCRIPT.length && (LIVE_SCRIPT[state.emitted]?.atSecond ?? Infinity) <= elapsed) {
         const turn = LIVE_SCRIPT[state.emitted];
         state.live.transcript.push(turn);
         state.emitted += 1;

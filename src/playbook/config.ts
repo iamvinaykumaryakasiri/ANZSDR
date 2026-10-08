@@ -29,7 +29,8 @@ const rawSchema = z.object({
   models: z.object({
     proposer: z.string().min(1),
     reviewer: z.string().min(1),
-    max_tokens: z.number().int().positive()
+    max_tokens: z.number().int().positive(),
+    price_usd_per_mtok: z.object({ input: z.number().nonnegative(), output: z.number().nonnegative() })
   }),
   promotion: z.object({
     min_conversations_per_arm: z.number().int().min(MIN_CONVERSATIONS_FLOOR),
@@ -73,7 +74,7 @@ export interface PromotionThresholds {
 }
 
 export interface CoachConfig {
-  models: { proposer: string; reviewer: string; maxTokens: number };
+  models: { proposer: string; reviewer: string; maxTokens: number; priceUsdPerMTok: { input: number; output: number } };
   promotion: PromotionThresholds;
   assignment: { challengerShare: number };
   monitoring: { postPromotionMinConversations: number };
@@ -103,7 +104,12 @@ export function loadCoachConfigFromObject(raw: unknown): CoachConfig {
   }
 
   return {
-    models: { proposer: parsed.models.proposer, reviewer: parsed.models.reviewer, maxTokens: parsed.models.max_tokens },
+    models: {
+      proposer: parsed.models.proposer,
+      reviewer: parsed.models.reviewer,
+      maxTokens: parsed.models.max_tokens,
+      priceUsdPerMTok: parsed.models.price_usd_per_mtok
+    },
     promotion: {
       minConversationsPerArm: p.min_conversations_per_arm,
       maxConversationsPerArm: p.max_conversations_per_arm,

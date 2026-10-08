@@ -1,0 +1,34 @@
+{
+  "pagination": { "page": 1, "per_page": 50, "total_entries": 2, "total_pages": 1 },
+  "people": [
+    {
+      "id": "5f1a00000000000000000001",
+      "first_name": "Priya",
+      "last_name": "Raman",
+      "name": "Priya Raman",
+      "title": "Chief Data Officer",
+      "seniority": "c_suite",
+      "linkedin_url": "http://www.linkedin.com/in/example-priya",
+      "email": "email_not_unlocked@examplebank.com.au",
+      "city": "Sydney",
+      "state": "New South Wales",
+      "country": "Australia",
+      "organization": { "id": "5f1a0000000000000000aaaa", "name": "Example Bank", "primary_domain": "examplebank.com.au" }
+    }
+  ],
+  "contacts": [
+    {
+      "id": "5f1a00000000000000000001",
+      "first_name": "Priya",
+      "last_name": "Raman",
+      "title": "Chief Data Officer"
+    },
+    {
+      "id": "5f1a00000000000000000002",
+      "first_name": "Tom",
+      "last_name": "Whitcombe",
+      "title": "Head of Data Platforms",
+      "seniority": "head"
+    }
+  ]
+}

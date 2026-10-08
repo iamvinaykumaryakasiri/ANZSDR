@@ -83,6 +83,8 @@ export function detectRecordingObjection(said: string): boolean {
   if (/\b(?:no|without)\s+(?:the\s+)?record(?:ing|ed)\b/i.test(text)) return true;
   if (/\boff\s+the\s+record\b/i.test(text)) return true;
   if (/\b(?:do|would)\s+mind\b[^.?!]{0,40}\brecord/i.test(text)) return true;
+  // "Do you mind not recording this?"
+  if (/\bmind\s+(?:you\s+)?not\s+record/i.test(text)) return true;
   // "Recorded? I'd rather not." - the refusal comes after the word.
   if (/\brecord(?:ing|ed)?\b[\s\S]{0,40}?\b(?:rather not|no thanks|no thank you|not ok(?:ay)?|not happy|not comfortable|not fine)\b/i.test(text)) return true;
 

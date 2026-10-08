@@ -86,7 +86,7 @@ export function MeetingActions({ meeting, large = false }: { meeting: MeetingReq
       <div className="flex flex-wrap gap-2">
         <Button
           tone="sand"
-          className={`${size} ${large ? 'w-full' : 'flex-1'}`}
+          className={`${size} ${large ? 'w-full' : 'min-w-[7.5rem]'}`}
           disabled={busy !== null}
           onClick={() => void send('CONFIRMED')}
           aria-label={`Confirm meeting with ${meeting.name}`}

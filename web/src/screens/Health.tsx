@@ -1,5 +1,5 @@
 import type { ProviderStatus } from '../contract';
-import { Empty } from '../components/ui';
+import { Empty, Fig } from '../components/ui';
 import { gateReasonText, int, usd } from '../lib/format';
 import { useConsole } from '../state/console';
 
@@ -83,11 +83,11 @@ export function Health() {
           <dl className="grid grid-cols-2 gap-px bg-slate-500">
             <div className="bg-ink-900 py-3 pr-3">
               <dt className="text-label text-steel-300">Queue depth</dt>
-              <dd className="mt-1 text-statement font-semibold text-steel-100">{int(health.queueDepth)}</dd>
+              <dd className="mt-1 text-statement font-semibold text-steel-100"><Fig>{int(health.queueDepth)}</Fig></dd>
             </div>
             <div className="bg-ink-900 px-3 py-3">
               <dt className="text-label text-steel-300">Apollo credits left</dt>
-              <dd className="mt-1 text-statement font-semibold text-steel-100">{health.apolloCreditsRemaining === null ? 'Unknown' : int(health.apolloCreditsRemaining)}</dd>
+              <dd className="mt-1 text-statement font-semibold text-steel-100">{health.apolloCreditsRemaining === null ? 'Unknown' : <Fig>{int(health.apolloCreditsRemaining)}</Fig>}</dd>
             </div>
           </dl>
           <div className="mt-6">

@@ -10,6 +10,7 @@
  * publishes every fresh snapshot to the bus.
  */
 
+import { DateTime } from 'luxon';
 import {
   consoleSnapshotSchema,
   type ConsoleSnapshot,
@@ -132,7 +133,7 @@ export async function buildSnapshot(deps: ConsoleDeps): Promise<ConsoleSnapshot>
   const briefing = buildBriefing({
     now,
     zone,
-    yesterday: { label: `${yesterday.date}`, facts: yesterdayFacts },
+    yesterday: { label: DateTime.fromISO(yesterday.date, { zone }).toFormat('cccc d LLLL'), facts: yesterdayFacts },
     meetings,
     escalations,
     queue,

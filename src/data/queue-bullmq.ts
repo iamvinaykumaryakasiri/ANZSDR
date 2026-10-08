@@ -5,7 +5,7 @@
  * what the in-memory queue cannot: jobs that survive a restart, retries with
  * backoff that outlive the process, and a rate limit shared by every worker.
  *
- * `jobId` is `stage:apolloId`, so the same person is never queued twice for the
+ * `jobId` is `stage-apolloId`, so the same person is never queued twice for the
  * same stage while the job is retained. Completed jobs are kept for a day, which
  * is what makes that true across a restart; after that the enrichment ledger is
  * what stops a repeat purchase.

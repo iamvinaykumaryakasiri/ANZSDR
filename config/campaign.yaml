@@ -88,3 +88,36 @@ icp:
   # Below this score nobody is enriched, so nobody costs a credit. Search is
   # free; enrichment is what bills.
   minimumScore: 60
+
+# --- Phase 3: how the Prospector scores and what enrichment costs ------------
+#
+# Read by src/data/config.ts. The account desk's importer ignores these keys, and
+# a file without them behaves as the defaults below.
+
+scoring:
+  # Points for each thing the ICP can match. Normalised to 0-100, so they need not
+  # add up to 100. With these numbers a title match ALONE (55) is under the
+  # minimum of 60: the person also has to sit in a target seniority band.
+  weights:
+    title: 55
+    seniority: 35
+    profile: 10
+  # People Search pages to read per account. Search is free; the rate limit is the cost.
+  searchPages: 2
+  searchPerPage: 50
+
+enrichment:
+  emailCredits: 1
+  phoneCredits: 8
+  # What one Apollo credit costs us, in dollars. Used to hold spend to a ceiling,
+  # so err high. Override per environment with APOLLO_USD_PER_CREDIT.
+  usdPerCredit: 0.05
+  # Convert enriched people to Apollo contacts so enriching them again is free.
+  saveContacts: true
+  phone:
+    # Off until DNC washing is arranged (brief section 7.2). A phone costs about
+    # eight times an email and arrives later, by webhook, so it also needs
+    # PUBLIC_BASE_URL and APOLLO_WEBHOOK_SECRET.
+    enabled: false
+    # The research gate: Scout's dossier must be at least this confident.
+    minimumConfidence: medium

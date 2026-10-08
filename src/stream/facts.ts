@@ -400,24 +400,53 @@ export function wrongNumberRate(facts: CallFact[]): number {
 
 export interface HookPerformance {
   hook: string;
+  /** Real conversations in which Scribe recorded this hook as the one that got a reaction. */
+  landed: number;
+  /** Of those, how many ended in a meeting request. */
+  requests: number;
+  rate: number;
+}
+
+/**
+ * Which opener is landing. Scribe records a hook only when it got a real reaction
+ * (an empty hook means none did), so a hook that fell flat leaves no trace here.
+ * That makes this a count of what landed and what it led to, not a conversion rate
+ * over every use; the fair comparison between scripts is `variantPerformance`.
+ */
+export function hookPerformance(facts: CallFact[]): HookPerformance[] {
+  const byHook = new Map<string, { landed: number; requests: number }>();
+  for (const f of facts) {
+    if (!f.realConversation || f.hook.trim() === '') continue;
+    const entry = byHook.get(f.hook) ?? { landed: 0, requests: 0 };
+    entry.landed += 1;
+    if (f.requested) entry.requests += 1;
+    byHook.set(f.hook, entry);
+  }
+  return [...byHook]
+    .map(([hook, v]) => ({ hook, ...v, rate: ratio(v.requests, v.landed) }))
+    .sort((a, b) => b.requests - a.requests || b.rate - a.rate || b.landed - a.landed || a.hook.localeCompare(b.hook));
+}
+
+export interface VariantPerformance {
+  variant: string;
   conversations: number;
   requests: number;
   rate: number;
 }
 
-/** Which opener is working: meeting requests per real conversation, by the hook that landed. */
-export function hookPerformance(facts: CallFact[]): HookPerformance[] {
-  const byHook = new Map<string, { conversations: number; requests: number }>();
+/** Meeting requests per real conversation, by the script version the call ran: the like-for-like comparison. */
+export function variantPerformance(facts: CallFact[]): VariantPerformance[] {
+  const byVariant = new Map<string, { conversations: number; requests: number }>();
   for (const f of facts) {
-    if (!f.realConversation || f.hook.trim() === '') continue;
-    const entry = byHook.get(f.hook) ?? { conversations: 0, requests: 0 };
+    if (!f.realConversation) continue;
+    const entry = byVariant.get(f.variant) ?? { conversations: 0, requests: 0 };
     entry.conversations += 1;
     if (f.requested) entry.requests += 1;
-    byHook.set(f.hook, entry);
+    byVariant.set(f.variant, entry);
   }
-  return [...byHook]
-    .map(([hook, v]) => ({ hook, ...v, rate: ratio(v.requests, v.conversations) }))
-    .sort((a, b) => b.rate - a.rate || b.conversations - a.conversations || a.hook.localeCompare(b.hook));
+  return [...byVariant]
+    .map(([variant, v]) => ({ variant, ...v, rate: ratio(v.requests, v.conversations) }))
+    .sort((a, b) => b.rate - a.rate || b.conversations - a.conversations || a.variant.localeCompare(b.variant));
 }
 
 /**

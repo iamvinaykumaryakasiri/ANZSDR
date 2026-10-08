@@ -1,0 +1,27 @@
+{
+  "status": "success",
+  "people": [
+    {
+      "id": "64a7ff0cc4dfae00013df1a5",
+      "status": "success",
+      "phone_numbers": [
+        {
+          "raw_number": "+61 2 9000 1234",
+          "sanitized_number": "+61290001234",
+          "type_cd": "work_direct",
+          "confidence_cd": "high",
+          "status_cd": "valid_number",
+          "dnc_status_cd": null
+        },
+        {
+          "raw_number": "+61 412 345 678",
+          "sanitized_number": "+61412345678",
+          "type_cd": "mobile",
+          "confidence_cd": "medium",
+          "status_cd": "valid_number",
+          "dnc_status_cd": null
+        }
+      ]
+    }
+  ]
+}

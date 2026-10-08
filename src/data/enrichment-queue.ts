@@ -22,8 +22,9 @@ export interface EnrichmentJob {
   contactId: string;
 }
 
+/** BullMQ forbids ':' in a custom job id, so the separator is a dash and any colon in the id is replaced. */
 export function jobIdOf(job: Pick<EnrichmentJob, 'stage' | 'apolloId'>): string {
-  return `${job.stage}:${job.apolloId}`;
+  return `${job.stage}-${job.apolloId.replace(/:/g, '_')}`;
 }
 
 export type JobHandler = (job: EnrichmentJob) => Promise<void>;

@@ -37,17 +37,19 @@ import {
   closeness,
   hookPerformance,
   loadCallFacts,
-  OBJECTION_LABELS,
+  variantPerformance,
   STAGE_LABELS,
   type CallFact
 } from './facts.js';
 import { describeReasons } from './gate-text.js';
 import { HELP_TEXT, parseIntent, rangeOf, subjectTokens, type Command, type Intent, type PeriodRange } from './jarvis-intents.js';
 import { setKillSwitch } from './kill.js';
-import { planRollback, rollBackPlaybook, versionLabel, type RollbackPlan } from './playbook.js';
+import { PlaybookStore } from '../playbook/store.js';
+import { PLAYBOOK_SLOTS, versionName } from '../playbook/schema.js';
+import { planRollback, type RollbackPlan } from './playbook.js';
 import { dialVerdict } from './queue.js';
 import { SnapshotService } from './snapshot.js';
-import { DAY_MS, money, plural, stamp, truncate, usd } from './util.js';
+import { DAY_MS, money, plural, stamp, usd } from './util.js';
 
 /* ------------------------------------------------------------------ */
 /* The model seam                                                      */
@@ -268,18 +270,29 @@ export class Jarvis {
     ];
 
     const hooks = hookPerformance(facts);
+    const variants = variantPerformance(facts);
     const conversations = facts.filter((f) => f.realConversation).length;
-    if (hooks.length === 0) {
+    if (hooks.length === 0 && variants.length === 0) {
       return answer(
-        `No hook has been recorded against a real conversation ${where} in the last ${ANALYSIS_DAYS} days, so I cannot say which is working.`,
+        `No real conversation has been recorded ${where} in the last ${ANALYSIS_DAYS} days, so I cannot say which hook is working.`,
         sources
       );
     }
-    const lines = hooks.slice(0, 3).map(
-      (h) => `"${h.hook}": ${plural(h.requests, 'meeting request')} from ${plural(h.conversations, 'real conversation')} (${Math.round(h.rate * 100)}%)`
-    );
-    const caution = conversations < 10 ? ` That is only ${plural(conversations, 'real conversation')} in total, so treat it as a lead and not a result.` : '';
-    return answer(`Best hooks ${where}, by meeting requests per real conversation:\n${lines.join('\n')}${caution}`, sources);
+    const lines: string[] = [];
+    if (variants.length > 0) {
+      lines.push('By script version, meeting requests per real conversation:');
+      for (const v of variants.slice(0, 4)) {
+        lines.push(`${v.variant}: ${plural(v.requests, 'meeting request')} from ${plural(v.conversations, 'real conversation')} (${Math.round(v.rate * 100)}%)`);
+      }
+    }
+    if (hooks.length > 0) {
+      lines.push('Hooks that got a reaction, and what they led to (a hook is only recorded when it landed, so these are not conversion rates):');
+      for (const h of hooks.slice(0, 3)) {
+        lines.push(`"${h.hook}": landed in ${plural(h.landed, 'real conversation')}, ${h.requests} became ${h.requests === 1 ? 'a meeting request' : 'meeting requests'}`);
+      }
+    }
+    const caution = conversations < 10 ? `\nThat is only ${plural(conversations, 'real conversation')} in total, so treat it as a lead and not a result.` : '';
+    return answer(`${lines.join('\n')}${caution}`, sources);
   }
 
   private async closestCalls(count: number): Promise<JarvisAnswer> {
@@ -307,7 +320,7 @@ export class Jarvis {
     const sources = ['MeetingRequest: requests not yet answered', 'Escalation and Call: open escalations and calls escalated in the last day'];
 
     const lines: string[] = [];
-    for (const e of escalations) lines.push(`Escalation: ${e.contact}${e.company !== '' ? `, ${e.company}` : ''}: ${e.reason}.`);
+    for (const e of escalations) lines.push(`Escalation: ${e.contact}${e.company !== '' ? `, ${e.company}` : ''}: ${e.reason.replace(/[.\s]+$/, '')}.`);
     for (const m of meetingRequests) {
       const first = m.windows[0];
       lines.push(
@@ -755,7 +768,7 @@ export class Jarvis {
         const planned = await planRollback(this.c.db);
         if (!planned.ok) return refused(planned.why, ['Playbook']);
         const { plan } = planned;
-        const challenger = plan.challengerVersion === null ? '' : ` The challenger under test (${plan.slot} v${plan.challengerVersion}) keeps running against the restored champion.`;
+        const challenger = plan.challengerVersion === null ? '' : ` The challenger under test (${plan.slot} v${plan.challengerVersion}) is stopped too, because the champion it was being tested against is gone.`;
         return this.store(
           { kind: 'rollback_playbook', plan },
           `Roll the ${plan.slot} script back from ${plan.slot} v${plan.current.version} to ${plan.slot} v${plan.previous.version}. The current champion is retired and marked rolled back, and the earlier version becomes champion again, in one step.${challenger} Calls after this use the earlier wording. The opening, the AI disclosure and the recording announcement are not affected; they are not part of the playbook.`,
@@ -908,16 +921,22 @@ export class Jarvis {
       }
 
       case 'rollback_playbook': {
-        await rollBackPlaybook(db, plan.plan, now);
-        const label = (n: number): string => versionLabel({ slot: plan.plan.slot, version: n });
-        await this.trace(`The operator rolled the ${plan.plan.slot} script back to ${label(plan.plan.previous.version)} from Jarvis.`, { plan: plan.plan });
+        const slot = PLAYBOOK_SLOTS.find((s) => s === plan.plan.slot);
+        if (slot === undefined) return refused(`"${plan.plan.slot}" is not a playbook slot, so I changed nothing.`);
+        const label = (n: number): string => versionName(slot, n);
+        // Coach's own rollback, pinned to the version that was confirmed: if the
+        // playbook has moved since, it refuses and nothing changes.
+        await new PlaybookStore(db, () => now).rollback(slot, {
+          note: `Rolled back to ${label(plan.plan.previous.version)} by the operator from the console.`,
+          toVersion: plan.plan.previous.version
+        });
+        await this.trace(`The operator rolled the ${slot} script back to ${label(plan.plan.previous.version)} from Jarvis.`, { plan: plan.plan });
         return this.done(
           `${label(plan.plan.previous.version)} is the champion again; ${label(plan.plan.current.version)} is retired as rolled back.`,
-          ['Playbook: two rows updated in one transaction']
+          ['Playbook: rolled back by the playbook store, in one transaction']
         );
       }
     }
   }
 }
 
-export { truncate as _truncate, OBJECTION_LABELS as _OBJECTION_LABELS };

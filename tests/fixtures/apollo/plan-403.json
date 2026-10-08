@@ -1,0 +1,4 @@
+{
+  "error": "The api/v1/mixed_people/api_search API is not included in your Free plan and is not accessible. All paid plans include full API access.",
+  "error_code": "API_INACCESSIBLE"
+}

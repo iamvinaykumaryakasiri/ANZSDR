@@ -83,7 +83,9 @@ export function buildBriefing(input: BriefingInput): BriefingView {
 
   // Needs him.
   const needs: string[] = [];
-  for (const e of escalations) needs.push(`An escalation from ${e.contact}${e.company !== '' ? ` at ${e.company}` : ''}: ${e.reason}.`);
+  for (const e of escalations) {
+    needs.push(`An escalation from ${e.contact}${e.company !== '' ? ` at ${e.company}` : ''}: ${e.reason.replace(/[.\s]+$/, '')}.`);
+  }
   const pending = meetings.filter((m) => m.status === 'pending');
   for (const m of pending) {
     const first = m.windows[0];

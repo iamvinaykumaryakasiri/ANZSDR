@@ -1,0 +1,44 @@
+{
+  "status": "success",
+  "error_code": null,
+  "error_message": null,
+  "total_requested_enrichments": 3,
+  "unique_enriched_records": 2,
+  "missing_records": 1,
+  "credits_consumed": 2,
+  "matches": [
+    {
+      "id": "64a7ff0cc4dfae00013df1a5",
+      "first_name": "Priya",
+      "last_name": "Raman",
+      "name": "Priya Raman",
+      "linkedin_url": "http://www.linkedin.com/in/example-priya",
+      "title": "Chief Data Officer",
+      "seniority": "c_suite",
+      "email_status": "verified",
+      "email": "Priya.Raman@examplebank.com.au",
+      "city": "Sydney",
+      "state": "New South Wales",
+      "country": "Australia",
+      "organization_id": "5f1a0000000000000000aaaa",
+      "organization": { "id": "5f1a0000000000000000aaaa", "name": "Example Bank", "primary_domain": "examplebank.com.au" },
+      "phone_numbers": []
+    },
+    null,
+    {
+      "id": "64a7ff0cc4dfae00013df1a6",
+      "first_name": "Tom",
+      "last_name": "Whitcombe",
+      "name": "Tom Whitcombe",
+      "title": "Head of Data Platforms",
+      "seniority": "head",
+      "email_status": "likely to engage",
+      "email": "tom.whitcombe@examplebank.com.au",
+      "city": "Melbourne",
+      "state": "Victoria",
+      "country": "Australia",
+      "organization_id": "5f1a0000000000000000aaaa",
+      "organization": { "id": "5f1a0000000000000000aaaa", "name": "Example Bank", "primary_domain": "examplebank.com.au" }
+    }
+  ]
+}

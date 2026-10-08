@@ -291,6 +291,14 @@ export class CallStore {
     return won;
   }
 
+  /** Give back the right to process a report, because accepting it failed part way. */
+  async releaseReport(callId: string): Promise<void> {
+    await this.patchMetrics(callId, (m) => {
+      const { report: _report, ...rest } = m;
+      return rest;
+    });
+  }
+
   /* -------- lifecycle -------- */
 
   /** Record a state change. Returns the state the call is in afterwards. */
@@ -325,6 +333,11 @@ export class CallStore {
         ...(input.durationSec !== undefined && input.durationSec !== null ? { durationSec: input.durationSec } : {})
       }
     });
+    // Ended already (the status update usually beats the report): the first end
+    // time stands, but the report is the one that knows how long the call was.
+    if (written.count === 0 && input.durationSec !== undefined && input.durationSec !== null) {
+      await this.db.call.updateMany({ where: { id: callId, durationSec: null }, data: { durationSec: input.durationSec } });
+    }
     await this.transition(callId, 'ended', { endedReason: input.endedReason });
     return written.count === 1;
   }
