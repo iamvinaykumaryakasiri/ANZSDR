@@ -64,7 +64,8 @@ Two families with a functional split.
 
 - **Schibsted Grotesk** (variable) carries everything the system says: labels, numbers, names, buttons, tables.
   Figures are always `tabular-nums lining-nums` (checked in Chromium: `1111` and `0000` measure identically), so
-  a counting clock or a live tally never jitters.
+  a counting clock or a live tally never jitters. The face's `tnum` also widens punctuation, so tabular figures
+  are applied to runs of digits only (the `Fig` component), never to a whole line of text.
 - **Newsreader** (variable, optical size) carries everything a *person* said: the transcript, the prospect's own
   words about when they are free, quotations in objections, and the draft reply he will paste into Outlook. Set
   larger and looser than the data around it, so speech never looks like telemetry.
@@ -77,8 +78,10 @@ elapsed clock. Line length is held under 70ch for prose and speech.
 
 ## Layout
 
-Desktop is a 12 column grid, left aligned, with a sticky top bar. Left is what is happening and what it means;
-right is what needs a person.
+Desktop is left aligned with a sticky header. The page is a flexible left region (12 columns inside it: the
+funnel takes 5 and the curve 7) beside a fixed-width right column of 21 to 23rem. Left is what is happening and
+what it means; right is what needs a person, and it stays in view while the left scrolls. The header is one row at
+1536px and wider and two rows below that (brand and tools above, the screens beneath), so Stop all never moves.
 
 ```
  top bar  ANZ Voice SDR   Home  Calls  Meetings 3  Trace  Playbook  Accounts  Health      on air 0:41  Ask Jarvis  Stop all
@@ -138,7 +141,8 @@ This is where the boldness is spent; the rest stays quiet.
 
 ## Where they drop
 
-- **Funnel**: nine rows, each a button. Count, rate and absolute loss are text; the bar is the count. A thin
+- **Funnel**: nine rows, each a button. Count, rate and absolute loss are text; each bar is drawn against the
+  stage above it (filled is who arrived, the rest is the loss). A thin
   tick on every bar marks **where it would have ended at the seven-day baseline rate**. A bar that stops short of
   its tick is a worse-than-usual day, and the row's figures go heavy. No colour is spent on this. Selecting a
   stage filters the curve, the call list under it and the queue, and a bar above says exactly what is filtered.

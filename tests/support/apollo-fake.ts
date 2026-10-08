@@ -67,6 +67,8 @@ export class FakeApollo {
   readonly failures: ScriptedFailure[] = [];
   /** Leave `credits_consumed` out of bulk answers, as Apollo sometimes does. */
   omitCreditsConsumed = false;
+  /** People the search lists but enrichment cannot match. */
+  readonly unmatchable = new Set<string>();
   private contactSeq = 0;
 
   constructor(readonly accounts: FakeAccount[]) {}
@@ -80,6 +82,7 @@ export class FakeApollo {
   }
 
   private person(id: string): { person: FakePerson; account: FakeAccount } | undefined {
+    if (this.unmatchable.has(id)) return undefined;
     for (const account of this.accounts) {
       const person = account.people.find((p) => p.id === id);
       if (person !== undefined) return { person, account };

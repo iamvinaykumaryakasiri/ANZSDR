@@ -82,7 +82,7 @@ export function Funnel({
                     ) : null}
                   </span>
                   <span className={`w-[5.75rem] shrink-0 text-right text-label ${under ? 'font-bold text-steel-100' : 'text-steel-300'}`}>
-                    {first ? 'All queued' : delta === 0 ? 'On 7-day rate' : <Fig>{`${Math.abs(delta)} pts ${delta < 0 ? 'under' : 'over'}`}</Fig>}
+                    {first ? 'All queued' : delta === 0 ? 'On 7-day rate' : <Fig>{`${Math.abs(delta)} ${Math.abs(delta) === 1 ? 'pt' : 'pts'} ${delta < 0 ? 'under' : 'over'}`}</Fig>}
                   </span>
                 </span>
               </button>

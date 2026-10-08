@@ -114,7 +114,7 @@ export function classifyObjection(saidAs: string): ObjectionKind {
   const rules: Array<[ObjectionKind, RegExp]> = [
     ['asked-if-human', /\b(are you (a )?(real|human|robot|bot|ai|machine|person)|is this a (robot|bot|machine|recording)|talking to a (robot|machine))\b/],
     ['asked-where-number-came-from', /\b(where (did|do) you (get|find)|how did you (get|find)|where('s| is) that number|my (mobile |phone )?number)\b/],
-    ['wants-pricing', /\b(price|pricing|how much|rates?|quote|fees?)\b/],
+    ['wants-pricing', /\b(price|pricing|how much|what does it cost|what'?s the cost|rates?|quote|fees?)\b/],
     ['send-email', /\b(send (me )?(an? )?(email|info|something|details|it)|email me|in writing|put it in an email)\b/],
     ['not-the-right-person', /\b(not the (right|best) person|wrong person|someone else|talk to|not my (area|remit|department)|doesn'?t sit with me)\b/],
     ['has-a-partner', /\b(partner|already (work|use|have|got)|existing (vendor|supplier|provider|arrangement)|in-?house|incumbent|panel)\b/],

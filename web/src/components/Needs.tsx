@@ -114,9 +114,9 @@ export function WindowLines({ meeting, limit = 1 }: { meeting: MeetingRequestVie
   if (windows.length === 0) return <p className="text-body text-steel-300">No time given yet.</p>;
   return (
     <div className="space-y-3">
-      {windows.map((w) => (
+      {windows.map((w, i) => (
         <div key={w.startsAt}>
-          {w.said ? <p className="speech text-speech text-steel-100">“{w.said}”</p> : null}
+          {w.said && w.said !== windows[i - 1]?.said ? <p className="speech text-speech text-steel-100">“{w.said}”</p> : null}
           <dl className="mt-1 grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5 text-body">
             <dt className="text-steel-300">Their time</dt>
             <dd className="font-semibold text-steel-100">{w.localLabel}</dd>
@@ -143,11 +143,6 @@ export function MeetingRow({ meeting, large = false }: { meeting: MeetingRequest
       <div className="mt-3">
         <WindowLines meeting={meeting} />
       </div>
-      {meeting.hookThatWorked && !large ? (
-        <p className="mt-3 text-body text-steel-200">
-          <span className="font-semibold text-steel-100">What landed.</span> {meeting.hookThatWorked}
-        </p>
-      ) : null}
       <div className="mt-4">
         <MeetingActions meeting={meeting} large={large} />
       </div>
