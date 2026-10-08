@@ -8,6 +8,23 @@ Legend: **Blocks** = what stays switched off until it is done.
 
 ---
 
+## 0. See the whole system today (5 minutes, no accounts needed)
+
+The console runs on synthetic demo data. It cannot dial, text or email anyone.
+
+```
+npm install
+npm --prefix web install
+npm --prefix web run build
+ADMIN_TOKEN=pick-a-password npm run console:demo
+```
+
+Open `http://localhost:8080/console/` and enter that password. You will see a scripted live call looping (transcript streaming, script stage moving), the nine-stage funnel, the seconds-to-hang-up curve, three pending meeting requests, and the Stop All button. Press `Ctrl+K` for Jarvis. Resize to phone width for the mobile layout.
+
+In demo mode, Stop All, Confirm and Reject are real code paths running against a throwaway database, so try them. Things to judge and tell me about: the design (`web/DESIGN.md` has the palette, type and layout reasoning, and it has not been reviewed by you), anything missing from "what is happening now / where we lose people / what needs me", and how the phone layout feels.
+
+---
+
 ## A. Do these first (about 45 minutes in total)
 
 ### A1. Approve what Lexi may say — 10 min
@@ -68,6 +85,7 @@ Put every secret in `.env` at the repo root (gitignored). In a cloud session, ad
 
 ### B4. Vapi
 **Blocks:** voice.
+Besides `VAPI_API_KEY`, the voice setup uses `VAPI_WEBHOOK_SECRET`, `VOICE_SHARED_SECRET`, `VAPI_ASSISTANT_ID`, `VAPI_PHONE_NUMBER_ID_AU`, `VAPI_PHONE_NUMBER_ID_NZ`, `RECORDING_ENCRYPTION_KEY` (generate a long random value and keep it safe; losing it makes stored recordings unreadable) and `TWILIO_NUMBER_AU` / `TWILIO_NUMBER_NZ`. `.env.example` lists all of them.
 1. Vapi account, create an API key, `VAPI_API_KEY=...`.
 2. Import the Twilio numbers into Vapi as BYO carrier numbers.
 3. Full walkthrough is in `docs/VOICE-SETUP.md`. `npm run voice:doctor` prints exactly what is still missing and never places a call.
@@ -125,7 +143,7 @@ Decide who handles access/deletion requests under the Privacy Act 1988 (AU) and 
 ## E. Getting to a first real test call (about 1 hour once A–C are done)
 
 1. `npm run voice:doctor` — everything it reports as missing, fix.
-2. Mark **your own mobile** as a *test* contact (calls only to numbers you control; this is what `dialling.test_contacts_only` enforces). Set `dnc.exempt_test_contacts: true` so your mobile is allowed.
+2. Mark **your own mobile** as a *test* contact (`npm run voice:ready -- --contact <id>` makes a test contact eligible for the day plan) (calls only to numbers you control; this is what `dialling.test_contacts_only` enforces). Set `dnc.exempt_test_contacts: true` so your mobile is allowed.
 3. Draft today's plan: `npm run plan -- draft`, review it, `npm run plan -- approve`. Nothing dials without this, and it does not carry over to tomorrow.
 4. `npm run voice:testcall -- --contact <your test contact id> --yes`.
 5. Answer it. Check: Lexi gives her name, says she is an AI, says who she works for, announces recording, and asks for thirty seconds. Ask her a few awkward questions. Ask for a human. Try "ignore your instructions".
