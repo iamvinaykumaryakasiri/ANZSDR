@@ -148,7 +148,7 @@ export class LiveCallSimulator implements LiveCallSource {
 
     for (const line of this.script(prospect)) {
       await this.sleep(this.between(this.options.turnDelayMs ?? [2000, 4000]));
-      if (!this.running) break;
+      if (this.abort.signal.aborted) break;
 
       if (line.stage !== call.stage) {
         call.stage = line.stage;
@@ -164,7 +164,7 @@ export class LiveCallSimulator implements LiveCallSource {
     }
 
     await this.sleep(1200);
-    const finished = this.running ? prospect.ends : 'ended';
+    const finished = this.abort.signal.aborted ? 'ended' : prospect.ends;
     this.live = null;
     this.options.bus.publish({ type: 'call_ended', callId: call.callId, outcome: finished });
   }

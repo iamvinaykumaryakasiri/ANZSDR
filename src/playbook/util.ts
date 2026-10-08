@@ -9,11 +9,15 @@ export function pct(value: number): string {
   return `${(value * 100).toFixed(1)}%`;
 }
 
-/** Lower-case, punctuation-free, single-spaced: for comparing two pieces of text. */
+/**
+ * Lower-case, punctuation-free, single-spaced, with each placeholder kept as one
+ * word: for deciding whether two pieces of wording are the same idea.
+ */
 export function normaliseText(text: string): string {
   return text
     .toLowerCase()
-    .replace(/[^a-z0-9{}:._\s-]/g, ' ')
+    .replace(/\{\{([^{}]*)\}\}/g, (_whole, inner: string) => ` ph${inner.replace(/[^a-z0-9]/g, '')} `)
+    .replace(/[^a-z0-9\s]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
 }

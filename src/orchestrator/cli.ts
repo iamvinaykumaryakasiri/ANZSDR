@@ -29,6 +29,7 @@ import { TaskRegistry } from './registry.js';
 import { prospectAccountKind, researchContactKind } from './kinds.js';
 import { createStubProspector, type FixturePerson } from '../agents/prospector/stub.js';
 import { createStubScout, type AccountResearch } from '../agents/scout/stub.js';
+import { createPhase3Runtime } from '../data/runtime.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(HERE, '../..');
@@ -53,12 +54,15 @@ async function main(): Promise<void> {
     new PrismaAuditLog(db)
   );
 
-  // Phase 2 ships stubs. Phase 3 swaps the handlers and the tools; the registry,
-  // the contracts and everything below this line stay as they are.
+  // Phase 3 supplies the real Prospector (needs APOLLO_API_KEY) and Scout (needs
+  // ANTHROPIC_API_KEY). Where one is not configured the Phase 2 stub stands in,
+  // so a tick without keys still runs against fixtures and spends nothing.
   const fixtures = loadFixtures();
+  const phase3 = await createPhase3Runtime({ db, spend: new SpendLedger(db) });
+  for (const note of phase3.notes) console.log(`  note: ${note}`);
   const registry = new TaskRegistry()
-    .register(prospectAccountKind(createStubProspector(fixtures.people ?? {})))
-    .register(researchContactKind(createStubScout(fixtures.research ?? {})));
+    .register(phase3.prospectKind ?? prospectAccountKind(createStubProspector(fixtures.people ?? {})))
+    .register(phase3.researchKind ?? researchContactKind(createStubScout(fixtures.research ?? {})));
 
   const director = new CampaignDirector({
     db,
@@ -82,6 +86,7 @@ async function main(): Promise<void> {
   );
   if (report.stopped !== null) console.log(`stopped: ${report.stopped}`);
 
+  await phase3.close();
   await db.$disconnect();
 }
 

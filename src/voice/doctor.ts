@@ -380,6 +380,20 @@ async function previews(input: DoctorInput): Promise<{ checks: Check[]; gate: Ga
     });
   }
 
+  // The day plan lists contacts that are `researched` or `queued`, and the gate
+  // only lets through someone who is on the approved plan. A contact imported
+  // from contacts.csv is `enriched`, so it would never be on the plan and the
+  // gate would say DAY_PLAN_NOT_APPROVED however many times it was approved.
+  const unlisted = usable.filter((c) => c.status !== 'researched' && c.status !== 'queued');
+  if (unlisted.length > 0 && policy.approval.require_daily_plan) {
+    checks.push({
+      area: 'test contacts',
+      status: 'blocker',
+      summary: `${unlisted.map((c) => `${c.firstName} ${c.lastName}`).join(', ')} would not appear in the day plan (status ${[...new Set(unlisted.map((c) => c.status))].join('/')}, and the plan lists researched or queued contacts), so approving the plan would not let a call through`,
+      fix: `npm run voice:ready -- --contact ${unlisted[0]?.id ?? '<id>'}   (test contacts only)`
+    });
+  }
+
   for (const contact of usable) {
     const phone = contact.phoneE164 as string;
     const accountMarket: Market = contact.account.country === 'NZ' ? 'NZ' : 'AU';

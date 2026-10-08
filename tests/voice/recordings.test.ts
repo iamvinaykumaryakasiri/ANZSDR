@@ -7,7 +7,6 @@ import { copyFile, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/pro
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
-import type { Blackboard } from '../../src/blackboard/client.js';
 import { CallStore, type RecordingMeta } from '../../src/voice/call-store.js';
 import { ProviderRejectedError } from '../../src/voice/provider.js';
 import {

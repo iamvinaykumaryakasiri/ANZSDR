@@ -70,8 +70,15 @@ export class DailyCallPlanner {
     const contacts = await this.deps.db.contact.findMany({
       where: {
         campaignId: options.campaignId,
-        status: { in: ['researched', 'queued'] },
-        phoneE164: { not: null }
+        phoneE164: { not: null },
+        OR: [
+          { status: { in: ['researched', 'queued'] } },
+          // A test contact is a number the operator controls and is never put
+          // through Scout, so it stays `enriched`. Without this it could never be
+          // on an approved plan, and the gate would refuse the test call for want
+          // of one. Plan approval still applies to it like anyone else.
+          { kind: 'test', status: 'enriched' }
+        ]
       },
       orderBy: [{ icpScore: 'desc' }, { createdAt: 'asc' }],
       take: this.maxEntries,

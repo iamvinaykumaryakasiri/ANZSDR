@@ -171,8 +171,11 @@ describe('the index itself', () => {
 describe('the shipped pack', () => {
   const shipped = ClaimIndex.load(resolve(ROOT, 'knowledge/approved-claims.json'));
 
-  it('ships with nothing approved, so a drafted claim cannot reach a prospect', () => {
-    expect(shipped.assertable()).toEqual([]);
+  it('lets only approved claims reach a prospect, however many drafts are held', () => {
+    // The operator approves claims one at a time, so the count of approved claims
+    // changes; the invariant is that nothing but an approved claim is assertable.
+    for (const claim of shipped.assertable()) expect(claim.status).toBe('approved');
+    expect(shipped.assertable().length).toBe(shipped.counts().approved);
     expect(shipped.counts().draft).toBeGreaterThan(0);
   });
 

@@ -27,6 +27,7 @@ import type { JarvisModel } from '../stream/jarvis.js';
 import { claudeJarvisModel } from '../stream/jarvis-model.js';
 import { registerConsole, type ConsoleHandle } from '../stream/routes.js';
 import { registerConsoleStatic } from '../stream/static.js';
+import { apolloWebhook } from '../data/apollo-webhook.js';
 import { registerAccountsApi } from './accounts-api.js';
 import { registerKnowledgeApi } from './knowledge-api.js';
 
@@ -111,6 +112,9 @@ export function buildServer(options: ServerOptions): FastifyInstance & { console
 
   registerAccountsApi(app, options.db);
   registerKnowledgeApi(app, { dir: options.knowledgeDir ?? resolve(HERE, '../..', 'knowledge') });
+  // Outside the /api token gate on purpose: Apollo cannot send a bearer token, so
+  // the route checks its own shared secret and answers 503 when none is set.
+  app.register(apolloWebhook, { db: options.db });
 
   const server: FastifyInstance & { consoleHandle?: ConsoleHandle } = app;
   if (options.console !== undefined) {

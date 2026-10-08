@@ -69,6 +69,18 @@ describe('drafting the day', () => {
     expect(first?.earliestAt).not.toBeNull();
   });
 
+  it('plans an enriched test contact, but never an enriched prospect', async () => {
+    const h = await researched();
+    const [first, second] = await h.db.contact.findMany({ orderBy: { apolloId: 'asc' } });
+    // An imported test contact is never researched, so it stays `enriched`.
+    await h.db.contact.update({ where: { id: first!.id }, data: { status: 'enriched', kind: 'test' } });
+    await h.db.contact.update({ where: { id: second!.id }, data: { status: 'enriched', kind: 'prospect' } });
+
+    const plan = await h.planner.draft({ campaignId: h.campaignId });
+
+    expect(plan.entries.map((e) => e.contactId)).toEqual([first!.id]);
+  });
+
   it('puts the best-scoring people first', async () => {
     const h = await researched();
     const plan = await h.planner.draft({ campaignId: h.campaignId });

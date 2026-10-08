@@ -119,6 +119,23 @@ describe('when everything is in place', () => {
   });
 });
 
+describe('a test contact that the day plan would not list', () => {
+  it('is a blocker, because approving the plan would not let the call through', async () => {
+    const { w, seeded, base } = await input({ requireDailyPlan: true });
+    await w.db.contact.update({ where: { id: seeded.contactId }, data: { status: 'enriched' } });
+    const report = await runDoctor(base);
+    const blocker = report.checks.find((c) => c.status === 'blocker' && c.summary.includes('would not appear in the day plan'));
+    expect(blocker?.fix).toContain(`npm run voice:ready -- --contact ${seeded.contactId}`);
+    expect(report.ready).toBe(false);
+  });
+
+  it('is fine when no plan is required', async () => {
+    const { w, seeded, base } = await input({ requireDailyPlan: false });
+    await w.db.contact.update({ where: { id: seeded.contactId }, data: { status: 'enriched' } });
+    expect((await runDoctor(base)).ready).toBe(true);
+  });
+});
+
 describe('the settings that can quietly make it unsafe', () => {
   it('warns when test mode is off', async () => {
     const { base } = await input({ testContactsOnly: false });

@@ -173,7 +173,7 @@ describe('the snapshot', () => {
   });
 
   it('reads a call on air from the blackboard: stage from its marks, speech from its events', async () => {
-    const w = await world({ live: undefined });
+    const w = await world();
     const dossierContact = await addContact(w);
     await w.db.dossier.create({ data: { id: 'd2', contactId: dossierContact, hypothesis: 'A hypothesis.', confidence: 'medium', person: '{}', account: '{}', hooks: '[]', landmines: '[]', unverified: '[]', sources: '[]' } });
     await addCall(w, {

@@ -48,15 +48,15 @@ export function claimIndex(statuses: Partial<Record<string, 'approved' | 'draft'
   });
 }
 
-export const GOOD_HOOK: PlaybookContent = {
+export const GOOD_HOOK = {
   slot: 'hook',
   template: 'I read about {{company}} and one thing stood out to me: {{hook}}.'
-};
+} satisfies PlaybookContent;
 
-export const GOOD_VALUE: PlaybookContent = {
+export const GOOD_VALUE = {
   slot: 'value-statement',
   template: `{{claim:${CLAIM_ID}}} That is why a short conversation might be worth your time, {{firstName}}.`
-};
+} satisfies PlaybookContent;
 
 /** A reviewer that returns what it is told. */
 export function reviewer(answer: unknown = { compliant: true, violations: [] }, instanceId = 'reviewer-1'): ComplianceReviewer & { prompts: string[] } {

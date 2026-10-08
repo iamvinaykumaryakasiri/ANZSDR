@@ -218,7 +218,7 @@ export function parseIntent(raw: string): Intent {
   if (/\b(who'?s|whos|who is|what'?s|whats|what is)\b.*\b(next|up next|in the queue|queued|queue)\b|\b(the )?queue\b|\bnext call\b/.test(q)) return { kind: 'queue' };
   if (/\bobjections?\b/.test(q)) return { kind: 'objections' };
   if (/\b(how much|spend|spent|cost)\b/.test(q)) return { kind: 'spend', period: periodOf(q, 'week') };
-  if (/\b(today|how (did|are) (we|things)|how many calls|numbers|progress|going)\b/.test(q)) return { kind: 'today' };
+  if (/\b(today|how many calls|how did (we|today)|how (are|is) (we|the day))\b/.test(q)) return { kind: 'today' };
   if (/^(help|what can you do|what can i ask|commands?)\b/.test(q)) return { kind: 'help' };
 
   return { kind: 'unknown' };

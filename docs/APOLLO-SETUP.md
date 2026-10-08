@@ -144,6 +144,51 @@ https://sdr.yourdomain.com/healthz   →   {"ok":true,"service":"anz-voice-sdr"}
 
 ---
 
+## Running Phase 3
+
+```bash
+npm run prospect -- --account kiwibank.co.nz          # dry run: searches (free), scores, prints what it WOULD buy
+npm run prospect -- --account kiwibank.co.nz --yes    # buys the emails and creates the contacts
+npm run scout -- --contact <id>                       # researches one contact (needs ANTHROPIC_API_KEY)
+npm run scout -- --contact <id> --dry-run             # what it would read, and the most it could cost
+npm run enrich:worker [-- --once]                     # works the BullMQ queue (needs REDIS_URL)
+```
+
+The dry run is the real Prospector with the buying step replaced by one that
+plans and cannot buy, so what it prints is what `--yes` will do. It reports the
+credits, the dollars, the ceiling for the run, and how many people are already
+bought and therefore free. `npm run tick` runs the same Prospector and Scout once
+the two stub registrations in `src/orchestrator/cli.ts` are replaced (see
+`createPhase3Runtime` in `src/data/runtime.ts`).
+
+| Variable | Needed for |
+|---|---|
+| `APOLLO_API_KEY` | everything Apollo; absent means no Prospector, nothing else is affected |
+| `ANTHROPIC_API_KEY` | Scout (a model and a web search); the tests need neither |
+| `PUBLIC_BASE_URL` (https) and `APOLLO_WEBHOOK_SECRET` | phone numbers only, which are off by default |
+| `APOLLO_USD_PER_CREDIT` | optional; default 0.05, deliberately high |
+| `REDIS_URL` | optional; switches the enrichment queue to BullMQ |
+
+**The phone stage is off.** `enrichment.phone.enabled` in `config/campaign.yaml`
+ships `false`: a phone costs about eight emails, arrives minutes later by
+webhook, and mobile dialling waits on DNC washing (brief section 7.2). Turn it on
+and a phone is requested only for a contact whose Scout dossier is at least
+`medium` confidence (the research gate), asked with a `webhook_url` of
+`{PUBLIC_BASE_URL}/webhooks/apollo?secret={APOLLO_WEBHOOK_SECRET}`. The secret is
+in the URL because Apollo cannot add headers; keep request logs private.
+
+**Never re-bought.** Every purchase is written to an enrichment ledger (the
+blackboard's `Memory` table, keyed on the Apollo person id) along with the data
+itself. A second run, or a run after the contacts were deleted, answers from the
+ledger and sends Apollo nothing. A person Apollo could not match is remembered
+too. Enriched people are also saved as Apollo contacts, so enriching them again
+in Apollo does not bill either.
+
+**Scout does not read** LinkedIn or any other site whose terms prohibit
+automated access (the list is in `src/agents/scout/fetcher.ts` and cannot be
+emptied by configuration), and obeys `robots.txt`. Listed accounts' ASX/NZX
+announcements are read only for accounts you list in `config/scout.yaml`.
+
 ## What the system already does to protect your credit balance
 
 None of this is on your discipline:

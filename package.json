@@ -39,6 +39,7 @@
     "voice:doctor": "tsx scripts/voice-doctor.ts",
     "voice:assistant": "tsx scripts/voice-assistant.ts",
     "voice:testcall": "tsx scripts/voice-testcall.ts",
+    "voice:ready": "tsx scripts/voice-ready.ts",
     "voice:latency": "tsx scripts/voice-latency.ts",
     "voice:reprocess": "tsx scripts/voice-reprocess.ts",
     "recordings:purge": "tsx scripts/recordings-purge.ts",
